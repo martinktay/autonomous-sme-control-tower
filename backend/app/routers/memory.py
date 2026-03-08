@@ -1,8 +1,10 @@
 from fastapi import APIRouter
 from typing import Dict, Any, List
+from app.agents.memory_agent import MemoryAgent
 from pydantic import BaseModel
 
 router = APIRouter(prefix="/api/memory", tags=["memory"])
+memory_agent = MemoryAgent()
 
 
 class SearchQuery(BaseModel):
@@ -15,11 +17,13 @@ class SearchQuery(BaseModel):
 async def search_memory(query: SearchQuery) -> Dict[str, Any]:
     """Semantic search using embeddings"""
     
-    # TODO: Generate query embedding and search
+    # TODO: Retrieve stored embeddings and search
+    stored_embeddings = []
+    results = memory_agent.search_similar(query.query, stored_embeddings, query.limit)
     
     return {
         "query": query.query,
-        "results": []
+        "results": results
     }
 
 
@@ -31,7 +35,9 @@ async def store_memory(
 ) -> Dict[str, Any]:
     """Store content with embeddings"""
     
-    # TODO: Generate embeddings and store
+    result = memory_agent.store_with_embedding(content, metadata)
+    
+    # TODO: Store in DynamoDB
     
     return {
         "status": "stored",

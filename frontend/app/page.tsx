@@ -6,6 +6,11 @@ export default function Home() {
       <h1 className="text-4xl font-bold mb-8">Autonomous SME Control Tower</h1>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <Link href="/portal" className="p-6 border-2 border-blue-500 rounded-lg hover:bg-blue-50">
+          <h2 className="text-xl font-semibold mb-2">🎯 Control Portal</h2>
+          <p className="text-gray-600">Run complete closed-loop automation</p>
+        </Link>
+        
         <Link href="/dashboard" className="p-6 border rounded-lg hover:bg-gray-50">
           <h2 className="text-xl font-semibold mb-2">Dashboard</h2>
           <p className="text-gray-600">View NSI and operational status</p>

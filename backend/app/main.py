@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import get_settings
-from app.routers import invoices, signals, memory, stability, strategy, actions, voice
+from app.routers import invoices, signals, memory, stability, strategy, actions, voice, orchestration
 
 settings = get_settings()
 
@@ -28,6 +28,7 @@ app.include_router(stability.router)
 app.include_router(strategy.router)
 app.include_router(actions.router)
 app.include_router(voice.router)
+app.include_router(orchestration.router)
 
 
 @app.get("/")
