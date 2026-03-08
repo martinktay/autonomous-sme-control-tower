@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 from typing import Dict, Any
 from app.utils.bedrock_client import get_bedrock_client
+from app.utils.json_guard import safe_json_parse
 
 
 class SignalAgent:
@@ -21,10 +22,11 @@ class SignalAgent:
         
         response = self.bedrock.invoke_nova_lite(prompt, temperature=0.3)
         
-        try:
-            return json.loads(response)
-        except json.JSONDecodeError:
-            return {"error": "Failed to parse invoice"}
+        parsed = safe_json_parse(response)
+        if parsed:
+            return parsed
+        
+        return {"error": "Failed to parse invoice"}
     
     def classify_email(
         self,
@@ -42,7 +44,8 @@ class SignalAgent:
         
         response = self.bedrock.invoke_nova_lite(prompt, temperature=0.3)
         
-        try:
-            return json.loads(response)
-        except json.JSONDecodeError:
-            return {"error": "Failed to classify email"}
+        parsed = safe_json_parse(response)
+        if parsed:
+            return parsed
+        
+        return {"error": "Failed to classify email"}

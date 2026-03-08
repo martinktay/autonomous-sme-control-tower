@@ -21,9 +21,9 @@ The Autonomous SME Control Tower is a Nova-first multi-agent system that helps S
 - S3 for document storage
 
 ### Frontend
-- Next.js 14
-- TypeScript
+- Next.js 14 + TypeScript
 - Tailwind CSS
+- Axios for API calls
 
 ### Infrastructure
 - Docker + Docker Compose
@@ -34,49 +34,93 @@ The Autonomous SME Control Tower is a Nova-first multi-agent system that helps S
 ```
 autonomous-sme-control-tower/
   backend/          # FastAPI application
+    app/
+      routers/      # API endpoints
+      agents/       # AI agent modules
+      services/     # AWS integrations
+      models/       # Pydantic schemas
+      utils/        # Helper functions
   frontend/         # Next.js dashboard
+    app/            # Pages
+    components/     # Reusable UI
   infra/            # Docker configs
-  prompts/v1/       # Versioned prompt templates
+  prompts/v1/       # Versioned prompts
   docs/             # Documentation
-  .kiro/            # Kiro workspace config
+  .kiro/            # Kiro workspace
 ```
 
-## Setup
+## Quick Start
 
-1. Clone the repository
-2. Copy `.env.example` to `.env` and configure AWS credentials
-3. Run with Docker Compose:
+1. Clone and configure:
+```bash
+git clone https://github.com/martinktay/autonomous-sme-control-tower.git
+cd autonomous-sme-control-tower
+cp .env.example .env
+# Edit .env with your AWS credentials
+```
 
+2. Run with Docker:
 ```bash
 cd infra
 docker-compose up
 ```
 
+3. Access:
 - Backend API: http://localhost:8000
-- Frontend: http://localhost:3000
 - API Docs: http://localhost:8000/docs
+- Frontend: http://localhost:3000
+- Portal Demo: http://localhost:3000/portal
+
+## Multi-Agent Architecture
+
+### 7 Specialized Agents
+
+1. **Signal Agent** - Invoice extraction, email classification
+2. **Risk Agent** - NSI calculation and risk diagnosis
+3. **Strategy Agent** - Strategy simulation and ranking
+4. **Action Agent** - Autonomous execution via Nova Act
+5. **Re-evaluation Agent** - Outcome assessment and accuracy tracking
+6. **Memory Agent** - Embeddings-based semantic search
+7. **Voice Agent** - Audio briefings via Nova Sonic
 
 ## Core Features
 
 - Invoice upload and extraction
 - Email classification
 - Embeddings-based memory
-- NSI calculation and tracking
+- NSI calculation with sub-indices
 - Strategy simulation
 - Autonomous action execution
 - Outcome re-evaluation
-- Voice briefings
-
-## MVP Scope
-
-The current MVP demonstrates:
-- Working closed-loop system
-- Multi-agent architecture
-- Nova model integration
-- NSI measurement
-- Strategy automation
 - Prediction accuracy tracking
+- Voice briefings
+- One-click closed-loop demo
+
+## API Endpoints
+
+- `POST /api/invoices/upload` - Upload invoice
+- `POST /api/stability/calculate` - Calculate NSI
+- `POST /api/strategy/simulate` - Generate strategies
+- `POST /api/actions/execute` - Execute action
+- `POST /api/orchestration/run-loop` - Run complete cycle
+- `GET /api/voice/{org_id}/summary` - Get voice briefing
+
+## Nova Model Usage
+
+- **Nova 2 Lite**: Invoice extraction, email classification, risk diagnosis, strategy generation, re-evaluation
+- **Nova Embeddings**: Semantic memory and similarity search
+- **Nova Act**: Autonomous workflow execution
+- **Nova Sonic**: Voice briefings and audio summaries
 
 ## Development
 
-This project uses Kiro IDE with workspace-specific steering and skills for consistent development.
+Built with Kiro IDE using workspace-specific steering and skills for consistent development patterns.
+
+## Hackathon Focus
+
+This project demonstrates:
+- Multi-agent AI architecture
+- Deep Nova integration across all models
+- Closed-loop autonomy with measurable outcomes
+- Real workflow automation
+- Operational intelligence for SMEs

@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 from typing import Dict, Any, List
 from app.utils.bedrock_client import get_bedrock_client
+from app.utils.json_guard import safe_json_parse
 from app.models import NSIScore, SubIndices
 
 
@@ -30,23 +31,22 @@ class RiskAgent:
         
         response = self.bedrock.invoke_nova_lite(prompt, temperature=0.5)
         
-        try:
-            data = json.loads(response)
-            
+        parsed = safe_json_parse(response)
+        if parsed:
             sub_indices = SubIndices(
-                liquidity_index=data["liquidity_index"],
-                revenue_stability_index=data["revenue_stability_index"],
-                operational_latency_index=data["operational_latency_index"],
-                vendor_risk_index=data["vendor_risk_index"]
+                liquidity_index=parsed["liquidity_index"],
+                revenue_stability_index=parsed["revenue_stability_index"],
+                operational_latency_index=parsed["operational_latency_index"],
+                vendor_risk_index=parsed["vendor_risk_index"]
             )
             
             return NSIScore(
                 org_id=org_id,
                 sub_indices=sub_indices,
-                nova_stability_index=data["nova_stability_index"],
-                top_risks=data["top_risks"],
-                explanation=data["explanation"],
+                nova_stability_index=parsed["nova_stability_index"],
+                top_risks=parsed["top_risks"],
+                explanation=parsed["explanation"],
                 signal_count=len(signals)
             )
-        except (json.JSONDecodeError, KeyError) as e:
-            raise ValueError(f"Failed to calculate NSI: {e}")
+        
+        raise ValueError("Failed to calculate NSI")

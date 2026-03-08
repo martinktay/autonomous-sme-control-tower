@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 from typing import Dict, Any
 from app.utils.bedrock_client import get_bedrock_client
+from app.utils.json_guard import safe_json_parse
 
 
 class ReevalAgent:
@@ -39,7 +40,8 @@ Execution Log: {json.dumps(execution_log, indent=2)}
         
         response = self.bedrock.invoke_nova_lite(prompt, temperature=0.3)
         
-        try:
-            return json.loads(response)
-        except json.JSONDecodeError:
-            return {"error": "Failed to evaluate outcome"}
+        parsed = safe_json_parse(response)
+        if parsed:
+            return parsed
+        
+        return {"error": "Failed to evaluate outcome"}

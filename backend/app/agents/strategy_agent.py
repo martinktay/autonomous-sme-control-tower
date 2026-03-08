@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 from typing import List
 from app.utils.bedrock_client import get_bedrock_client
+from app.utils.json_guard import safe_json_parse
 from app.models import Strategy, StrategyOption
 
 
@@ -34,11 +35,10 @@ Context: {json.dumps(context, indent=2)}
         
         response = self.bedrock.invoke_nova_lite(prompt, temperature=0.7)
         
-        try:
-            data = json.loads(response)
-            
+        parsed = safe_json_parse(response)
+        if parsed and "strategies" in parsed:
             options = [
-                StrategyOption(**opt) for opt in data["strategies"]
+                StrategyOption(**opt) for opt in parsed["strategies"]
             ]
             
             return Strategy(
@@ -47,5 +47,5 @@ Context: {json.dumps(context, indent=2)}
                 top_risks=top_risks,
                 options=options
             )
-        except (json.JSONDecodeError, KeyError) as e:
-            raise ValueError(f"Failed to simulate strategies: {e}")
+        
+        raise ValueError("Failed to simulate strategies")
