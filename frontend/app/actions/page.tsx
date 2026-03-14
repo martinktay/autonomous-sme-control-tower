@@ -1,20 +1,23 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import axios from 'axios'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import ActionLog from '@/components/ActionLog'
+import { RefreshCw } from 'lucide-react'
+import { getActions } from '@/lib/api'
+import { useOrg } from '@/lib/org-context'
 
 export default function Actions() {
-  const [orgId, setOrgId] = useState('demo-org')
+  const { orgId } = useOrg();
   const [actions, setActions] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
 
   const fetchActions = async () => {
     setLoading(true)
     try {
-      const response = await axios.get(
-        `http://localhost:8000/api/actions/${orgId}`
-      )
-      setActions(response.data.actions || [])
+      const data = await getActions(orgId)
+      setActions(data.actions || [])
     } catch (error) {
       console.error('Failed to fetch actions:', error)
     } finally {
@@ -27,46 +30,36 @@ export default function Actions() {
   }, [orgId])
 
   return (
-    <div className="min-h-screen p-8">
-      <h1 className="text-3xl font-bold mb-8">Action History</h1>
-      
-      <div className="mb-6">
-        <label className="block mb-2">Organization ID</label>
-        <input
-          type="text"
-          value={orgId}
-          onChange={(e) => setOrgId(e.target.value)}
-          className="p-2 border rounded"
-        />
+    <div className="container mx-auto p-8">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold mb-2">Action History</h1>
+        <p className="text-muted-foreground">
+          See everything the system has done for your business — which actions
+          were taken and whether they worked
+        </p>
       </div>
       
-      {loading ? (
-        <p>Loading...</p>
-      ) : actions.length === 0 ? (
-        <p className="text-gray-600">No actions executed yet</p>
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>Action History</CardTitle>
+          <CardDescription>Actions taken by the system for your business</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button onClick={fetchActions} disabled={loading} className="w-full">
+            <RefreshCw className={`mr-2 h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+            {loading ? 'Loading...' : 'Refresh Actions'}
+          </Button>
+        </CardContent>
+      </Card>
+      
+      {actions.length === 0 ? (
+        <Card>
+          <CardContent className="py-12 text-center">
+            <p className="text-muted-foreground">No actions executed yet</p>
+          </CardContent>
+        </Card>
       ) : (
-        <div className="space-y-4">
-          {actions.map((action, idx) => (
-            <div key={idx} className="p-6 border rounded-lg">
-              <div className="flex justify-between mb-4">
-                <h3 className="text-xl font-semibold">{action.action_id}</h3>
-                <span className={`px-3 py-1 rounded text-sm ${
-                  action.status === 'completed' ? 'bg-green-100 text-green-800' :
-                  action.status === 'failed' ? 'bg-red-100 text-red-800' :
-                  'bg-yellow-100 text-yellow-800'
-                }`}>
-                  {action.status}
-                </span>
-              </div>
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>Predicted Improvement: {action.predicted_nsi_improvement}</div>
-                <div>Actual Improvement: {action.actual_improvement ?? 'N/A'}</div>
-                <div>Started: {action.started_at}</div>
-                <div>Completed: {action.completed_at ?? 'N/A'}</div>
-              </div>
-            </div>
-          ))}
-        </div>
+        <ActionLog actions={actions} />
       )}
     </div>
   )

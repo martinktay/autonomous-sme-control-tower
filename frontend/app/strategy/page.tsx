@@ -1,21 +1,24 @@
 'use client'
 
 import { useState } from 'react'
-import axios from 'axios'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Progress } from '@/components/ui/progress'
+import { Sparkles, TrendingUp, Zap, DollarSign } from 'lucide-react'
+import { simulateStrategies } from '@/lib/api'
+import { useOrg } from '@/lib/org-context'
 
 export default function Strategy() {
-  const [orgId, setOrgId] = useState('demo-org')
+  const { orgId } = useOrg();
   const [strategies, setStrategies] = useState<any>(null)
   const [loading, setLoading] = useState(false)
 
-  const simulateStrategies = async () => {
+  const handleSimulate = async () => {
     setLoading(true)
     try {
-      const response = await axios.post(
-        'http://localhost:8000/api/strategy/simulate',
-        { org_id: orgId }
-      )
-      setStrategies(response.data)
+      const data = await simulateStrategies(orgId)
+      setStrategies(data)
     } catch (error) {
       console.error('Simulation failed:', error)
     } finally {
@@ -24,44 +27,100 @@ export default function Strategy() {
   }
 
   return (
-    <div className="min-h-screen p-8">
-      <h1 className="text-3xl font-bold mb-8">Strategy Simulation</h1>
-      
-      <div className="mb-6">
-        <label className="block mb-2">Organization ID</label>
-        <input
-          type="text"
-          value={orgId}
-          onChange={(e) => setOrgId(e.target.value)}
-          className="p-2 border rounded mr-4"
-        />
-        <button
-          onClick={simulateStrategies}
-          disabled={loading}
-          className="px-6 py-2 bg-blue-600 text-white rounded disabled:bg-gray-400"
-        >
-          {loading ? 'Simulating...' : 'Simulate Strategies'}
-        </button>
+    <div className="container mx-auto p-8">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold mb-2">Improvement Strategies</h1>
+        <p className="text-muted-foreground">
+          See AI-generated suggestions to improve your business health score
+        </p>
       </div>
       
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>Generate Strategies</CardTitle>
+          <CardDescription>
+            Click below to get personalised improvement suggestions based on your data
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Button
+            onClick={handleSimulate}
+            disabled={loading}
+            className="w-full"
+          >
+            <Sparkles className="mr-2 h-4 w-4" />
+            {loading ? 'Simulating...' : 'Simulate Strategies'}
+          </Button>
+        </CardContent>
+      </Card>
+      
       {strategies && (
-        <div className="space-y-4">
-          <div className="p-4 bg-gray-50 rounded">
-            <p>Current NSI: <span className="font-bold">{strategies.current_nsi}</span></p>
-          </div>
-          
-          {strategies.options?.map((option: any, idx: number) => (
-            <div key={idx} className="p-6 border rounded-lg">
-              <h3 className="text-xl font-semibold mb-2">{option.title}</h3>
-              <p className="mb-4">{option.description}</p>
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>Predicted Improvement: {option.predicted_nsi_improvement}</div>
-                <div>Confidence: {(option.confidence * 100).toFixed(0)}%</div>
-                <div>Automatable: {option.automatable ? 'Yes' : 'No'}</div>
-                <div>Cost: {option.cost_estimate}</div>
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Current Status</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">Current NSI</span>
+                <Badge variant="outline" className="text-lg">
+                  {strategies.current_nsi}
+                </Badge>
               </div>
-            </div>
-          ))}
+            </CardContent>
+          </Card>
+          
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold">Recommended Strategies</h2>
+            {strategies.options?.map((option: any, idx: number) => (
+              <Card key={idx}>
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <CardTitle className="mb-2">{option.title}</CardTitle>
+                      <CardDescription>{option.description}</CardDescription>
+                    </div>
+                    {option.automatable && (
+                      <Badge className="bg-green-600">
+                        <Zap className="mr-1 h-3 w-3" />
+                        Automatable
+                      </Badge>
+                    )}
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <div className="flex items-center gap-2 mb-2">
+                        <TrendingUp className="h-4 w-4 text-green-600" />
+                        <span className="text-sm font-medium">Predicted Improvement</span>
+                      </div>
+                      <p className="text-2xl font-bold text-green-600">
+                        +{option.predicted_nsi_improvement}
+                      </p>
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2 mb-2">
+                        <DollarSign className="h-4 w-4 text-blue-600" />
+                        <span className="text-sm font-medium">Cost Estimate</span>
+                      </div>
+                      <p className="text-2xl font-bold">{option.cost_estimate}</p>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <div className="flex justify-between mb-2">
+                      <span className="text-sm font-medium">Confidence</span>
+                      <span className="text-sm text-muted-foreground">
+                        {(option.confidence * 100).toFixed(0)}%
+                      </span>
+                    </div>
+                    <Progress value={option.confidence * 100} />
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
       )}
     </div>

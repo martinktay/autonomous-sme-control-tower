@@ -1,37 +1,28 @@
-from pydantic import BaseModel, Field
-from datetime import datetime
-from typing import Optional, Dict, Any
-from enum import Enum
+from pydantic import BaseModel, Field, field_validator
+from datetime import datetime, timezone
+from typing import Optional
 
 
-class ActionStatus(str, Enum):
-    PENDING = "pending"
-    IN_PROGRESS = "in_progress"
-    COMPLETED = "completed"
-    FAILED = "failed"
+def _utc_now() -> datetime:
+    return datetime.now(timezone.utc)
 
 
-class Action(BaseModel):
+class ActionExecution(BaseModel):
     """Action execution record"""
+    execution_id: str = Field(..., description="Unique execution identifier")
+    org_id: str = Field(..., description="Organization identifier")
+    strategy_id: str = Field(..., description="Reference to strategy")
+    action_type: str = Field(..., description="Type of workflow executed")
+    target_entity: str = Field(..., description="Entity affected by action")
+    execution_status: str = Field(..., description="Status: success, failed, pending")
+    error_reason: Optional[str] = Field(None, description="Failure reason if applicable")
+    timestamp: datetime = Field(default_factory=_utc_now)
     
-    action_id: str
-    org_id: str
-    strategy_id: str
-    
-    # Execution details
-    status: ActionStatus = ActionStatus.PENDING
-    started_at: Optional[datetime] = None
-    completed_at: Optional[datetime] = None
-    
-    # Predictions
-    predicted_nsi_improvement: float
-    
-    # Results
-    actual_nsi_before: Optional[float] = None
-    actual_nsi_after: Optional[float] = None
-    actual_improvement: Optional[float] = None
-    prediction_accuracy: Optional[float] = None
-    
-    # Logs
-    execution_log: Dict[str, Any] = Field(default_factory=dict)
-    error_message: Optional[str] = None
+    @field_validator('execution_status')
+    @classmethod
+    def validate_execution_status(cls, v: str) -> str:
+        """Validate execution status"""
+        valid_statuses = {'success', 'failed', 'pending'}
+        if v not in valid_statuses:
+            raise ValueError(f'Execution status must be one of: {valid_statuses}')
+        return v

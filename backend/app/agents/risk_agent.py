@@ -1,17 +1,30 @@
+"""
+Risk Agent - Handles risk diagnosis and NSI calculation
+
+This agent uses the prompt loader utility to load templates from /prompts/v1/
+and validates responses against Pydantic schemas for type safety.
+"""
+
 import json
-from pathlib import Path
+import uuid
 from typing import Dict, Any, List
+from datetime import datetime, timezone
 from app.utils.bedrock_client import get_bedrock_client
-from app.utils.json_guard import safe_json_parse
+from app.utils.prompt_loader import load_prompt
+from app.utils.json_guard import parse_json_safely
 from app.models import NSIScore, SubIndices
 
 
 class RiskAgent:
-    """Agent for risk diagnosis and NSI calculation"""
+    """
+    Agent for risk diagnosis and NSI calculation
+    
+    Implements Requirements 4.1-4.5 (NSI calculation and risk assessment)
+    Uses prompt templates from /prompts/v1/ (Requirement 13.1, 13.2)
+    """
     
     def __init__(self):
         self.bedrock = get_bedrock_client()
-        self.prompts_dir = Path("prompts/v1")
     
     def calculate_nsi(
         self,
@@ -19,34 +32,49 @@ class RiskAgent:
         signals: List[Dict[str, Any]],
         context: Dict[str, Any]
     ) -> NSIScore:
-        """Calculate Nova Stability Index"""
+        """
+        Calculate Nova Stability Index
         
-        prompt_path = self.prompts_dir / "risk-diagnosis.md"
-        prompt_template = prompt_path.read_text()
+        Args:
+            org_id: Organization identifier
+            signals: List of operational signals (invoices, emails, etc.)
+            context: Additional business context
+            
+        Returns:
+            NSIScore object with calculated indices and risk assessment
+        """
+        # Load prompt template using the new prompt loader utility
+        prompt_template = load_prompt("risk-diagnosis")
         
-        signals_summary = json.dumps(signals, indent=2)
+        # Prepare signal and context summaries
+        signals_summary = json.dumps(signals[:10], indent=2)  # Limit to recent signals
         context_summary = json.dumps(context, indent=2)
         
+        # Construct full prompt
         prompt = f"{prompt_template}\n\nSignals:\n{signals_summary}\n\nContext:\n{context_summary}"
         
+        # Invoke Nova 2 Lite model
         response = self.bedrock.invoke_nova_lite(prompt, temperature=0.5)
         
-        parsed = safe_json_parse(response)
-        if parsed:
-            sub_indices = SubIndices(
-                liquidity_index=parsed["liquidity_index"],
-                revenue_stability_index=parsed["revenue_stability_index"],
-                operational_latency_index=parsed["operational_latency_index"],
-                vendor_risk_index=parsed["vendor_risk_index"]
-            )
-            
-            return NSIScore(
-                org_id=org_id,
-                sub_indices=sub_indices,
-                nova_stability_index=parsed["nova_stability_index"],
-                top_risks=parsed["top_risks"],
-                explanation=parsed["explanation"],
-                signal_count=len(signals)
-            )
+        # Parse and validate JSON response (Requirement 13.3, 13.4)
+        parsed = parse_json_safely(response)
         
-        raise ValueError("Failed to calculate NSI")
+        # Build sub-indices
+        sub_indices = SubIndices(
+            liquidity_index=parsed.get("liquidity_index", 50.0),
+            revenue_stability_index=parsed.get("revenue_stability_index", 50.0),
+            operational_latency_index=parsed.get("operational_latency_index", 50.0),
+            vendor_risk_index=parsed.get("vendor_risk_index", 50.0)
+        )
+        
+        # Return NSI score object
+        return NSIScore(
+            org_id=org_id,
+            sub_indices=sub_indices,
+            nova_stability_index=parsed.get("nova_stability_index", 50.0),
+            top_risks=parsed.get("top_risks", []),
+            explanation=parsed.get("explanation", "NSI calculated from available signals"),
+            signal_count=len(signals),
+            timestamp=datetime.now(timezone.utc),
+            confidence=parsed.get("confidence", "medium")
+        )

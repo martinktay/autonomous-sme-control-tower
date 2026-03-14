@@ -13,9 +13,8 @@ ddb_service = get_ddb_service()
 class ExecuteRequest(BaseModel):
     org_id: str
     strategy_id: str
-    strategy_description: str
-    execution_steps: list
-    predicted_improvement: float
+    strategy_description: str = ""
+    action_type: str = "workflow_execution"
 
 
 @router.post("/execute")
@@ -26,8 +25,7 @@ async def execute_action(request: ExecuteRequest) -> Action:
         org_id=request.org_id,
         strategy_id=request.strategy_id,
         strategy_description=request.strategy_description,
-        execution_steps=request.execution_steps,
-        predicted_improvement=request.predicted_improvement
+        action_type=request.action_type
     )
     
     ddb_service.put_action(action.model_dump())
@@ -51,6 +49,7 @@ async def get_actions(org_id: str) -> Dict[str, Any]:
 async def get_action(org_id: str, action_id: str) -> Dict[str, Any]:
     """Get specific action details"""
     
-    # TODO: Implement single action retrieval
-    
-    raise HTTPException(501, "Not implemented")
+    action = ddb_service.get_action(org_id, action_id)
+    if not action:
+        raise HTTPException(404, f"Action {action_id} not found")
+    return action

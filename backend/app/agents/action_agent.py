@@ -1,7 +1,8 @@
-from datetime import datetime
+import uuid
+from datetime import datetime, timezone
 from typing import Dict, Any
 from app.utils.bedrock_client import get_bedrock_client
-from app.models import Action, ActionStatus
+from app.models import ActionExecution
 
 
 class ActionAgent:
@@ -15,40 +16,42 @@ class ActionAgent:
         org_id: str,
         strategy_id: str,
         strategy_description: str,
-        execution_steps: list,
-        predicted_improvement: float
-    ) -> Action:
+        action_type: str = "workflow_execution"
+    ) -> ActionExecution:
         """Execute strategy using Nova Act"""
         
-        action_id = f"action_{datetime.utcnow().timestamp()}"
+        execution_id = f"exec_{uuid.uuid4().hex[:12]}"
         
         task = f"""
 Execute the following business strategy:
 {strategy_description}
 
-Steps:
-{chr(10).join(f'{i+1}. {step}' for i, step in enumerate(execution_steps))}
+Organization ID: {org_id}
 """
-        
-        action = Action(
-            action_id=action_id,
-            org_id=org_id,
-            strategy_id=strategy_id,
-            predicted_nsi_improvement=predicted_improvement,
-            status=ActionStatus.IN_PROGRESS,
-            started_at=datetime.utcnow()
-        )
         
         try:
             result = self.bedrock.invoke_nova_act(task, {"org_id": org_id})
             
-            action.status = ActionStatus.COMPLETED
-            action.completed_at = datetime.utcnow()
-            action.execution_log = result
+            action = ActionExecution(
+                execution_id=execution_id,
+                org_id=org_id,
+                strategy_id=strategy_id,
+                action_type=action_type,
+                target_entity=result.get("target", "unknown"),
+                execution_status="success",
+                timestamp=datetime.now(timezone.utc)
+            )
             
         except Exception as e:
-            action.status = ActionStatus.FAILED
-            action.error_message = str(e)
-            action.completed_at = datetime.utcnow()
+            action = ActionExecution(
+                execution_id=execution_id,
+                org_id=org_id,
+                strategy_id=strategy_id,
+                action_type=action_type,
+                target_entity="unknown",
+                execution_status="failed",
+                error_reason=str(e),
+                timestamp=datetime.now(timezone.utc)
+            )
         
         return action

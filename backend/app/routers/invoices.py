@@ -5,7 +5,7 @@ from datetime import datetime
 from app.agents.signal_agent import SignalAgent
 from app.services.s3_service import get_s3_service
 from app.services.ddb_service import get_ddb_service
-from app.models import Signal, SignalType
+from app.models import Signal
 
 router = APIRouter(prefix="/api/invoices", tags=["invoices"])
 signal_agent = SignalAgent()
@@ -39,10 +39,9 @@ async def upload_invoice(
     signal = Signal(
         signal_id=signal_id,
         org_id=org_id,
-        signal_type=SignalType.INVOICE,
-        s3_key=s3_key,
-        extracted_data=extracted_data,
-        processed=True
+        signal_type="invoice",
+        content=extracted_data,
+        processing_status="processed"
     )
     
     ddb_service.put_signal(signal.model_dump())

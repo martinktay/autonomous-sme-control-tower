@@ -1,18 +1,29 @@
-from .signal import Signal, SignalType
-from .nsi import NSIScore, SubIndices
-from .strategy import Strategy, StrategyOption
-from .action import Action, ActionStatus
-from .invoice import Invoice, LineItem
+from .invoice import Invoice
+from .email import Email
+from .signal import Signal
+from .nsi import NSISnapshot, NSIScore, SubIndices
+from .strategy import Strategy
+from .action import ActionExecution
+from .evaluation import Evaluation
+from .finance_document import FinanceDocument, DocumentFlag
+from .task import Task, TaskEntity
+
+# Aliases for backward compatibility with routers
+Action = ActionExecution
 
 __all__ = [
+    "Invoice",
+    "Email",
     "Signal",
-    "SignalType",
+    "NSISnapshot",
     "NSIScore",
     "SubIndices",
     "Strategy",
-    "StrategyOption",
+    "ActionExecution",
     "Action",
-    "ActionStatus",
-    "Invoice",
-    "LineItem",
+    "Evaluation",
+    "FinanceDocument",
+    "DocumentFlag",
+    "Task",
+    "TaskEntity",
 ]
