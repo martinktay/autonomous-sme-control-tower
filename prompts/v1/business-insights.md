@@ -38,3 +38,4 @@ Return a valid JSON object with exactly these fields:
 - Keep next_steps to 2-4 items max
 - Be honest but encouraging — if things are bad, say so clearly but suggest a path forward
 - If the score is good, celebrate it briefly and suggest how to maintain it
+- Do NOT use asterisks, bold, italic, markdown headers, or any markdown formatting in any text field. Write clean plain text only.

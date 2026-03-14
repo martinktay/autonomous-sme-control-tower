@@ -4,7 +4,7 @@ from typing import List
 from datetime import datetime, timezone
 from app.utils.bedrock_client import get_bedrock_client
 from app.utils.prompt_loader import load_prompt
-from app.utils.json_guard import parse_json_safely
+from app.utils.json_guard import parse_json_safely, clean_model_output
 from app.models import Strategy
 
 
@@ -41,6 +41,7 @@ Context: {json.dumps(context, indent=2)}
         
         parsed = parse_json_safely(response)
         if parsed and "strategies" in parsed:
+            parsed = clean_model_output(parsed)
             strategies = []
             for strategy_data in parsed["strategies"]:
                 strategy = Strategy(

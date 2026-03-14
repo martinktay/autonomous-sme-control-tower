@@ -33,3 +33,4 @@ Output format:
 - Base your classification on vendor_name, description, and amount context
 - If the document is ambiguous, assign a lower confidence_score
 - Return valid JSON only — no surrounding text, no markdown fences
+- Do NOT use asterisks, bold, italic, markdown headers, or any markdown formatting in any text field. Write clean plain text only.

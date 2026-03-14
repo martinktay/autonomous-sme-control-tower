@@ -36,3 +36,4 @@ Output format:
 - Mark if automatable via Nova Act
 - Include clear execution steps
 - Return valid JSON only
+- Do NOT use asterisks, bold, italic, markdown headers, or any markdown formatting in any text field. Write clean plain text only.

@@ -12,7 +12,7 @@ Uses prompt templates from /prompts/v1/ for Nova Lite model invocations.
 from typing import Dict, Any, List
 from app.utils.bedrock_client import get_bedrock_client
 from app.utils.prompt_loader import load_prompt
-from app.utils.json_guard import parse_json_safely
+from app.utils.json_guard import parse_json_safely, clean_model_output, strip_markdown
 
 
 class EmailAgent:
@@ -38,7 +38,7 @@ class EmailAgent:
         full_prompt = f"{prompt}\n\nEmail:\n{email_content}"
 
         response = self.bedrock.invoke_nova_lite(full_prompt, temperature=0.3)
-        return parse_json_safely(response)
+        return clean_model_output(parse_json_safely(response))
 
     def extract_tasks(self, subject: str, body: str, sender: str) -> Dict[str, Any]:
         """Extract actionable tasks from an email using the email-task-extraction prompt.
@@ -59,7 +59,7 @@ class EmailAgent:
         )
 
         response = self.bedrock.invoke_nova_lite(prompt, temperature=0.3)
-        return parse_json_safely(response)
+        return clean_model_output(parse_json_safely(response))
 
     def generate_reply_draft(self, subject: str, body: str, sender: str, tone: str = "professional") -> str:
         """Generate a draft reply for an email using an inline prompt (no template file).
@@ -78,4 +78,4 @@ class EmailAgent:
             f"Subject: {subject}\nFrom: {sender}\n\n{body}\n\n"
             "Write only the reply body text. No JSON. Keep it concise and actionable."
         )
-        return self.bedrock.invoke_nova_lite(prompt, temperature=0.5, max_tokens=500)
+        return strip_markdown(self.bedrock.invoke_nova_lite(prompt, temperature=0.5, max_tokens=500))

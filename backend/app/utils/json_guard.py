@@ -12,7 +12,7 @@ Also supports Pydantic schema validation (Requirement 13.3).
 import json
 import re
 import logging
-from typing import Any, Optional, TypeVar, Type
+from typing import Any, Optional, TypeVar, Type, Union
 from pydantic import BaseModel, ValidationError
 
 logger = logging.getLogger(__name__)
@@ -158,3 +158,55 @@ def parse_and_validate(
         ValueError: If parsing or validation fails
     """
     return validate_with_schema(response, schema, log_raw_on_error=True)
+
+
+def strip_markdown(text: str) -> str:
+    """Remove markdown formatting from text for clean display.
+
+    Strips bold, italic, headers, bullet markers, and code fences
+    so AI-generated text appears as clean plain text to end users.
+
+    Args:
+        text: Raw text that may contain markdown formatting.
+
+    Returns:
+        Clean plain text with markdown artifacts removed.
+    """
+    if not text:
+        return text
+    # Remove bold/italic markers: **text**, __text__, *text*, _text_
+    text = re.sub(r'\*\*(.+?)\*\*', r'\1', text)
+    text = re.sub(r'__(.+?)__', r'\1', text)
+    text = re.sub(r'\*(.+?)\*', r'\1', text)
+    text = re.sub(r'(?<!\w)_(.+?)_(?!\w)', r'\1', text)
+    # Remove markdown headers: # ## ### etc.
+    text = re.sub(r'^#{1,6}\s+', '', text, flags=re.MULTILINE)
+    # Remove code fences
+    text = re.sub(r'```[\s\S]*?```', '', text)
+    text = re.sub(r'`(.+?)`', r'\1', text)
+    # Replace bullet markers (* or -) with clean dash
+    text = re.sub(r'^\s*[\*\-]\s+', '- ', text, flags=re.MULTILINE)
+    # Collapse multiple blank lines
+    text = re.sub(r'\n{3,}', '\n\n', text)
+    return text.strip()
+
+
+def clean_model_output(data: Union[dict, list, str]) -> Union[dict, list, str]:
+    """Recursively strip markdown from all string values in a dict/list.
+
+    Walks through nested dicts and lists, applying strip_markdown to every
+    string value. Non-string leaves are returned unchanged.
+
+    Args:
+        data: A dict, list, or string from parsed model output.
+
+    Returns:
+        The same structure with all string values cleaned.
+    """
+    if isinstance(data, str):
+        return strip_markdown(data)
+    if isinstance(data, dict):
+        return {k: clean_model_output(v) for k, v in data.items()}
+    if isinstance(data, list):
+        return [clean_model_output(item) for item in data]
+    return data

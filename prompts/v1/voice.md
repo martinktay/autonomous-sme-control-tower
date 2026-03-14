@@ -25,3 +25,4 @@ Recommendation: [brief next step].
 - Avoid jargon
 - Focus on actionable insights
 - Be concise and direct
+- Do NOT use asterisks, bold, italic, markdown headers, or any markdown formatting. Write clean plain text only.

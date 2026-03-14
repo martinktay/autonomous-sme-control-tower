@@ -34,3 +34,4 @@ Output format:
 - For non-GBP documents: set vat_amount and vat_rate to null unless explicitly present
 - The amount field should represent the total document amount
 - Return valid JSON only — no surrounding text, no markdown fences
+- Do NOT use asterisks, bold, italic, markdown headers, or any markdown formatting in any text field. Write clean plain text only.

@@ -34,3 +34,4 @@ Output format:
 - Identify key learnings
 - Suggest NSI weight adjustments if needed
 - Return valid JSON only
+- Do NOT use asterisks, bold, italic, markdown headers, or any markdown formatting in any text field. Write clean plain text only.

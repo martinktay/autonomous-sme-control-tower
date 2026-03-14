@@ -37,3 +37,6 @@ Output format:
 - Parse dates to YYYY-MM-DD format
 - Convert amounts to numbers
 - Return valid JSON only
+
+## Formatting
+- Do NOT use asterisks, bold, italic, markdown headers, or any markdown formatting in any text field. Write clean plain text only.

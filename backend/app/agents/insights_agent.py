@@ -11,7 +11,7 @@ import logging
 from typing import Dict, Any, List, Optional
 from app.utils.bedrock_client import get_bedrock_client
 from app.utils.prompt_loader import load_prompt
-from app.utils.json_guard import parse_json_safely
+from app.utils.json_guard import parse_json_safely, clean_model_output
 
 logger = logging.getLogger(__name__)
 
@@ -89,7 +89,7 @@ class InsightsAgent:
 
         prompt = f"{prompt_template}\n\n## Current Business Data\n{data_block}"
         response = self.bedrock.invoke_nova_lite(prompt, temperature=0.6, max_tokens=1500)
-        parsed = parse_json_safely(response)
+        parsed = clean_model_output(parse_json_safely(response))
 
         return {
             "summary": parsed.get("summary", "Analysis complete."),
@@ -229,7 +229,7 @@ class InsightsAgent:
 
         prompt = f"{prompt_template}\n\n## Current Financial Data\n{data_block}"
         response = self.bedrock.invoke_nova_lite(prompt, temperature=0.5, max_tokens=2000)
-        parsed = parse_json_safely(response)
+        parsed = clean_model_output(parse_json_safely(response))
 
         return {
             "summary": parsed.get("summary", "Financial analysis complete."),

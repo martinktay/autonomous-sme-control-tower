@@ -11,7 +11,7 @@ from typing import Dict, Any, List
 from datetime import datetime, timezone
 from app.utils.bedrock_client import get_bedrock_client
 from app.utils.prompt_loader import load_prompt
-from app.utils.json_guard import parse_json_safely
+from app.utils.json_guard import parse_json_safely, clean_model_output
 from app.models import NSIScore, SubIndices
 
 
@@ -57,7 +57,7 @@ class RiskAgent:
         response = self.bedrock.invoke_nova_lite(prompt, temperature=0.5)
         
         # Parse and validate JSON response (Requirement 13.3, 13.4)
-        parsed = parse_json_safely(response)
+        parsed = clean_model_output(parse_json_safely(response))
         
         # Build sub-indices
         sub_indices = SubIndices(

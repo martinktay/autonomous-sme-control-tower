@@ -38,3 +38,4 @@ Output format:
 - Identify top 3-5 risks
 - Provide clear explanation
 - Return valid JSON only
+- Do NOT use asterisks, bold, italic, markdown headers, or any markdown formatting in any text field. Write clean plain text only.

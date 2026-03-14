@@ -40,3 +40,4 @@ Output format:
 - For handwritten text, use best-effort extraction — prefer partial data over null
 - If neither vendor_name nor amount can be extracted, return null for both
 - Return valid JSON only — no surrounding text, no markdown fences
+- Do NOT use asterisks, bold, italic, markdown headers, or any markdown formatting in any text field. Write clean plain text only.

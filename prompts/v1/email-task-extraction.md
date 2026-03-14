@@ -39,3 +39,4 @@ Output format:
 - If no tasks are found, return an empty tasks array
 - Extract entity references for linking to existing records
 - Return valid JSON only
+- Do NOT use asterisks, bold, italic, markdown headers, or any markdown formatting in any text field. Write clean plain text only.

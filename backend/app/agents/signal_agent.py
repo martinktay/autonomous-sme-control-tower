@@ -8,7 +8,7 @@ and validates responses against Pydantic schemas for type safety.
 from typing import Dict, Any
 from app.utils.bedrock_client import get_bedrock_client
 from app.utils.prompt_loader import load_prompt
-from app.utils.json_guard import parse_json_safely
+from app.utils.json_guard import parse_json_safely, clean_model_output
 
 
 class SignalAgent:
@@ -46,7 +46,7 @@ class SignalAgent:
         
         # Parse and validate JSON response (Requirement 13.3, 13.4)
         parsed = parse_json_safely(response)
-        return parsed
+        return clean_model_output(parsed)
     
     def classify_email(
         self,
@@ -80,4 +80,4 @@ class SignalAgent:
         
         # Parse and validate JSON response (Requirement 13.3, 13.4)
         parsed = parse_json_safely(response)
-        return parsed
+        return clean_model_output(parsed)

@@ -8,7 +8,7 @@ Implements Requirements 2.1-2.6, 3.1-3.5, 5.1-5.5, 6.1-6.6, 14.4-14.6.
 from typing import Dict, Any, Optional
 from app.utils.bedrock_client import get_bedrock_client
 from app.utils.prompt_loader import load_prompt
-from app.utils.json_guard import parse_json_safely
+from app.utils.json_guard import parse_json_safely, clean_model_output
 
 
 class FinanceDocumentAgent:
@@ -50,7 +50,7 @@ class FinanceDocumentAgent:
         response = self.bedrock.invoke_nova_lite(prompt, temperature=0.3)
 
         parsed = parse_json_safely(response)
-        return parsed
+        return clean_model_output(parsed)
 
     def classify_document(self, extracted_data: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -81,7 +81,7 @@ class FinanceDocumentAgent:
         response = self.bedrock.invoke_nova_lite(prompt, temperature=0.3)
 
         parsed = parse_json_safely(response)
-        return parsed
+        return clean_model_output(parsed)
 
     def parse_informal_receipt(self, raw_text: str) -> Dict[str, Any]:
         """
@@ -106,4 +106,4 @@ class FinanceDocumentAgent:
         response = self.bedrock.invoke_nova_lite(prompt, temperature=0.3)
 
         parsed = parse_json_safely(response)
-        return parsed
+        return clean_model_output(parsed)

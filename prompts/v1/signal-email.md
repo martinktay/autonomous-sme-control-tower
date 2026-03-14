@@ -32,3 +32,4 @@ Output format:
 - Extract all relevant entities
 - Provide brief summary
 - Return valid JSON only
+- Do NOT use asterisks, bold, italic, markdown headers, or any markdown formatting in any text field. Write clean plain text only.

@@ -68,3 +68,4 @@ Return a valid JSON object with exactly these fields:
 - If total tax burden exceeds 30% of net profit, flag as a warning
 - Be honest but encouraging — suggest a clear path forward
 - For Nigerian SMEs: reference FIRS (Federal Inland Revenue Service) filing obligations where relevant
+- Do NOT use asterisks, bold, italic, markdown headers, or any markdown formatting in any text field. Write clean plain text only.
