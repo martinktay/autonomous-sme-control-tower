@@ -406,19 +406,31 @@ class DynamoDBService:
     # ==================== GENERIC OPERATIONS (for memory service) ====================
 
     def put_item(self, table_name: str, item: Dict[str, Any]) -> None:
-        """Put an item into any table by name"""
+        """Put an item into any table by name. Logs warning if table doesn't exist."""
         table = self.client.Table(table_name)
         converted = self._convert_to_dynamodb_format(item)
-        self._retry_with_backoff(table.put_item, Item=converted)
+        try:
+            self._retry_with_backoff(table.put_item, Item=converted)
+        except Exception as e:
+            if "ResourceNotFoundException" in str(type(e).__name__) or "ResourceNotFoundException" in str(e):
+                logger.warning("Table %s not found, skipping put_item", table_name)
+                return
+            raise
 
     def get_item(self, table_name: str, key: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-        """Get an item from any table by name and key"""
+        """Get an item from any table by name and key. Returns None if table doesn't exist."""
         table = self.client.Table(table_name)
         def _get():
             response = table.get_item(Key=key)
             item = response.get("Item")
             return self._convert_from_dynamodb_format(item) if item else None
-        return self._retry_with_backoff(_get)
+        try:
+            return self._retry_with_backoff(_get)
+        except Exception as e:
+            if "ResourceNotFoundException" in str(type(e).__name__) or "ResourceNotFoundException" in str(e):
+                logger.warning("Table %s not found, returning None", table_name)
+                return None
+            raise
 
     def query_items(
         self,
@@ -427,7 +439,7 @@ class DynamoDBService:
         expression_values: Dict[str, Any],
         limit: int = 100,
     ) -> List[Dict[str, Any]]:
-        """Query items from any table by name"""
+        """Query items from any table by name. Returns empty list if table doesn't exist."""
         table = self.client.Table(table_name)
         def _query():
             response = table.query(
@@ -437,7 +449,13 @@ class DynamoDBService:
             )
             items = response.get("Items", [])
             return [self._convert_from_dynamodb_format(item) for item in items]
-        return self._retry_with_backoff(_query)
+        try:
+            return self._retry_with_backoff(_query)
+        except Exception as e:
+            if "ResourceNotFoundException" in str(type(e).__name__) or "ResourceNotFoundException" in str(e):
+                logger.warning("Table %s not found, returning empty list", table_name)
+                return []
+            raise
 
 
 _ddb_service: Optional[DynamoDBService] = None

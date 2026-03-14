@@ -30,7 +30,7 @@ export default function Actions() {
   }, [orgId])
 
   return (
-    <div className="container mx-auto p-8">
+    <div className="container mx-auto px-4 py-8 max-w-4xl">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Action History</h1>
         <p className="text-muted-foreground">
@@ -41,8 +41,8 @@ export default function Actions() {
       
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle>Action History</CardTitle>
-          <CardDescription>Actions taken by the system for your business</CardDescription>
+          <CardTitle>Refresh</CardTitle>
+          <CardDescription>Load the latest actions from the server</CardDescription>
         </CardHeader>
         <CardContent>
           <Button onClick={fetchActions} disabled={loading} className="w-full">
