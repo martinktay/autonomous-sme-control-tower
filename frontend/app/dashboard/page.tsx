@@ -16,7 +16,6 @@ import {
   CardContent,
   CardDescription,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import { apiClient } from "@/lib/api";
 import { useOrg } from "@/lib/org-context";
@@ -74,10 +73,20 @@ export default function DashboardPage() {
   const runClosedLoop = async () => {
     try {
       setRunningLoop(true);
-      await apiClient.runClosedLoop(orgId);
-      await fetchDashboardData();
+      setError(null);
+      const result = await apiClient.runClosedLoop(orgId);
+      if (result.status === "no_data") {
+        setError(result.message || "No data yet. Upload invoices or documents first, then run the analysis.");
+      } else {
+        await fetchDashboardData();
+      }
     } catch (err: any) {
-      setError(err.message || "Failed to run analysis");
+      const msg = err.message || "Failed to run analysis";
+      if (msg.includes("No signals") || msg.includes("no_data")) {
+        setError("No data yet. Upload invoices or documents first, then run the analysis.");
+      } else {
+        setError(msg);
+      }
     } finally {
       setRunningLoop(false);
     }
@@ -164,12 +173,13 @@ export default function DashboardPage() {
                   <p className="text-sm font-medium text-destructive">
                     {error}
                   </p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    Start the backend with: uvicorn app.main:app --reload --port
-                    8000
-                  </p>
+                  {error.toLowerCase().includes("connect") && (
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Start the backend with: uvicorn app.main:app --reload --port 8000
+                    </p>
+                  )}
                 </div>
-                <Button variant="outline" size="sm" onClick={() => fetchDashboardData(false)}>
+                <Button variant="outline" size="sm" onClick={() => { setError(null); fetchDashboardData(false); }}>
                   Retry
                 </Button>
               </div>

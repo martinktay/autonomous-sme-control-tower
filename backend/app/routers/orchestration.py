@@ -35,7 +35,10 @@ async def run_closed_loop(request: RunLoopRequest) -> Dict[str, Any]:
         signals = ddb_service.get_signals(org_id)
         
         if not signals:
-            raise HTTPException(400, "No signals found for organization")
+            return {
+                "status": "no_data",
+                "message": "No signals found. Upload invoices, emails, or financial documents first, then run the analysis."
+            }
         
         nsi_score = risk_agent.calculate_nsi(org_id, signals, {})
         nsi_snapshot_id = f"nsi_{uuid.uuid4().hex[:12]}"
