@@ -36,7 +36,7 @@ Actual NSI Before: {actual_nsi_before}
 Actual NSI After: {actual_nsi_after}
 Actual Improvement: {actual_improvement}
 Strategy: {strategy_description}
-Execution Log: {json.dumps(execution_log, indent=2)}
+Execution Log: {json.dumps(execution_log, indent=2, default=str)}
 """
         
         prompt = f"{prompt_template}\n\n{context}"

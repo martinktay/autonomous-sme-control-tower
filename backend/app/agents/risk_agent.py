@@ -67,12 +67,21 @@ class RiskAgent:
             vendor_risk_index=parsed.get("vendor_risk_index", 50.0)
         )
         
+        # Normalize top_risks: model may return strings instead of dicts
+        raw_risks = parsed.get("top_risks", [])
+        top_risks = []
+        for r in raw_risks:
+            if isinstance(r, dict):
+                top_risks.append(r)
+            elif isinstance(r, str):
+                top_risks.append({"risk": r, "severity": "medium"})
+        
         # Return NSI score object
         return NSIScore(
             org_id=org_id,
             sub_indices=sub_indices,
             nova_stability_index=parsed.get("nova_stability_index", 50.0),
-            top_risks=parsed.get("top_risks", []),
+            top_risks=top_risks,
             explanation=parsed.get("explanation", "NSI calculated from available signals"),
             signal_count=len(signals),
             timestamp=datetime.now(timezone.utc),

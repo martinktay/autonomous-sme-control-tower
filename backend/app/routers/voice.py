@@ -7,7 +7,7 @@ Provides three endpoints:
 - /{org_id}/ask — answer any business question using AI with full context
 """
 
-from fastapi import APIRouter, Response
+from fastapi import APIRouter
 from typing import Dict, Any
 from app.agents.voice_agent import VoiceAgent
 from app.services.ddb_service import get_ddb_service
@@ -32,13 +32,17 @@ class VoiceQueryRequest(BaseModel):
 
 
 @router.post("/brief")
-async def generate_voice_brief(request: VoiceBriefRequest) -> Response:
-    """Generate an audio briefing (MP3) summarising NSI score, risks, and recent actions."""
+async def generate_voice_brief(request: VoiceBriefRequest) -> Dict[str, Any]:
+    """Generate a text briefing summarising NSI score, risks, and recent actions.
+    
+    Returns JSON with the briefing text. The frontend uses the browser's
+    Web Speech API (SpeechSynthesis) for text-to-speech playback.
+    """
     
     nsi_data = ddb_service.get_latest_nsi(request.org_id)
     actions = ddb_service.get_actions(request.org_id, limit=5)
     
-    nsi_score = nsi_data.get("nova_stability_index", 0) if nsi_data else 0
+    nsi_score = nsi_data.get("nova_stability_index", nsi_data.get("nsi_score", 0)) if nsi_data else 0
     top_risks = nsi_data.get("top_risks", []) if nsi_data else []
     
     text = voice_agent.generate_briefing_text(
@@ -48,12 +52,11 @@ async def generate_voice_brief(request: VoiceBriefRequest) -> Response:
         trend="stable"
     )
     
-    audio = voice_agent.generate_audio(text)
-    
-    return Response(
-        content=audio,
-        media_type="audio/mpeg"
-    )
+    return {
+        "org_id": request.org_id,
+        "briefing": text,
+        "nsi_score": nsi_score,
+    }
 
 
 @router.get("/{org_id}/summary")
@@ -63,7 +66,7 @@ async def get_voice_summary(org_id: str) -> Dict[str, Any]:
     nsi_data = ddb_service.get_latest_nsi(org_id)
     actions = ddb_service.get_actions(org_id, limit=5)
     
-    nsi_score = nsi_data.get("nova_stability_index", 0) if nsi_data else 0
+    nsi_score = nsi_data.get("nova_stability_index", nsi_data.get("nsi_score", 0)) if nsi_data else 0
     top_risks = nsi_data.get("top_risks", []) if nsi_data else []
     
     text = voice_agent.generate_briefing_text(

@@ -72,15 +72,17 @@ export default function Strategy() {
           
           <div className="space-y-4">
             <h2 className="text-xl font-semibold">Recommended Strategies</h2>
-            {strategies.options?.map((option: any, idx: number) => (
+            {(strategies.strategies || strategies.options || []).map((option: any, idx: number) => (
               <Card key={idx}>
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div>
-                      <CardTitle className="mb-2">{option.title}</CardTitle>
-                      <CardDescription>{option.description}</CardDescription>
+                      <CardTitle className="mb-2">{option.description || option.title}</CardTitle>
+                      {option.reasoning && (
+                        <CardDescription>{option.reasoning}</CardDescription>
+                      )}
                     </div>
-                    {option.automatable && (
+                    {(option.automation_eligibility || option.automatable) && (
                       <Badge className="bg-green-600">
                         <Zap className="mr-1 h-3 w-3" />
                         Automatable
@@ -96,15 +98,17 @@ export default function Strategy() {
                         <span className="text-sm font-medium">Predicted Improvement</span>
                       </div>
                       <p className="text-2xl font-bold text-green-600">
-                        +{option.predicted_nsi_improvement}
+                        +{option.predicted_nsi_improvement?.toFixed?.(1) ?? option.predicted_nsi_improvement}
                       </p>
                     </div>
                     <div>
                       <div className="flex items-center gap-2 mb-2">
                         <DollarSign className="h-4 w-4 text-blue-600" />
-                        <span className="text-sm font-medium">Cost Estimate</span>
+                        <span className="text-sm font-medium">Confidence</span>
                       </div>
-                      <p className="text-2xl font-bold">{option.cost_estimate}</p>
+                      <p className="text-2xl font-bold">
+                        {((option.confidence_score ?? option.confidence ?? 0) * 100).toFixed(0)}%
+                      </p>
                     </div>
                   </div>
                   
@@ -112,10 +116,10 @@ export default function Strategy() {
                     <div className="flex justify-between mb-2">
                       <span className="text-sm font-medium">Confidence</span>
                       <span className="text-sm text-muted-foreground">
-                        {(option.confidence * 100).toFixed(0)}%
+                        {((option.confidence_score ?? option.confidence ?? 0) * 100).toFixed(0)}%
                       </span>
                     </div>
-                    <Progress value={option.confidence * 100} />
+                    <Progress value={(option.confidence_score ?? option.confidence ?? 0) * 100} />
                   </div>
                 </CardContent>
               </Card>

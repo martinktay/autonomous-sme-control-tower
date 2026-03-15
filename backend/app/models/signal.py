@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field, field_validator
 from datetime import datetime, timezone
 from typing import Optional, Dict, Any
 
-_ORG_ID_PATTERN = re.compile(r"^org[a-zA-Z0-9_-]{1,64}$")
+_ORG_ID_PATTERN = re.compile(r"^[a-zA-Z][a-zA-Z0-9_-]{1,64}$")
 
 
 def _utc_now() -> datetime:
@@ -24,9 +24,9 @@ class Signal(BaseModel):
     @field_validator('org_id')
     @classmethod
     def validate_org_id(cls, v: str) -> str:
-        """Validate org_id format (must start with 'org' followed by 1-64 alphanumeric/dash/underscore chars)"""
+        """Validate org_id format (must start with a letter, followed by 1-64 alphanumeric/dash/underscore chars)"""
         if not _ORG_ID_PATTERN.match(v):
-            raise ValueError("org_id must match pattern: org[a-zA-Z0-9_-]{1,64}")
+            raise ValueError("org_id must start with a letter and contain only alphanumeric, dash, or underscore characters (max 65 chars)")
         return v
     
     @field_validator('signal_type')

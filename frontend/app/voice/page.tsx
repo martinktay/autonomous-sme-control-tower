@@ -101,13 +101,23 @@ export default function VoicePage() {
     setLoading(true);
     try {
       const res = await askVoiceQuestion(orgId, q);
+      const answer = res.answer || "I could not generate an answer.";
       const botMsg: Message = {
         role: "assistant",
-        text: res.answer || "I could not generate an answer.",
+        text: answer,
         source: res.source,
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, botMsg]);
+      
+      // Speak the answer using browser TTS
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(answer);
+        utterance.rate = 1.0;
+        utterance.pitch = 1.0;
+        window.speechSynthesis.speak(utterance);
+      }
     } catch {
       setMessages((prev) => [
         ...prev,
@@ -139,14 +149,33 @@ export default function VoicePage() {
   const playAudio = async () => {
     setPlaying(true);
     try {
-      const blob = await getVoiceBrief(orgId);
-      const url = URL.createObjectURL(blob);
-      const audio = new Audio(url);
-      audio.onended = () => { setPlaying(false); URL.revokeObjectURL(url); };
-      audio.onerror = () => { setPlaying(false); URL.revokeObjectURL(url); };
-      audio.play();
+      const data = await getVoiceBrief(orgId);
+      const text = data.briefing || "No briefing available.";
+      
+      // Add briefing to chat
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", text, source: "briefing", timestamp: new Date() },
+      ]);
+      
+      // Use browser SpeechSynthesis for TTS
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 1.0;
+        utterance.pitch = 1.0;
+        utterance.onend = () => setPlaying(false);
+        utterance.onerror = () => setPlaying(false);
+        window.speechSynthesis.speak(utterance);
+      } else {
+        setPlaying(false);
+      }
     } catch {
       setPlaying(false);
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", text: "Failed to generate audio briefing.", timestamp: new Date() },
+      ]);
     }
   };
 

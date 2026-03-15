@@ -62,11 +62,26 @@ export const getActions = async (orgId: string) => {
 
 /** Trigger the full closed-loop orchestration cycle (ingest → diagnose → act). */
 export const runClosedLoop = async (orgId: string) => {
-  const res = await apiFetch('/api/orchestration/run-loop', {
-    method: 'POST',
-    body: JSON.stringify({ org_id: orgId }),
-  });
-  return res.json();
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 min for multi-step Bedrock calls
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/orchestration/run-loop`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ org_id: orgId }),
+      signal: controller.signal,
+    });
+    if (!res.ok) {
+      const text = await res.text().catch(() => res.statusText);
+      throw new Error(`API error ${res.status}: ${text}`);
+    }
+    return res.json();
+  } catch (err: any) {
+    if (err.name === 'AbortError') throw new Error('Analysis is taking longer than expected. Please try again.');
+    throw err;
+  } finally {
+    clearTimeout(timeoutId);
+  }
 };
 
 // ==================== Invoice Upload API ====================
@@ -75,23 +90,52 @@ export const runClosedLoop = async (orgId: string) => {
 export const uploadInvoice = async (orgId: string, file: File) => {
   const formData = new FormData();
   formData.append('file', file);
-  const res = await fetch(`${API_BASE_URL}/api/invoices/upload?org_id=${orgId}`, {
-    method: 'POST',
-    body: formData,
-  });
-  if (!res.ok) throw new Error(`Upload failed: ${res.statusText}`);
-  return res.json();
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 30000);
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/invoices/upload?org_id=${orgId}`, {
+      method: 'POST',
+      body: formData,
+      signal: controller.signal,
+    });
+    if (!res.ok) {
+      const body = await res.text().catch(() => '');
+      throw new Error(body || `Upload failed: ${res.statusText}`);
+    }
+    return res.json();
+  } catch (err: any) {
+    if (err.name === 'AbortError') throw new Error('Upload timed out. Please try again.');
+    if (err.message === 'Failed to fetch') throw new Error('Cannot reach the backend server. Make sure it is running on port 8000.');
+    throw err;
+  } finally {
+    clearTimeout(timeout);
+  }
 };
 
 // ==================== Strategy & Memory API ====================
 
 /** Run AI strategy simulation for the org. */
 export const simulateStrategies = async (orgId: string) => {
-  const res = await apiFetch('/api/strategy/simulate', {
-    method: 'POST',
-    body: JSON.stringify({ org_id: orgId }),
-  });
-  return res.json();
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 90000); // 90s for Bedrock calls
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/strategy/simulate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ org_id: orgId }),
+      signal: controller.signal,
+    });
+    if (!res.ok) {
+      const text = await res.text().catch(() => res.statusText);
+      throw new Error(`API error ${res.status}: ${text}`);
+    }
+    return res.json();
+  } catch (err: any) {
+    if (err.name === 'AbortError') throw new Error('Strategy simulation is taking longer than expected. Please try again.');
+    throw err;
+  } finally {
+    clearTimeout(timeoutId);
+  }
 };
 
 /** Semantic search across the org's business memory. */
@@ -127,7 +171,7 @@ export const getVoiceBrief = async (orgId: string) => {
     body: JSON.stringify({ org_id: orgId }),
   });
   if (!res.ok) throw new Error(`Voice brief failed: ${res.statusText}`);
-  return res.blob();
+  return res.json();
 };
 
 /** Ask a free-form voice question and get a JSON answer. */
@@ -149,12 +193,32 @@ export const askVoiceQuestion = async (orgId: string, question: string) => {
 export const uploadFinanceDocument = async (orgId: string, file: File) => {
   const formData = new FormData();
   formData.append('file', file);
-  const res = await fetch(`${API_BASE_URL}/api/finance/upload?org_id=${orgId}`, {
-    method: 'POST',
-    body: formData,
-  });
-  if (!res.ok) throw new Error(`Upload failed: ${res.statusText}`);
-  return res.json();
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 30000);
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/finance/upload?org_id=${orgId}`, {
+      method: 'POST',
+      body: formData,
+      signal: controller.signal,
+    });
+    if (!res.ok) {
+      const body = await res.text().catch(() => '');
+      // Try to extract detail from JSON error response
+      try {
+        const err = JSON.parse(body);
+        throw new Error(err.detail || `Upload failed: ${res.statusText}`);
+      } catch {
+        throw new Error(body || `Upload failed: ${res.statusText}`);
+      }
+    }
+    return res.json();
+  } catch (err: any) {
+    if (err.name === 'AbortError') throw new Error('Upload timed out. Please try again.');
+    if (err.message === 'Failed to fetch') throw new Error('Cannot reach the backend server. Make sure it is running on port 8000.');
+    throw err;
+  } finally {
+    clearTimeout(timeout);
+  }
 };
 
 /** List all processed finance documents for the org. */

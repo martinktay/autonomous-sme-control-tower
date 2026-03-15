@@ -28,6 +28,32 @@ export default function UploadPage() {
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+  const ALLOWED_TYPES = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selected = e.target.files?.[0] || null;
+    setError(null);
+    if (selected) {
+      if (selected.size > MAX_FILE_SIZE) {
+        setError(`File is too large (${(selected.size / 1024 / 1024).toFixed(1)} MB). Maximum is 10 MB.`);
+        setFile(null);
+        return;
+      }
+      if (selected.size === 0) {
+        setError('File is empty. Please select a valid file.');
+        setFile(null);
+        return;
+      }
+      if (!ALLOWED_TYPES.includes(selected.type) && !selected.name.match(/\.(pdf|jpe?g|png)$/i)) {
+        setError('Unsupported file type. Please upload a PDF, JPG, or PNG file.');
+        setFile(null);
+        return;
+      }
+    }
+    setFile(selected);
+  };
+
   const handleUpload = async () => {
     if (!file) return;
 
@@ -92,7 +118,7 @@ export default function UploadPage() {
             <input
               type="file"
               accept=".pdf,image/*"
-              onChange={(e) => setFile(e.target.files?.[0] || null)}
+              onChange={handleFileSelect}
               className="hidden"
               id="file-upload"
             />

@@ -6,6 +6,9 @@ Handles the full finance document lifecycle:
 - Review queue for low-confidence or flagged documents
 - Cashflow, P&L, analytics, and AI-powered insights
 - CSV/XLSX export and bank reconciliation
+
+Production-hardened with shared upload validation, structured error handling,
+and safe error messages that don't leak internals.
 """
 
 from fastapi import APIRouter, UploadFile, File, HTTPException, Query
@@ -13,6 +16,7 @@ from fastapi.responses import StreamingResponse
 from typing import Dict, Any, Optional
 import uuid
 import io
+import logging
 from datetime import datetime, timezone
 
 from app.agents.finance_agent import FinanceDocumentAgent
@@ -21,21 +25,16 @@ from app.services.s3_service import get_s3_service
 from app.services.ddb_service import get_ddb_service
 from app.services.finance_service import get_finance_service
 from app.models import Signal
+from app.utils.upload_validator import (
+    validate_org_id,
+    validate_upload_file,
+    FINANCE_CONTENT_TYPES,
+    FINANCE_EXTENSIONS,
+)
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/finance", tags=["finance"])
-
-# Allowed MIME types and extensions for upload validation
-ALLOWED_CONTENT_TYPES = {
-    "application/pdf",
-    "image/jpeg",
-    "image/png",
-    "text/csv",
-    "application/csv",
-    "application/vnd.ms-excel",
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-}
-ALLOWED_EXTENSIONS = {".pdf", ".jpg", ".jpeg", ".png", ".csv", ".xls", ".xlsx"}
-MAX_FILE_SIZE = 10 * 1024 * 1024  # 10 MB hard limit
 
 
 @router.post("/upload")
@@ -45,27 +44,20 @@ async def upload_finance_document(
 ) -> Dict[str, Any]:
     """Upload a financial document or spreadsheet. Supports PDF, JPEG, PNG, CSV, XLS, XLSX."""
 
-    # Validate content type or extension
-    content_type = file.content_type or ""
-    filename = file.filename or ""
-    ext = ("." + filename.rsplit(".", 1)[-1]).lower() if "." in filename else ""
-    if content_type not in ALLOWED_CONTENT_TYPES and ext not in ALLOWED_EXTENSIONS:
-        raise HTTPException(400, "Accepted formats: PDF, JPEG, PNG, CSV, XLS, XLSX.")
+    # Validate org_id and file using shared validators
+    org_id = validate_org_id(org_id)
+    file_content, safe_filename, ext = await validate_upload_file(
+        file, FINANCE_CONTENT_TYPES, FINANCE_EXTENSIONS
+    )
 
-    file_content = await file.read()
-
-    # Validate file size
-    if len(file_content) > MAX_FILE_SIZE:
-        raise HTTPException(413, "File exceeds the 10 MB size limit.")
-
-    is_spreadsheet = ext in {".csv", ".xls", ".xlsx"} or "csv" in content_type or "spreadsheet" in content_type or "ms-excel" in content_type
+    is_spreadsheet = ext in {".csv", ".xls", ".xlsx"}
 
     # --- Spreadsheet path: parse rows as individual finance records ---
     if is_spreadsheet:
-        return await _handle_spreadsheet_upload(org_id, file_content, content_type, filename)
+        return await _handle_spreadsheet_upload(org_id, file_content, file.content_type or "", safe_filename)
 
     # --- Document path: PDF / image ---
-    return await _handle_document_upload(org_id, file_content, filename)
+    return await _handle_document_upload(org_id, file_content, safe_filename)
 
 
 async def _handle_spreadsheet_upload(
@@ -77,6 +69,9 @@ async def _handle_spreadsheet_upload(
         csv_text = finance_service.parse_spreadsheet_to_csv(file_content, content_type, filename)
     except ValueError as e:
         raise HTTPException(400, str(e))
+    except Exception as e:
+        logger.error(f"Spreadsheet parsing failed for org={org_id}: {e}")
+        raise HTTPException(400, "Could not parse the spreadsheet. Check the file format.")
 
     import csv as csv_mod
     reader = csv_mod.DictReader(io.StringIO(csv_text))
@@ -141,8 +136,12 @@ async def _handle_document_upload(
     s3_key = f"documents/{org_id}/{document_id}/{filename}"
 
     # Upload to S3
-    s3_service = get_s3_service()
-    s3_service.upload_file(file_content, s3_key)
+    try:
+        s3_service = get_s3_service()
+        s3_service.upload_file(file_content, s3_key)
+    except Exception as e:
+        logger.error(f"S3 upload failed for org={org_id}: {e}")
+        raise HTTPException(500, "Failed to store file. Please try again.")
 
     # OCR placeholder — in production, call Textract or similar
     raw_text = f"OCR placeholder for {filename}"
@@ -236,7 +235,12 @@ async def _handle_document_upload(
 @router.get("/{org_id}/documents")
 async def get_finance_documents(org_id: str) -> Dict[str, Any]:
     """List all finance documents for an organization."""
-    docs = get_finance_service().get_finance_documents(org_id)
+    org_id = validate_org_id(org_id)
+    try:
+        docs = get_finance_service().get_finance_documents(org_id)
+    except Exception as e:
+        logger.error(f"Failed to fetch finance docs for org={org_id}: {e}")
+        raise HTTPException(500, "Failed to retrieve documents.")
     return {"org_id": org_id, "documents": docs}
 
 
@@ -416,7 +420,10 @@ async def reconcile(
     file: UploadFile = File(...),
 ) -> Dict[str, Any]:
     """Reconcile finance documents against a bank statement (CSV or Excel)."""
+    org_id = validate_org_id(org_id)
     file_content = await file.read()
+    if len(file_content) == 0:
+        raise HTTPException(400, "Uploaded file is empty.")
     finance_service = get_finance_service()
     try:
         csv_content = finance_service.parse_spreadsheet_to_csv(
@@ -424,7 +431,14 @@ async def reconcile(
         )
     except ValueError:
         raise HTTPException(400, "Upload a CSV or Excel (.xls, .xlsx) bank statement.")
-    result = finance_service.reconcile(org_id, csv_content)
+    except Exception as e:
+        logger.error(f"Reconciliation parse failed for org={org_id}: {e}")
+        raise HTTPException(400, "Could not parse the bank statement file.")
+    try:
+        result = finance_service.reconcile(org_id, csv_content)
+    except Exception as e:
+        logger.error(f"Reconciliation failed for org={org_id}: {e}")
+        raise HTTPException(500, "Reconciliation failed. Please try again.")
     return {"org_id": org_id, "reconciliation": result}
 
 

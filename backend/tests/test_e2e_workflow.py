@@ -88,7 +88,7 @@ class TestClosedLoopWorkflow:
 
         # Step 4: EXECUTE - run action
         mock_act = Mock()
-        mock_act.invoke_nova_act.return_value = {"target": "INV-001"}
+        mock_act.invoke_nova_lite.return_value = '{"target": "INV-001", "status": "success", "actions_taken": ["collected"], "summary": "done"}'
         mock_action_bedrock.return_value = mock_act
 
         action_agent = ActionAgent()
@@ -166,13 +166,13 @@ class TestErrorRecoveryAndGracefulDegradation:
     @patch("app.agents.action_agent.get_bedrock_client")
     def test_workflow_execution_logs_failures(self, mock_bedrock):
         mock_client = Mock()
-        mock_client.invoke_nova_act.side_effect = Exception("Nova Act unavailable")
+        mock_client.invoke_nova_lite.side_effect = Exception("Nova Lite unavailable")
         mock_bedrock.return_value = mock_client
 
         agent = ActionAgent()
         result = agent.execute_strategy("org_123", "strat_001", "Test strategy")
         assert result.execution_status == "failed"
-        assert result.error_reason == "Nova Act unavailable"
+        assert result.error_reason == "Nova Lite unavailable"
 
 
 class TestDataConsistency:

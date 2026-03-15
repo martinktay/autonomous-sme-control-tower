@@ -122,6 +122,10 @@ class DynamoDBService:
     def create_nsi_score(self, nsi_data: Dict[str, Any]) -> None:
         """Create a new NSI score record"""
         self._enforce_org_id(nsi_data, nsi_data.get("org_id", ""))
+        # DynamoDB table uses timestamp as sort key — ensure it's present
+        if "timestamp" not in nsi_data:
+            from datetime import datetime, timezone
+            nsi_data["timestamp"] = datetime.now(timezone.utc).isoformat()
         converted_data = self._convert_to_dynamodb_format(nsi_data)
         logger.info(f"Creating NSI score {nsi_data.get('nsi_id')} for org {nsi_data.get('org_id')}")
         self._retry_with_backoff(self.nsi_table.put_item, Item=converted_data)
@@ -129,6 +133,9 @@ class DynamoDBService:
     def create_strategy(self, strategy_data: Dict[str, Any]) -> None:
         """Create a new strategy record"""
         self._enforce_org_id(strategy_data, strategy_data.get("org_id", ""))
+        # DynamoDB table uses simulation_id as sort key — map from strategy_id
+        if "simulation_id" not in strategy_data and "strategy_id" in strategy_data:
+            strategy_data["simulation_id"] = strategy_data["strategy_id"]
         converted_data = self._convert_to_dynamodb_format(strategy_data)
         logger.info(f"Creating strategy {strategy_data.get('strategy_id')} for org {strategy_data.get('org_id')}")
         self._retry_with_backoff(self.strategies_table.put_item, Item=converted_data)
@@ -136,6 +143,9 @@ class DynamoDBService:
     def create_action(self, action_data: Dict[str, Any]) -> None:
         """Create a new action execution record"""
         self._enforce_org_id(action_data, action_data.get("org_id", ""))
+        # DynamoDB table uses action_id as sort key — map from execution_id
+        if "action_id" not in action_data and "execution_id" in action_data:
+            action_data["action_id"] = action_data["execution_id"]
         converted_data = self._convert_to_dynamodb_format(action_data)
         logger.info(f"Creating action {action_data.get('execution_id')} for org {action_data.get('org_id')}")
         self._retry_with_backoff(self.actions_table.put_item, Item=converted_data)
@@ -161,23 +171,30 @@ class DynamoDBService:
         logger.info(f"Getting signal {signal_id} for org {org_id}")
         return self._retry_with_backoff(_get)
     
-    def get_nsi_score(self, org_id: str, nsi_id: str) -> Optional[Dict[str, Any]]:
-        """Get a specific NSI score by org_id and nsi_id"""
-        def _get():
-            response = self.nsi_table.get_item(
-                Key={"org_id": org_id, "nsi_id": nsi_id}
-            )
-            item = response.get("Item")
-            return self._convert_from_dynamodb_format(item) if item else None
-        
-        logger.info(f"Getting NSI score {nsi_id} for org {org_id}")
-        return self._retry_with_backoff(_get)
+    def get_nsi_score(self, org_id: str, nsi_id: str, timestamp: str = None) -> Optional[Dict[str, Any]]:
+        """Get a specific NSI score by org_id and timestamp (sort key)"""
+        if timestamp:
+            def _get():
+                response = self.nsi_table.get_item(
+                    Key={"org_id": org_id, "timestamp": timestamp}
+                )
+                item = response.get("Item")
+                return self._convert_from_dynamodb_format(item) if item else None
+            logger.info(f"Getting NSI score for org {org_id} at {timestamp}")
+            return self._retry_with_backoff(_get)
+        else:
+            # Fallback: query and filter by nsi_id
+            scores = self.query_nsi_scores(org_id, limit=100)
+            for score in scores:
+                if score.get("nsi_id") == nsi_id:
+                    return score
+            return None
     
     def get_strategy(self, org_id: str, strategy_id: str) -> Optional[Dict[str, Any]]:
         """Get a specific strategy by org_id and strategy_id"""
         def _get():
             response = self.strategies_table.get_item(
-                Key={"org_id": org_id, "strategy_id": strategy_id}
+                Key={"org_id": org_id, "simulation_id": strategy_id}
             )
             item = response.get("Item")
             return self._convert_from_dynamodb_format(item) if item else None
@@ -189,7 +206,7 @@ class DynamoDBService:
         """Get a specific action by org_id and execution_id"""
         def _get():
             response = self.actions_table.get_item(
-                Key={"org_id": org_id, "execution_id": execution_id}
+                Key={"org_id": org_id, "action_id": execution_id}
             )
             item = response.get("Item")
             return self._convert_from_dynamodb_format(item) if item else None
@@ -351,7 +368,7 @@ class DynamoDBService:
         expr_attr_names = {}
         
         for key, value in converted_updates.items():
-            if key not in ["org_id", "execution_id"]:  # Don't update keys
+            if key not in ["org_id", "action_id", "execution_id"]:  # Don't update keys
                 placeholder = f"#{key}"
                 value_placeholder = f":{key}"
                 update_expr_parts.append(f"{placeholder} = {value_placeholder}")
@@ -366,7 +383,7 @@ class DynamoDBService:
         
         def _update():
             self.actions_table.update_item(
-                Key={"org_id": org_id, "execution_id": execution_id},
+                Key={"org_id": org_id, "action_id": execution_id},
                 UpdateExpression=update_expression,
                 ExpressionAttributeNames=expr_attr_names,
                 ExpressionAttributeValues=expr_attr_values

@@ -44,15 +44,45 @@ Context: {json.dumps(context, indent=2)}
             parsed = clean_model_output(parsed)
             strategies = []
             for strategy_data in parsed["strategies"]:
+                # Resilient key extraction — Bedrock may use varying key names
+                description = (
+                    strategy_data.get("description")
+                    or strategy_data.get("title")
+                    or "Strategy recommendation"
+                )
+                predicted_improvement = float(
+                    strategy_data.get("predicted_improvement")
+                    or strategy_data.get("predicted_nsi_improvement")
+                    or strategy_data.get("nsi_improvement")
+                    or 5.0
+                )
+                confidence_score = float(
+                    strategy_data.get("confidence")
+                    or strategy_data.get("confidence_score")
+                    or 0.5
+                )
+                automatable = bool(
+                    strategy_data.get("automatable")
+                    or strategy_data.get("automation_eligibility")
+                    or False
+                )
+                reasoning = (
+                    strategy_data.get("reasoning")
+                    or strategy_data.get("rationale")
+                    or strategy_data.get("execution_steps", "")
+                )
+                if isinstance(reasoning, list):
+                    reasoning = "; ".join(str(r) for r in reasoning)
+
                 strategy = Strategy(
                     strategy_id=f"strat_{uuid.uuid4().hex[:12]}",
                     org_id=org_id,
                     nsi_snapshot_id=nsi_snapshot_id,
-                    description=strategy_data["description"],
-                    predicted_nsi_improvement=strategy_data["predicted_improvement"],
-                    confidence_score=strategy_data["confidence"],
-                    automation_eligibility=strategy_data.get("automatable", False),
-                    reasoning=strategy_data.get("reasoning", ""),
+                    description=description,
+                    predicted_nsi_improvement=predicted_improvement,
+                    confidence_score=confidence_score,
+                    automation_eligibility=automatable,
+                    reasoning=str(reasoning),
                     created_at=datetime.now(timezone.utc)
                 )
                 strategies.append(strategy)
