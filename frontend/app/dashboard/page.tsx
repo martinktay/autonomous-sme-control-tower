@@ -122,7 +122,7 @@ export default function DashboardPage() {
   const nsi = nsiData?.nsi_score ?? nsiData?.nova_stability_index ?? null;
   const confidence = nsiData?.confidence || "medium";
   const timestamp = nsiData?.timestamp;
-  const risks = nsiData?.top_risks || [];
+  const risks = nsiData?.top_risks || nsiData?.sub_indices?.top_risks || [];
 
   return (
     <div className="min-h-screen bg-background p-4 sm:p-8">

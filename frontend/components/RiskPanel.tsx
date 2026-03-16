@@ -9,7 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { AlertTriangle, AlertCircle, Info, Loader2, ShieldCheck } from "lucide-react";
 
 interface Risk {
-  description: string;
+  description?: string;
+  risk?: string;
   severity: string;
   category?: string;
 }
@@ -85,7 +86,7 @@ export default function RiskPanel({ risks, loading }: RiskPanelProps) {
                       </span>
                     )}
                   </div>
-                  <p className="text-sm">{risk.description}</p>
+                  <p className="text-sm">{risk.description || risk.risk || "Unknown risk"}</p>
                 </div>
               </div>
             ))}
