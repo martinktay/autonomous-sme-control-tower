@@ -60,7 +60,7 @@ export default function ActionLog({ actions, loading }: ActionLogProps) {
       <CardHeader>
         <CardTitle>Action History</CardTitle>
         <CardDescription>
-          Recent autonomous actions executed by the system
+          Things the AI has done for your business automatically — like chasing payments or flagging risks. Green means it worked, red means it hit a problem.
         </CardDescription>
       </CardHeader>
       <CardContent>

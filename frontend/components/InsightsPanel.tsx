@@ -98,7 +98,7 @@ export default function InsightsPanel({
           </Button>
         </div>
         <CardDescription>
-          AI-generated summary of your business situation in plain language
+          Click &quot;Get Insights&quot; for a plain-language summary of how your business is doing, what needs attention, and what to do next — written so anyone can understand it, no accounting degree needed.
         </CardDescription>
       </CardHeader>
       <CardContent>

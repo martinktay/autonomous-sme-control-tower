@@ -59,7 +59,7 @@ export default function FinanceDashboardPage() {
         <div>
           <h1 className="text-3xl font-bold mb-1">Finance Dashboard</h1>
           <p className="text-muted-foreground">
-            AI-powered financial analytics, tax insights, and business intelligence.
+            Your money at a glance — see where it comes from, where it goes, and how much tax you owe. No accounting knowledge needed.
             {lastRefresh && (
               <span className="ml-2 text-xs">Updated {lastRefresh}</span>
             )}

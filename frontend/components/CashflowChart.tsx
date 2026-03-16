@@ -37,7 +37,8 @@ export default function CashflowChart() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Cashflow</CardTitle>
+        <CardTitle>Cash Flow</CardTitle>
+        <p className="text-xs text-muted-foreground mt-1">Money coming in (revenue) vs money going out (expenses) over time. If the green bars are bigger than the red bars, you are in good shape.</p>
         <div className="flex flex-wrap gap-2 mt-2">
           {PERIODS.map((p) => (
             <Button key={p} size="sm" variant={period === p ? "default" : "outline"} onClick={() => setPeriod(p)}>

@@ -81,7 +81,7 @@ export default function NSICard({
           </Badge>
         </div>
         <CardDescription>
-          Overall operational health score
+          Your overall business health score out of 100. Above 70 is healthy, 40–69 needs attention, below 40 means act quickly.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">

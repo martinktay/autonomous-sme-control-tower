@@ -157,7 +157,7 @@ export default function FinanceInsightsPanel({
           </div>
         </div>
         <CardDescription>
-          AI-generated analysis of your finances, taxation, and cash flow
+          The AI reads your invoices and receipts, then explains your financial situation in plain language — profits, cash flow, taxes, and what to do next.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">

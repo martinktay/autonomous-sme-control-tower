@@ -201,22 +201,22 @@ export default function DashboardPage() {
             <SubIndexCard
               label="Cash Flow"
               value={nsiData.liquidity_index}
-              hint="How well you can pay your bills on time"
+              hint="Can you pay your bills on time? This measures the balance between money coming in and money going out. A low score means you may struggle to cover expenses — consider chasing overdue invoices or delaying non-urgent purchases."
             />
             <SubIndexCard
               label="Revenue Stability"
               value={nsiData.revenue_stability_index}
-              hint="How consistent your income has been"
+              hint="Is your income steady or unpredictable? This tracks how consistent your revenue has been. A high score means reliable income; a low score means your earnings vary a lot — which makes planning harder."
             />
             <SubIndexCard
               label="Operations Speed"
               value={nsiData.operational_latency_index}
-              hint="How quickly your business processes run"
+              hint="How fast do things get done in your business? This measures delays in processing invoices, fulfilling orders, and completing tasks. A low score means bottlenecks are slowing you down — look for incomplete or missing data."
             />
             <SubIndexCard
               label="Vendor Risk"
               value={nsiData.vendor_risk_index}
-              hint="How reliable your suppliers are"
+              hint="How dependable are your suppliers? This checks if you rely too heavily on one vendor, have late deliveries, or missing documentation. A low score means your supply chain is fragile — consider diversifying your suppliers."
             />
           </div>
         )}
@@ -271,16 +271,33 @@ function SubIndexCard({
   value?: number;
   hint: string;
 }) {
+  const getColor = (v: number) => {
+    if (v >= 70) return "text-green-600";
+    if (v >= 40) return "text-yellow-600";
+    return "text-red-600";
+  };
+
+  const getLabel = (v: number) => {
+    if (v >= 70) return "Good";
+    if (v >= 40) return "Needs attention";
+    return "Act now";
+  };
+
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardDescription>{label}</CardDescription>
+        <CardDescription className="font-medium">{label}</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold">
-          {value != null ? value.toFixed(1) : "--"}
+        <div className="flex items-baseline gap-2">
+          <span className={`text-2xl font-bold ${value != null ? getColor(value) : ""}`}>
+            {value != null ? value.toFixed(1) : "--"}
+          </span>
+          {value != null && (
+            <span className={`text-xs ${getColor(value)}`}>{getLabel(value)}</span>
+          )}
         </div>
-        <p className="text-xs text-muted-foreground mt-1">{hint}</p>
+        <p className="text-xs text-muted-foreground mt-2 leading-relaxed">{hint}</p>
       </CardContent>
     </Card>
   );

@@ -50,7 +50,7 @@ export default function RiskPanel({ risks, loading }: RiskPanelProps) {
       <CardHeader>
         <CardTitle>Top Operational Risks</CardTitle>
         <CardDescription>
-          Identified risks ranked by severity
+          Problems the AI found in your business data, ranked by how urgent they are. Red means act now, yellow means keep an eye on it.
         </CardDescription>
       </CardHeader>
       <CardContent>

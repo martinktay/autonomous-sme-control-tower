@@ -33,7 +33,10 @@ export default function PnlSummary({ startDate, endDate }: PnlSummaryProps) {
 
   return (
     <Card>
-      <CardHeader><CardTitle>Profit &amp; Loss</CardTitle></CardHeader>
+      <CardHeader>
+        <CardTitle>Profit &amp; Loss</CardTitle>
+        <p className="text-xs text-muted-foreground mt-1">How much you earned minus how much you spent. Green means profit, red means loss.</p>
+      </CardHeader>
       <CardContent className="space-y-3">
         <div className="grid grid-cols-3 gap-4 text-center">
           <div>

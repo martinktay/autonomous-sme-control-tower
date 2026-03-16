@@ -98,6 +98,7 @@ export default function FinanceAnalytics({ refreshKey }: FinanceAnalyticsProps) 
             <div>
               <p className="text-xs text-muted-foreground">Total Revenue</p>
               <p className="text-xl font-bold text-green-600">{fmt(totals.revenue)}</p>
+              <p className="text-[10px] text-muted-foreground">All money that came into your business</p>
             </div>
           </CardContent>
         </Card>
@@ -109,6 +110,7 @@ export default function FinanceAnalytics({ refreshKey }: FinanceAnalyticsProps) 
             <div>
               <p className="text-xs text-muted-foreground">Total Expenses</p>
               <p className="text-xl font-bold text-red-600">{fmt(totals.expenses)}</p>
+              <p className="text-[10px] text-muted-foreground">All money you spent on suppliers, staff, etc.</p>
             </div>
           </CardContent>
         </Card>
@@ -122,7 +124,7 @@ export default function FinanceAnalytics({ refreshKey }: FinanceAnalyticsProps) 
               <p className={`text-xl font-bold ${totals.net_profit >= 0 ? "text-green-600" : "text-red-600"}`}>
                 {fmt(totals.net_profit)}
               </p>
-              <p className="text-[10px] text-muted-foreground">{margin.toFixed(1)}% margin</p>
+              <p className="text-[10px] text-muted-foreground">{margin.toFixed(1)}% margin — {totals.net_profit >= 0 ? "you kept this much of every sale" : "you are spending more than you earn"}</p>
             </div>
           </CardContent>
         </Card>
@@ -134,6 +136,7 @@ export default function FinanceAnalytics({ refreshKey }: FinanceAnalyticsProps) 
             <div>
               <p className="text-xs text-muted-foreground">Total Tax Burden</p>
               <p className="text-xl font-bold text-orange-600">{fmt(totals.total_tax_burden || 0)}</p>
+              <p className="text-[10px] text-muted-foreground">Total taxes across VAT, WHT, CIT, PAYE, and customs</p>
               {vat.net_liability !== 0 && (
                 <p className="text-[10px] text-muted-foreground">
                   VAT {vat.net_liability > 0 ? "owed" : "refund"}: {fmt(Math.abs(vat.net_liability))}

@@ -1,282 +1,225 @@
-# Autonomous SME Control Tower - Demo Script
+# Autonomous SME Control Tower — Demo Script
 
-## Hackathon Demo Flow (5-7 minutes)
+## Video Demo Flow (5–7 minutes)
 
----
+Live app: https://sme-control-tower.vercel.app
+Backend: https://autonomous-sme-control-tower.onrender.com
 
-## Introduction (30 seconds)
-
-**"Meet the Autonomous SME Control Tower - an AI-powered operational intelligence system that helps small businesses run themselves."**
-
-Key points:
-- Built entirely on AWS Bedrock Nova models
-- Multi-agent architecture
-- Closed-loop autonomous decision-making
-- Real-time operational health monitoring
+> **Before recording:** Open the backend health endpoint in a browser tab first
+> to wake up the Render free-tier server (takes 30–60 s):
+> https://autonomous-sme-control-tower.onrender.com/health
 
 ---
 
-## Problem Statement (30 seconds)
+## 1. Introduction (30 seconds)
 
-**"Small business owners are drowning in operational tasks:"**
+**Say something like:**
 
-- Tracking invoices and payments
-- Responding to customer emails
-- Managing cash flow
-- Making strategic decisions
+"Meet the Autonomous SME Control Tower — an AI-powered platform that helps
+small businesses in emerging markets run their operations autonomously.
 
-**"They need an AI co-pilot that doesn't just advise - it acts."**
-
----
-
-## Solution Overview (1 minute)
-
-**"The Autonomous SME Control Tower operates in a continuous 5-step cycle:"**
-
-1. **INGEST** - Collect business signals (invoices, emails)
-2. **DIAGNOSE** - Calculate Nova Stability Index (NSI)
-3. **SIMULATE** - Generate corrective strategies
-4. **EXECUTE** - Take autonomous actions via Nova Act
-5. **EVALUATE** - Measure outcomes and improve
-
-**"This isn't a chatbot - it's an autonomous operations system."**
+Most small businesses in Nigeria don't have spreadsheets. Some use WhatsApp.
+This system meets them where they are — it ingests whatever data they have,
+diagnoses problems, simulates strategies, takes action, and learns from the
+results. All powered by AWS Bedrock Nova models."
 
 ---
 
-## Live Demo (3-4 minutes)
+## 2. Landing Page (15 seconds)
 
-### Part 1: The Portal (One-Click Demo)
+**URL:** https://sme-control-tower.vercel.app
 
-**Navigate to: `/portal`**
-
-**"Let me show you the complete closed loop in action."**
-
-1. Click "Run Closed Loop"
-2. Show real-time progress:
-   - ✅ Analyzing signals...
-   - ✅ Calculating NSI...
-   - ✅ Simulating strategies...
-   - ✅ Executing action...
-   - ✅ Re-evaluating outcome...
-
-3. **Highlight the results:**
-   - NSI Before: 45 (Critical)
-   - NSI After: 62 (Moderate)
-   - Action: Triggered invoice collection
-   - Prediction Accuracy: 87%
-
-**"Notice how the system predicted a 15-point improvement and achieved 17 points - it's learning."**
-
-### Part 2: The Dashboard
-
-**Navigate to: `/dashboard`**
-
-**"Here's the operational command center."**
-
-Show:
-- **NSI Card**: Color-coded health score (0-100)
-- **Risk Panel**: Top operational risks identified
-- **Action Log**: History of autonomous actions
-- **Trend**: NSI improvement over time
-
-**"Every decision is explainable - click any risk to see the AI's reasoning."**
-
-### Part 3: Signal Intake
-
-**Navigate to: `/upload`**
-
-**"The system ingests real business data."**
-
-1. Upload a sample invoice
-2. Show extracted data:
-   - Vendor: Acme Corp
-   - Amount: $1,500
-   - Due Date: 2024-02-15
-   - Status: Overdue
-
-**"Nova 2 Lite extracts structured data, Nova embeddings create semantic memory."**
-
-### Part 4: Strategy Simulation
-
-**Navigate to: `/strategy`**
-
-**"When NSI drops below 70, the system generates corrective strategies."**
-
-Show 2-3 strategies:
-1. **Trigger invoice collections** (Automatable ✓)
-   - Predicted improvement: +15 NSI
-   - Confidence: 85%
-   
-2. **Prioritize customer responses** (Manual)
-   - Predicted improvement: +8 NSI
-   - Confidence: 72%
-
-**"The system knows which actions it can execute autonomously."**
+- Show the landing page briefly
+- Point out the navigation: Dashboard, Upload, Finance, Emails, Voice, Strategy, Memory
+- Pick one of the demo SMEs from the org selector (e.g. "Ades Trading Co")
 
 ---
 
-## Technical Deep Dive (1 minute)
+## 3. Upload Data (45 seconds)
 
-**"Under the hood, this is a sophisticated multi-agent system:"**
+**URL:** https://sme-control-tower.vercel.app/upload
 
-### 7 Specialized Agents
+"First, the business owner uploads their financial data. This could be
+invoices, receipts, or a simple CSV spreadsheet."
 
-1. **Signal Intake Agent** - Nova 2 Lite for extraction
-2. **Memory Agent** - Nova embeddings for semantic search
-3. **Risk Diagnosis Agent** - Nova 2 Lite for NSI calculation
-4. **Strategy Simulation Agent** - Nova 2 Lite for planning
-5. **Action Execution Agent** - Nova Act for automation
-6. **Re-evaluation Agent** - Nova 2 Lite for accuracy measurement
-7. **Voice Agent** - Nova Sonic for audio briefings (optional)
-
-### Nova Model Usage
-
-**"Every capability uses a Nova model:"**
-- Text generation: Nova 2 Lite
-- Semantic search: Nova embeddings
-- Autonomous actions: Nova Act
-- Voice briefings: Nova Sonic
-
-**"This is a Nova-first architecture."**
+1. Select an org (e.g. "Ades Trading Co")
+2. Upload one of the demo CSV files (e.g. `demo-data/ades_trading_co.csv`)
+3. Show the upload success message
+4. Mention: "Nova Lite extracts structured data from the document, and Nova
+   Embeddings stores it in semantic memory for later retrieval."
 
 ---
 
-## Key Differentiators (30 seconds)
+## 4. Dashboard — Run Analysis (1 minute 30 seconds)
 
-**"What makes this unique?"**
+**URL:** https://sme-control-tower.vercel.app/dashboard
 
-1. **Closed-Loop Learning**
-   - Predicts outcomes
-   - Measures actual results
-   - Improves over time
+"Now let's see the business health dashboard."
 
-2. **Autonomous Execution**
-   - Not just recommendations
-   - Actually takes actions
-   - Via Nova Act
-
-3. **Measurable Impact**
-   - NSI score (0-100)
-   - Prediction accuracy tracking
-   - Clear before/after metrics
-
-4. **Multi-Agent Architecture**
-   - Each agent has one job
-   - Clean separation of concerns
-   - Scalable and maintainable
-
----
-
-## Future Vision (30 seconds)
-
-**"This is just the beginning:"**
-
-- **Expand to full SaaS platform**
-- **Adapt for Nigeria SME market**
-- **Add more autonomous capabilities:**
-  - Vendor negotiations
-  - Customer support automation
-  - Financial forecasting
-  - Compliance monitoring
-
-**"Imagine a world where small businesses run as efficiently as large enterprises - powered by AI."**
+1. Click "Run Analysis" — this triggers the full closed loop:
+   - Collects all signals for this org
+   - Calculates the Nova Stability Index (NSI) — a 0–100 health score
+   - Generates corrective strategies
+   - Executes the best automatable strategy
+   - Re-evaluates the outcome
+2. Wait for it to complete (15–30 seconds)
+3. Walk through the results:
+   - **NSI Card**: "This is the overall health score — colour-coded from
+     Critical (red) to Healthy (green)"
+   - **Sub-indices**: "Cash Flow, Revenue Stability, Operations Speed,
+     Vendor Risk — each scored individually"
+   - **AI Business Insights**: Click "Get Insights" to show the AI-generated
+     plain-language summary with key findings and next steps
+   - **Top Operational Risks**: "The AI identified these risks ranked by
+     severity"
+   - **Action History**: "And here you can see the autonomous actions the
+     system has already taken — sorted by most recent"
 
 ---
 
-## Closing (15 seconds)
+## 5. Finance Dashboard (45 seconds)
 
-**"The Autonomous SME Control Tower:**
-- Built entirely on AWS Bedrock Nova
-- Multi-agent autonomous system
-- Closed-loop learning
-- Real operational impact
+**URL:** https://sme-control-tower.vercel.app/finance
 
-**Thank you!"**
+"The finance module gives deeper financial intelligence."
 
----
-
-## Demo Preparation Checklist
-
-### Before Demo
-- [ ] Start Docker containers (`docker-compose up`)
-- [ ] Verify backend is running (http://localhost:8000/health)
-- [ ] Verify frontend is running (http://localhost:3000)
-- [ ] Load sample data (invoices, signals)
-- [ ] Run closed loop once to verify it works
-- [ ] Clear browser cache for clean demo
-
-### Sample Data Needed
-- [ ] 3-5 sample invoices (some overdue)
-- [ ] 2-3 sample emails (customer inquiries)
-- [ ] Pre-calculated NSI showing improvement trend
-
-### Backup Plan
-- [ ] Screenshots of successful closed-loop run
-- [ ] Video recording of working demo
-- [ ] Slide deck with architecture diagrams
+1. Show the AI Financial Insights panel
+2. Show the analytics charts — KPIs, category breakdowns, vendor analysis
+3. Show the Cashflow chart and P&L summary
+4. Mention: "Business owners can also upload documents for review, export
+   data as CSV or Excel, and reconcile against bank statements."
 
 ---
 
-## Q&A Preparation
+## 6. Email Intelligence (1 minute)
 
-### Expected Questions
+**URL:** https://sme-control-tower.vercel.app/emails
 
-**Q: How does it handle errors?**
-A: Each agent has error handling, failed actions are logged, and the system continues operating. We use retry logic with exponential backoff for API calls.
+"Now here's where it gets interesting — autonomous email handling."
 
-**Q: What about data privacy?**
-A: All data is partitioned by org_id in DynamoDB. Multi-tenant architecture with strict data isolation. Ready for enterprise deployment.
+1. Click "Ingest Email"
+2. Paste a sample email:
+   - Sender: `vendor@example.com`
+   - Subject: `Invoice #1042 Payment Overdue`
+   - Body: `Hi, this is a reminder that invoice #1042 for 2,500 GBP is now
+     15 days overdue. Please arrange payment at your earliest convenience.
+     Regards, Ade`
+3. Click "Classify & Extract Tasks"
+4. Show the result:
+   - "The AI classified this as a payment reminder, high priority"
+   - "It automatically extracted a task: process payment for invoice 1042"
+5. Click "Generate Reply Draft"
+   - "And it drafted a professional reply — ready to send"
+6. (Optional) If SES is configured: Click "Send via SES" to actually send
+   the reply — then show it arriving in your inbox
 
-**Q: Can it integrate with existing systems?**
-A: Yes! The architecture is designed for extensibility. We can add connectors for QuickBooks, Salesforce, or any API-based system.
-
-**Q: How accurate are the predictions?**
-A: The system tracks prediction accuracy for every action. In our testing, we're seeing 75-90% accuracy, and it improves over time through re-evaluation.
-
-**Q: What's the cost?**
-A: Primarily AWS Bedrock API calls. For a typical SME processing 50 signals/day, estimated cost is $20-50/month.
-
-**Q: How long did this take to build?**
-A: 7 days for the MVP, leveraging AWS Bedrock Nova models for all AI capabilities. The multi-agent architecture made it possible to build quickly while maintaining clean separation of concerns.
+**Key point:** "The system read the email, understood it, created a task,
+and drafted a reply — all autonomously. This is the Execute step in our
+closed loop."
 
 ---
 
-## Technical Details (If Asked)
+## 7. Voice Assistant (30 seconds)
 
-### Architecture
-- **Backend**: FastAPI + Python
-- **Frontend**: Next.js 14 + TypeScript + Tailwind CSS
-- **AI**: AWS Bedrock Nova models (Lite, embeddings, Act, Sonic)
-- **Storage**: DynamoDB (operational data) + S3 (documents)
-- **Deployment**: Docker + docker-compose
+**URL:** https://sme-control-tower.vercel.app/voice
 
-### Nova Model Usage
-- **Nova 2 Lite**: Invoice extraction, email classification, risk diagnosis, strategy generation, re-evaluation
-- **Nova embeddings**: Semantic memory, similarity search
-- **Nova Act**: Autonomous workflow execution
-- **Nova Sonic**: Voice briefings (optional feature)
+"For business owners who prefer voice, we have a conversational AI assistant."
 
-### Data Flow
+1. Click "Get Business Briefing" or type a question like "How is my business doing?"
+2. Show the AI response based on real business data
+3. Mention: "This uses Nova for natural language understanding and browser
+   speech synthesis for audio output."
+
+---
+
+## 8. Strategy Simulation (30 seconds)
+
+**URL:** https://sme-control-tower.vercel.app/strategy
+
+"The system also simulates strategies before executing them."
+
+1. Click "Simulate Strategies"
+2. Show the generated strategies with predicted NSI improvement and confidence
+3. Point out which ones are marked as automatable
+
+---
+
+## 9. Portal — One-Click Closed Loop (30 seconds)
+
+**URL:** https://sme-control-tower.vercel.app/portal
+
+"For a quick overview, the portal runs the entire 5-step cycle with one click."
+
+1. Click "Start Full Analysis"
+2. Show the animated step-by-step progress
+3. Show the before/after NSI scores and prediction accuracy
+
+---
+
+## 10. Closing (30 seconds)
+
+"To recap — the Autonomous SME Control Tower:
+
+- Is built entirely on AWS Bedrock Nova models — Nova Lite for text, Nova
+  Embeddings for semantic search, Nova Act for autonomous actions
+- Runs a closed-loop cycle: Ingest, Diagnose, Simulate, Execute, Evaluate
+- Uses 8 specialized AI agents working together
+- Supports multi-tenant operations with data isolation per organisation
+- Is deployed live — backend on Render, frontend on Vercel
+
+This is what autonomous business operations look like for small businesses.
+Thank you."
+
+---
+
+## Pre-Recording Checklist
+
+### Wake up the backend (do this 2 minutes before recording)
+- [ ] Visit https://autonomous-sme-control-tower.onrender.com/health
+- [ ] Wait until you see `{"status":"healthy",...}` or `{"status":"degraded",...}`
+
+### Verify data is loaded
+- [ ] Go to dashboard for at least one org and confirm NSI data shows
+- [ ] If no data, upload a CSV from `demo-data/` and run analysis
+
+### Browser setup
+- [ ] Use Chrome (best speech synthesis support for voice page)
+- [ ] Close unnecessary tabs
+- [ ] Set browser zoom to 100%
+- [ ] Clear any browser notifications
+
+### Sample email to paste (copy this before recording)
 ```
-Upload → S3 → Extract (Nova Lite) → Embed (Nova embeddings) → 
-Store (DynamoDB) → Diagnose (Nova Lite) → Simulate (Nova Lite) → 
-Execute (Nova Act) → Re-evaluate (Nova Lite) → Update NSI
+Sender: vendor@example.com
+Subject: Invoice #1042 Payment Overdue
+Body: Hi, this is a reminder that invoice #1042 for 2,500 GBP is now 15 days overdue. Please arrange payment at your earliest convenience. Regards, Ade
 ```
 
+### Org to demo with
+- Use "Ades Trading Co" (demo-org-001) or "TechBridge Solutions" (demo-org-003)
+  — whichever has the most data loaded
+
+### If something goes wrong
+- Backend timeout? Say "The AI is processing..." and wait — Render free tier
+  can be slow on first request
+- No data showing? Switch to a different org that has data
+- Error on screen? Refresh the page and try again — mention "live demo" :)
+
 ---
 
-## Success Metrics
+## Sample Narration Timing
 
-### Demo Success Indicators
-- ✅ Closed loop completes without errors
-- ✅ NSI improvement is visible
-- ✅ Prediction accuracy is calculated
-- ✅ All Nova models are demonstrated
-- ✅ Audience understands the autonomous nature
+| Section | Duration | Cumulative |
+|---------|----------|------------|
+| Introduction | 0:30 | 0:30 |
+| Landing page | 0:15 | 0:45 |
+| Upload data | 0:45 | 1:30 |
+| Dashboard + Analysis | 1:30 | 3:00 |
+| Finance dashboard | 0:45 | 3:45 |
+| Email intelligence | 1:00 | 4:45 |
+| Voice assistant | 0:30 | 5:15 |
+| Strategy simulation | 0:30 | 5:45 |
+| Portal closed loop | 0:30 | 6:15 |
+| Closing | 0:30 | 6:45 |
 
-### Hackathon Judging Criteria
-- **Innovation**: Multi-agent closed-loop system
-- **Technical Complexity**: 7 agents, 4 Nova models
-- **Practical Impact**: Real business value for SMEs
-- **Nova Integration**: Deep usage across all capabilities
-- **Completeness**: Working end-to-end demo
+Total: ~6 minutes 45 seconds
