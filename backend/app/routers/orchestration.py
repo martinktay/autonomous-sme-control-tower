@@ -54,6 +54,7 @@ async def run_closed_loop(request: RunLoopRequest) -> Dict[str, Any]:
             "vendor_risk_index": nsi_score.sub_indices.vendor_risk_index,
             "confidence": nsi_score.confidence,
             "reasoning": {"explanation": nsi_score.explanation},
+            "top_risks": nsi_score.top_risks,
             "timestamp": nsi_score.timestamp.isoformat()
         }
         ddb_service.put_nsi_score(nsi_snapshot_data)
@@ -117,6 +118,7 @@ async def run_closed_loop(request: RunLoopRequest) -> Dict[str, Any]:
             "vendor_risk_index": new_nsi_score.sub_indices.vendor_risk_index,
             "confidence": new_nsi_score.confidence,
             "reasoning": {"explanation": new_nsi_score.explanation},
+            "top_risks": new_nsi_score.top_risks,
             "timestamp": new_nsi_score.timestamp.isoformat()
         }
         ddb_service.put_nsi_score(new_nsi_snapshot_data)
