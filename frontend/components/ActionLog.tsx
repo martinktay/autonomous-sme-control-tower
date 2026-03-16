@@ -77,7 +77,9 @@ export default function ActionLog({ actions, loading }: ActionLogProps) {
           </div>
         ) : (
           <div className="space-y-3">
-            {actions.map((action) => (
+            {[...actions]
+              .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+              .map((action) => (
               <div
                 key={action.execution_id}
                 className="flex items-start gap-3 p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
