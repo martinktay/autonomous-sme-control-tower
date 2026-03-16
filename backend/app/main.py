@@ -37,12 +37,11 @@ app = FastAPI(
 
 # --- Middleware (applied bottom-up: last added runs first on request) ---
 
-# CORS — allow only origins listed in settings (e.g. localhost:3000)
-allowed_origins = [o.strip() for o in settings.cors_origins.split(",") if o.strip()]
+# CORS — allow all origins for hackathon deployment
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allowed_origins,
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
