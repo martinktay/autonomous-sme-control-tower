@@ -80,12 +80,23 @@ class OrgIsolationMiddleware(BaseHTTPMiddleware):
         "/openapi.json",
         "/redoc"
     ]
+
+    # Path prefixes that involve file uploads — skip middleware dispatch to avoid
+    # BaseHTTPMiddleware body-stream conflicts with multipart form data.
+    UPLOAD_PREFIXES = [
+        "/api/invoices/upload",
+        "/api/finance/upload",
+    ]
     
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
         """Process request and enforce org_id validation"""
         
         # Skip validation for exempt paths
         if request.url.path in self.EXEMPT_PATHS:
+            return await call_next(request)
+
+        # Skip validation for upload endpoints (multipart body-stream conflict)
+        if any(request.url.path.startswith(p) for p in self.UPLOAD_PREFIXES):
             return await call_next(request)
         
         # Skip validation for OPTIONS requests (CORS preflight)

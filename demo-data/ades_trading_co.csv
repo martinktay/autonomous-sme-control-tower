@@ -1,0 +1,21 @@
+vendor_name,amount,currency,date,category,description,status,vat_amount,wht_amount,cit_amount,paye_amount,customs_levy
+Lagos Paper Supplies Ltd,450000,NGN,2026-01-05,invoice,Office supplies and printing paper Q1,overdue,33750,22500,0,0,0
+Dangote Cement PLC,2800000,NGN,2026-01-08,invoice,Building materials for warehouse expansion,paid,210000,140000,0,0,0
+MTN Business Nigeria,185000,NGN,2026-01-12,expense,Internet and telecom services January,paid,13875,9250,0,0,0
+Ibadan Logistics Co,920000,NGN,2026-01-15,invoice,Freight and delivery services — 12 trips,paid,69000,46000,0,0,0
+PHCN Electricity,145000,NGN,2026-01-18,expense,Electricity bill — warehouse and office Jan,paid,10875,0,0,0,0
+ClientCorp Nigeria,3500000,NGN,2026-01-22,payment,Payment received — bulk order PO-8801,paid,262500,0,0,0,0
+Oando Fuel Station,280000,NGN,2026-01-25,expense,Diesel for delivery trucks — January,paid,21000,0,0,0,0
+Staff Payroll January,1200000,NGN,2026-01-31,expense,Staff salaries — 8 employees January,paid,0,0,0,96000,0
+Apapa Customs Clearing,650000,NGN,2026-02-03,expense,Import clearing charges — container from China,paid,48750,32500,0,0,97500
+Shanghai Trading Corp,4200000,NGN,2026-02-05,invoice,Imported electronics and accessories,pending,315000,0,0,0,630000
+Lagos Paper Supplies Ltd,380000,NGN,2026-02-08,invoice,Packaging materials and cartons,paid,28500,19000,0,0,0
+Zenith Bank Charges,45000,NGN,2026-02-10,expense,Monthly bank charges and transfer fees,paid,0,0,0,0,0
+ClientCorp Nigeria,4100000,NGN,2026-02-15,payment,Payment received — February order PO-8815,paid,307500,0,0,0,0
+Ibadan Logistics Co,870000,NGN,2026-02-18,invoice,Freight services — 10 deliveries February,paid,65250,43500,0,0,0
+Staff Payroll February,1200000,NGN,2026-02-28,expense,Staff salaries — 8 employees February,paid,0,0,0,96000,0
+MTN Business Nigeria,185000,NGN,2026-03-02,expense,Internet and telecom services February,paid,13875,9250,0,0,0
+Dangote Cement PLC,1950000,NGN,2026-03-05,invoice,Cement and blocks — second phase construction,overdue,146250,97500,0,0,0
+PHCN Electricity,162000,NGN,2026-03-08,expense,Electricity bill — Feb/Mar period,pending,12150,0,0,0,0
+Abuja Wholesale Buyers,5200000,NGN,2026-03-12,payment,Payment received — Abuja distribution deal,paid,390000,0,0,0,0
+CIT Quarterly Provision,350000,NGN,2026-03-15,expense,Corporate income tax provision Q1 2026,pending,0,0,350000,0,0

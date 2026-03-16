@@ -1,0 +1,21 @@
+vendor_name,amount,currency,date,category,description,status,vat_amount,wht_amount,cit_amount,paye_amount,customs_levy
+Wessex Flour Mills,2800,GBP,2026-01-06,invoice,Organic bread flour — 2 tonnes,overdue,560,0,0,0,0
+South Downs Dairy,1450,GBP,2026-01-10,invoice,Butter cream and eggs — weekly supply,paid,290,0,0,0,0
+British Gas Business,890,GBP,2026-01-14,expense,Gas supply — bakery ovens January,paid,178,0,0,0,0
+PackRight UK Ltd,620,GBP,2026-01-18,invoice,Branded packaging and cake boxes,paid,124,0,0,0,0
+Deliveroo Business,340,GBP,2026-01-22,expense,Delivery platform commission — January,paid,68,0,0,0,0
+Staff Payroll January,6200,GBP,2026-01-31,expense,Staff salaries — 4 bakers and 2 counter staff,paid,0,0,0,1240,0
+Brighton Food Festival,4800,GBP,2026-02-03,payment,Payment received — catering deposit for April event,paid,960,0,0,0,0
+Wessex Flour Mills,2600,GBP,2026-02-07,invoice,Wholemeal and rye flour — 1.8 tonnes,paid,520,0,0,0,0
+South Downs Dairy,1380,GBP,2026-02-10,invoice,Butter cream and eggs — weekly supply,paid,276,0,0,0,0
+EE Business Mobile,85,GBP,2026-02-12,expense,Business mobile plan — 3 handsets,paid,17,0,0,0,0
+Retail Walk-in Sales,8900,GBP,2026-02-15,payment,Payment received — shop counter sales week 7,paid,1780,0,0,0,0
+British Gas Business,920,GBP,2026-02-18,expense,Gas supply — bakery ovens February,paid,184,0,0,0,0
+Staff Payroll February,6200,GBP,2026-02-28,expense,Staff salaries — 4 bakers and 2 counter staff,paid,0,0,0,1240,0
+PackRight UK Ltd,580,GBP,2026-03-02,invoice,Seasonal Easter packaging and boxes,pending,116,0,0,0,0
+Wessex Flour Mills,3100,GBP,2026-03-05,invoice,Bread flour and specialty grains — March order,overdue,620,0,0,0,0
+Deliveroo Business,410,GBP,2026-03-08,expense,Delivery platform commission — February,paid,82,0,0,0,0
+Oven Maintenance Ltd,1200,GBP,2026-03-10,expense,Emergency repair — deck oven Unit 2,paid,240,0,0,0,0
+Retail Walk-in Sales,9400,GBP,2026-03-12,payment,Payment received — shop counter sales week 10,paid,1880,0,0,0,0
+South Downs Dairy,1520,GBP,2026-03-14,invoice,Butter cream eggs and seasonal cream — March,pending,304,0,0,0,0
+Corporation Tax Provision,1800,GBP,2026-03-15,expense,Corporation tax provision Q1 2026,pending,0,0,1800,0,0

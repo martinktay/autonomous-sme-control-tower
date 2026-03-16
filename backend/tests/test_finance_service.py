@@ -511,3 +511,4 @@ class TestFinanceServiceCsvExport:
             "confidence_score", "processing_status",
         ]
         assert reader.fieldnames == expected
+

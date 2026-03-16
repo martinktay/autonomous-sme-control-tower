@@ -1,0 +1,21 @@
+vendor_name,amount,currency,date,category,description,status,vat_amount,wht_amount,cit_amount,paye_amount,customs_levy
+AWS Nigeria via Flutterwave,890000,NGN,2026-01-05,invoice,Cloud hosting and compute — January 2026,paid,66750,44500,0,0,0
+Andela Talent Services,3500000,NGN,2026-01-08,invoice,Contract developer staffing — 2 senior engineers,overdue,262500,175000,0,0,0
+MainOne Data Centre,420000,NGN,2026-01-12,invoice,Colocation and bandwidth — January,paid,31500,21000,0,0,0
+GitHub Enterprise,280000,NGN,2026-01-15,expense,GitHub Enterprise annual licence — 15 seats,paid,21000,14000,0,0,0
+Slack Technologies,145000,NGN,2026-01-18,expense,Slack Business+ subscription — January,paid,10875,7250,0,0,0
+Staff Payroll January,4800000,NGN,2026-01-31,expense,Staff salaries — 12 engineers and ops January,paid,0,0,0,576000,0
+Interswitch Payment Gateway,165000,NGN,2026-02-03,invoice,Payment processing fees — January,paid,12375,8250,0,0,0
+Figma Inc,95000,NGN,2026-02-06,expense,Figma Professional — 5 designer seats,paid,7125,4750,0,0,0
+FinTech Startup Client,8500000,NGN,2026-02-10,payment,Payment received — mobile banking app milestone 1,paid,637500,0,0,0,0
+AWS Nigeria via Flutterwave,920000,NGN,2026-02-12,invoice,Cloud hosting and compute — February 2026,paid,69000,46000,0,0,0
+Andela Talent Services,3500000,NGN,2026-02-15,invoice,Contract developer staffing — February,overdue,262500,175000,0,0,0
+MTN Business Nigeria,185000,NGN,2026-02-18,expense,Internet and telecom services — office,paid,13875,9250,0,0,0
+Staff Payroll February,4800000,NGN,2026-02-28,expense,Staff salaries — 12 engineers and ops February,paid,0,0,0,576000,0
+MainOne Data Centre,420000,NGN,2026-03-02,invoice,Colocation and bandwidth — March,pending,31500,21000,0,0,0
+Oxford Property Mgmt Client,5200000,NGN,2026-03-05,payment,Payment received — property portal phase 2,paid,390000,0,0,0,0
+Zenith Bank Charges,52000,NGN,2026-03-08,expense,Monthly bank charges and transfer fees,paid,0,0,0,0,0
+PHCN Electricity,125000,NGN,2026-03-10,expense,Electricity bill — office Feb/Mar period,paid,9375,0,0,0,0
+Interswitch Payment Gateway,178000,NGN,2026-03-12,invoice,Payment processing fees — February,pending,13350,8900,0,0,0
+Oando Fuel Station,95000,NGN,2026-03-14,expense,Generator diesel — office backup power,paid,7125,0,0,0,0
+CIT Quarterly Provision,520000,NGN,2026-03-15,expense,Corporate income tax provision Q1 2026,pending,0,0,520000,0,0

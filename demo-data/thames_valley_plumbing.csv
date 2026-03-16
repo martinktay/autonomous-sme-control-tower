@@ -1,0 +1,21 @@
+vendor_name,amount,currency,date,category,description,status,vat_amount,wht_amount,cit_amount,paye_amount,customs_levy
+Screwfix Trade Account,1340,GBP,2026-01-07,invoice,Copper pipe fittings and sealant — monthly stock,paid,268,0,0,0,0
+Vaillant Boilers UK,4200,GBP,2026-01-10,invoice,3x combi boiler units for customer installs,overdue,840,0,0,0,0
+Ford Transit Leasing,580,GBP,2026-01-15,expense,Monthly van lease — 2 Transit Custom vans,paid,116,0,0,0,0
+Simply Business Insurance,320,GBP,2026-01-18,expense,Public liability insurance — quarterly premium,paid,64,0,0,0,0
+Toolstation Trade,890,GBP,2026-01-22,invoice,Bathroom fixtures and waste pipes,paid,178,0,0,0,0
+Staff Payroll January,5400,GBP,2026-01-31,expense,Staff salaries — 3 plumbers and 1 apprentice,paid,0,0,0,1080,0
+Oxford Property Lettings,3800,GBP,2026-02-03,payment,Payment received — retainer month 1 of 12 properties,paid,760,0,0,0,0
+Screwfix Trade Account,1180,GBP,2026-02-07,invoice,Radiator valves thermostats and pipe clips,paid,236,0,0,0,0
+Vaillant Boilers UK,2800,GBP,2026-02-10,invoice,2x combi boiler units for February installs,paid,560,0,0,0,0
+Shell Fuel Card,420,GBP,2026-02-12,expense,Fuel for 2 service vans — January,paid,84,0,0,0,0
+Residential Customer Jobs,6200,GBP,2026-02-15,payment,Payment received — 8 residential callout jobs,paid,1240,0,0,0,0
+EE Business Mobile,65,GBP,2026-02-18,expense,Business mobile plan — 4 handsets,paid,13,0,0,0,0
+Staff Payroll February,5400,GBP,2026-02-28,expense,Staff salaries — 3 plumbers and 1 apprentice,paid,0,0,0,1080,0
+Toolstation Trade,720,GBP,2026-03-02,invoice,Boiler flue kits and gas fittings,pending,144,0,0,0,0
+Oxford Property Lettings,3800,GBP,2026-03-05,payment,Payment received — retainer month 2,paid,760,0,0,0,0
+Ford Transit Leasing,580,GBP,2026-03-08,expense,Monthly van lease — March,paid,116,0,0,0,0
+Gas Safe Certification,450,GBP,2026-03-10,expense,Apprentice Gas Safe renewal course and exam,paid,90,0,0,0,0
+Screwfix Trade Account,1560,GBP,2026-03-12,invoice,Spring stock — outdoor tap kits and drain rods,overdue,312,0,0,0,0
+Shell Fuel Card,480,GBP,2026-03-14,expense,Fuel for 2 service vans — February,paid,96,0,0,0,0
+Corporation Tax Provision,1400,GBP,2026-03-15,expense,Corporation tax provision Q1 2026,pending,0,0,1400,0,0

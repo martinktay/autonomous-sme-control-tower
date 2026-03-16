@@ -20,6 +20,10 @@ logger = logging.getLogger(__name__)
 # Paths exempt from rate limiting
 _EXEMPT = {"/", "/health", "/docs", "/openapi.json", "/redoc"}
 
+# Path prefixes that involve file uploads — exempt to avoid BaseHTTPMiddleware
+# body-stream conflicts with multipart form data.
+_UPLOAD_PREFIXES = ("/api/invoices/upload", "/api/finance/upload", "/api/finance/")
+
 
 class RateLimiterMiddleware(BaseHTTPMiddleware):
     """Sliding-window rate limiter keyed by client IP.
@@ -37,7 +41,11 @@ class RateLimiterMiddleware(BaseHTTPMiddleware):
 
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
         """Check rate limit for non-exempt paths; return 429 if exceeded."""
-        if request.url.path in _EXEMPT or request.method == "OPTIONS":
+        path = request.url.path
+        if path in _EXEMPT or request.method == "OPTIONS":
+            return await call_next(request)
+        # Skip rate limiting for upload endpoints (multipart body-stream conflict)
+        if any(path.startswith(p) for p in _UPLOAD_PREFIXES):
             return await call_next(request)
 
         client_ip = request.client.host if request.client else "unknown"

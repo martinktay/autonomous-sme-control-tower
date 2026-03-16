@@ -1,0 +1,21 @@
+vendor_name,amount,currency,date,category,description,status,vat_amount,wht_amount,cit_amount,paye_amount,customs_levy
+Ajaokuta Fertilizer Co,1200000,NGN,2026-01-06,invoice,NPK fertilizer for planting season — 50 bags,paid,90000,60000,0,0,0
+Ogun Tractor Rentals,750000,NGN,2026-01-10,invoice,Tractor hire for land preparation — 40 hectares,overdue,56250,37500,0,0,0
+SeedCo Nigeria Ltd,480000,NGN,2026-01-14,invoice,Hybrid maize seeds — 200 bags,paid,36000,24000,0,0,0
+Kano Irrigation Supplies,2100000,NGN,2026-01-18,invoice,Drip irrigation system installation,paid,157500,105000,0,0,0
+PHCN Electricity,95000,NGN,2026-01-20,expense,Electricity bill — farm office and cold store Jan,paid,7125,0,0,0,0
+Jos Market Buyers Coop,3200000,NGN,2026-01-25,payment,Payment received — 30 tonnes maize delivery,paid,240000,0,0,0,0
+Staff Payroll January,850000,NGN,2026-01-31,expense,Staff salaries — 6 farm workers January,paid,0,0,0,68000,0
+Oando Fuel Station,320000,NGN,2026-02-03,expense,Diesel for tractors and irrigation pumps,paid,24000,0,0,0,0
+Ajaokuta Fertilizer Co,980000,NGN,2026-02-07,invoice,Urea top-dressing fertilizer — second application,paid,73500,49000,0,0,0
+Zenith Bank Charges,35000,NGN,2026-02-10,expense,Monthly bank charges and transfer fees,paid,0,0,0,0,0
+SeedCo Nigeria Ltd,350000,NGN,2026-02-14,invoice,Soybean seeds — 100 bags for rotation crop,pending,26250,17500,0,0,0
+Jos Market Buyers Coop,2800000,NGN,2026-02-18,payment,Payment received — soybean forward contract,paid,210000,0,0,0,0
+Ogun Tractor Rentals,450000,NGN,2026-02-22,invoice,Tractor hire for harrowing — 25 hectares,overdue,33750,22500,0,0,0
+Staff Payroll February,850000,NGN,2026-02-28,expense,Staff salaries — 6 farm workers February,paid,0,0,0,68000,0
+Kano Irrigation Supplies,380000,NGN,2026-03-02,invoice,Replacement drip lines and filters,paid,28500,19000,0,0,0
+PHCN Electricity,105000,NGN,2026-03-05,expense,Electricity bill — Feb/Mar period,paid,7875,0,0,0,0
+Farm Advisory Services,150000,NGN,2026-03-08,expense,Soil testing and agronomist consultation,paid,11250,7500,0,0,0
+Abuja Wholesale Market,4500000,NGN,2026-03-12,payment,Payment received — bulk grain sale to Abuja,paid,337500,0,0,0,0
+MTN Business Nigeria,65000,NGN,2026-03-14,expense,Mobile data and airtime — farm team,paid,4875,3250,0,0,0
+CIT Quarterly Provision,280000,NGN,2026-03-15,expense,Corporate income tax provision Q1 2026,pending,0,0,280000,0,0

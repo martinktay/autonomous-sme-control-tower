@@ -6,10 +6,10 @@
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
-/** Internal fetch wrapper with 8 s timeout, JSON headers, and error handling. */
-async function apiFetch(path: string, options: RequestInit = {}) {
+/** Internal fetch wrapper with configurable timeout, JSON headers, and error handling. */
+async function apiFetch(path: string, options: RequestInit = {}, timeoutMs = 8000) {
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 8000);
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
     const res = await fetch(`${API_BASE_URL}${path}`, {
@@ -223,19 +223,19 @@ export const uploadFinanceDocument = async (orgId: string, file: File) => {
 
 /** List all processed finance documents for the org. */
 export const getFinanceDocuments = async (orgId: string) => {
-  const res = await apiFetch(`/api/finance/${orgId}/documents`);
+  const res = await apiFetch(`/api/finance/${orgId}/documents`, {}, 30000);
   return res.json();
 };
 
 /** Fetch AI-generated financial insights (tax, cashflow, profitability). */
 export const getFinanceInsights = async (orgId: string) => {
-  const res = await apiFetch(`/api/finance/${orgId}/insights`);
+  const res = await apiFetch(`/api/finance/${orgId}/insights`, {}, 30000);
   return res.json();
 };
 
 /** Fetch analytics aggregations (charts, KPIs, breakdowns). */
 export const getFinanceAnalytics = async (orgId: string) => {
-  const res = await apiFetch(`/api/finance/${orgId}/analytics`);
+  const res = await apiFetch(`/api/finance/${orgId}/analytics`, {}, 30000);
   return res.json();
 };
 
@@ -244,7 +244,7 @@ export const getCashflow = async (orgId: string, period = 'monthly', startDate?:
   const params = new URLSearchParams({ period });
   if (startDate) params.set('start_date', startDate);
   if (endDate) params.set('end_date', endDate);
-  const res = await apiFetch(`/api/finance/${orgId}/cashflow?${params}`);
+  const res = await apiFetch(`/api/finance/${orgId}/cashflow?${params}`, {}, 30000);
   return res.json();
 };
 
@@ -254,7 +254,7 @@ export const getPnl = async (orgId: string, startDate?: string, endDate?: string
   if (startDate) params.set('start_date', startDate);
   if (endDate) params.set('end_date', endDate);
   const qs = params.toString();
-  const res = await apiFetch(`/api/finance/${orgId}/pnl${qs ? `?${qs}` : ''}`);
+  const res = await apiFetch(`/api/finance/${orgId}/pnl${qs ? `?${qs}` : ''}`, {}, 30000);
   return res.json();
 };
 
@@ -272,7 +272,7 @@ export const reconcileDocuments = async (orgId: string, file: File) => {
 
 /** Fetch documents pending human review. */
 export const getReviewQueue = async (orgId: string) => {
-  const res = await apiFetch(`/api/finance/${orgId}/review-queue`);
+  const res = await apiFetch(`/api/finance/${orgId}/review-queue`, {}, 30000);
   return res.json();
 };
 

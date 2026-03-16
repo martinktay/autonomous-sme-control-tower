@@ -224,9 +224,9 @@ class FinanceService:
             key = self._period_key(dt, period)
             amount = float(c.get("amount", 0))
             category = c.get("category", "")
-            if category == "revenue":
+            if category in ("payment", "credit_note", "revenue"):
                 buckets[key]["revenue"] += amount
-            elif category == "expense":
+            elif category in ("invoice", "receipt", "expense", "purchase_order"):
                 buckets[key]["expenses"] += amount
 
         result = [
@@ -265,11 +265,11 @@ class FinanceService:
             paye_amount = float(c.get("paye_amount", 0) or 0)
             customs_levy = float(c.get("customs_levy", 0) or 0)
 
-            if category == "revenue":
+            if category in ("payment", "credit_note", "revenue"):
                 total_revenue += amount
                 vendor_breakdown[vendor]["revenue"] += amount
                 total_vat_collected += vat_amount
-            elif category == "expense":
+            elif category in ("invoice", "receipt", "expense", "purchase_order"):
                 total_expenses += amount
                 vendor_breakdown[vendor]["expenses"] += amount
                 total_vat_paid += vat_amount
