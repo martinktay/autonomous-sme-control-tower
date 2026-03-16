@@ -1,0 +1,45 @@
+services:
+  - type: web
+    name: autonomous-sme-backend
+    runtime: docker
+    dockerfilePath: ./Dockerfile.backend
+    dockerContext: .
+    region: ohio
+    plan: free
+    envVars:
+      - key: AWS_REGION
+        sync: false
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+      - key: NOVA_LITE_MODEL_ID
+        value: amazon.nova-lite-v1:0
+      - key: NOVA_EMBEDDINGS_MODEL_ID
+        value: amazon.nova-embed-v1:0
+      - key: NOVA_ACT_MODEL_ID
+        value: amazon.nova-act-v1:0
+      - key: NOVA_SONIC_MODEL_ID
+        value: amazon.nova-sonic-v1:0
+      - key: SIGNALS_TABLE
+        value: autonomous-sme-signals
+      - key: NSI_SCORES_TABLE
+        value: autonomous-sme-nsi-scores
+      - key: STRATEGIES_TABLE
+        value: autonomous-sme-strategies
+      - key: ACTIONS_TABLE
+        value: autonomous-sme-actions
+      - key: EVALUATIONS_TABLE
+        value: autonomous-sme-evaluations
+      - key: EMBEDDINGS_TABLE
+        value: autonomous-sme-embeddings
+      - key: TASKS_TABLE
+        value: autonomous-sme-tasks
+      - key: DOCUMENTS_BUCKET
+        value: autonomous-sme-documents
+      - key: CORS_ORIGINS
+        sync: false
+      - key: DEBUG
+        value: "false"
+      - key: RATE_LIMIT_RPM
+        value: "120"
