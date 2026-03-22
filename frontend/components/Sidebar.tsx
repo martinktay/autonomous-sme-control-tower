@@ -122,6 +122,7 @@ const NAV_GROUPS: NavGroup[] = [
 ];
 
 const BOTTOM_LINKS: NavItem[] = [
+  { href: "/team", label: "Team", icon: Users, minTier: "starter" },
   { href: "/admin", label: "Admin Panel", icon: Shield, minTier: "starter" },
   { href: "/pricing", label: "Pricing & Plans", icon: CreditCard, minTier: "starter" },
   { href: "/help", label: "Help & FAQs", icon: HelpCircle, minTier: "starter" },
@@ -252,7 +253,11 @@ export default function Sidebar() {
           </div>
         )}
         {BOTTOM_LINKS
-          .filter((item) => item.href !== "/admin" || user?.role === "super_admin")
+          .filter((item) => {
+            if (item.href === "/admin") return user?.role === "super_admin";
+            if (item.href === "/team") return user?.role === "owner" || user?.role === "admin" || user?.role === "super_admin";
+            return true;
+          })
           .map((item) => {
           const Icon = item.icon;
           const active = isActive(item.href);

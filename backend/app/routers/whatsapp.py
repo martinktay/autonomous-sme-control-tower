@@ -10,7 +10,7 @@ Endpoints:
 
 import logging
 from typing import Dict, Any, Optional
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request as FastAPIRequest
 from pydantic import BaseModel
 
 from app.agents.whatsapp_agent import WhatsAppAgent
@@ -18,6 +18,7 @@ from app.services.ddb_service import get_ddb_service
 from app.models import Signal
 from app.utils.upload_validator import validate_org_id
 from app.utils.id_generator import generate_id
+from app.middleware.auth import require_role
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/whatsapp", tags=["whatsapp"])
@@ -237,12 +238,14 @@ class ActionApprovalRequest(BaseModel):
 
 
 @router.post("/actions/review")
-async def review_whatsapp_action(request: ActionApprovalRequest) -> Dict[str, Any]:
+async def review_whatsapp_action(request: ActionApprovalRequest, req: FastAPIRequest) -> Dict[str, Any]:
     """Human-in-the-loop: approve or reject a pending WhatsApp notification action.
 
+    Requires admin+ role.
     When approved, the action status changes to 'approved' and the WhatsApp
     message payload is returned for delivery. When rejected, status becomes 'rejected'.
     """
+    require_role(req, "admin")
     org_id = validate_org_id(request.org_id)
     decision = request.decision.lower()
     if decision not in ("approve", "reject"):

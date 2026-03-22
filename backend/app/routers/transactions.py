@@ -3,9 +3,10 @@
 import logging
 from typing import Any, Dict, List
 
-from fastapi import APIRouter, HTTPException, Header
+from fastapi import APIRouter, HTTPException, Header, Request
 from app.models.transaction import TransactionCreate
 from app.services.transaction_service import get_transaction_service
+from app.middleware.auth import require_role
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/transactions", tags=["transactions"])
@@ -19,8 +20,9 @@ async def list_transactions(x_org_id: str = Header(..., alias="X-Org-ID")):
 
 
 @router.post("", response_model=Dict[str, Any])
-async def create_transaction(data: TransactionCreate, x_org_id: str = Header(..., alias="X-Org-ID")):
-    """Create a new transaction."""
+async def create_transaction(request: Request, data: TransactionCreate, x_org_id: str = Header(..., alias="X-Org-ID")):
+    """Create a new transaction (member+ only)."""
+    require_role(request, "member")
     try:
         svc = get_transaction_service()
         txn = svc.create_transaction(x_org_id, data)

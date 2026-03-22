@@ -815,6 +815,40 @@ export const reviewWhatsAppAction = async (orgId: string, actionId: string, deci
   return res.json();
 };
 
+// ─── Team Management ──────────────────────────────────────────────────────
+
+/** List members of the current user's org. */
+export const getTeamMembers = async () => {
+  const res = await apiFetch('/api/team/members');
+  return res.json();
+};
+
+/** Invite a new member to the org. */
+export const inviteTeamMember = async (email: string, role: string) => {
+  const res = await apiFetch('/api/team/invite', {
+    method: 'POST',
+    body: JSON.stringify({ email, role }),
+  });
+  return res.json();
+};
+
+/** Update a team member's role. */
+export const updateTeamMemberRole = async (email: string, role: string) => {
+  const res = await apiFetch(`/api/team/members/${encodeURIComponent(email)}/role`, {
+    method: 'PUT',
+    body: JSON.stringify({ role }),
+  });
+  return res.json();
+};
+
+/** Remove a team member from the org. */
+export const removeTeamMember = async (email: string) => {
+  const res = await apiFetch(`/api/team/members/${encodeURIComponent(email)}`, {
+    method: 'DELETE',
+  });
+  return res.json();
+};
+
 // ==================== Unified Client ====================
 
 /** Object-style export bundling all API functions for convenient dashboard imports. */
@@ -900,4 +934,8 @@ export const apiClient = {
   getDialCodes,
   getWhatsAppActions,
   reviewWhatsAppAction,
+  getTeamMembers,
+  inviteTeamMember,
+  updateTeamMemberRole,
+  removeTeamMember,
 };

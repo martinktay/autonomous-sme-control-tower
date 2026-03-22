@@ -3,9 +3,10 @@
 import logging
 from typing import Any, Dict, List
 
-from fastapi import APIRouter, HTTPException, Header
+from fastapi import APIRouter, HTTPException, Header, Request
 from app.models.inventory_item import InventoryItemCreate, InventoryItemUpdate
 from app.services.inventory_service import get_inventory_service
+from app.middleware.auth import require_role
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/inventory", tags=["inventory"])
@@ -19,8 +20,9 @@ async def list_inventory(x_org_id: str = Header(..., alias="X-Org-ID")):
 
 
 @router.post("", response_model=Dict[str, Any])
-async def create_item(data: InventoryItemCreate, x_org_id: str = Header(..., alias="X-Org-ID")):
-    """Add a new inventory item."""
+async def create_item(request: Request, data: InventoryItemCreate, x_org_id: str = Header(..., alias="X-Org-ID")):
+    """Add a new inventory item (member+ only)."""
+    require_role(request, "member")
     try:
         svc = get_inventory_service()
         item = svc.create_item(x_org_id, data)
@@ -31,8 +33,9 @@ async def create_item(data: InventoryItemCreate, x_org_id: str = Header(..., ali
 
 
 @router.put("/{item_id}", response_model=Dict[str, Any])
-async def update_item(item_id: str, data: InventoryItemUpdate, x_org_id: str = Header(..., alias="X-Org-ID")):
-    """Update an inventory item."""
+async def update_item(request: Request, item_id: str, data: InventoryItemUpdate, x_org_id: str = Header(..., alias="X-Org-ID")):
+    """Update an inventory item (admin+ only)."""
+    require_role(request, "admin")
     try:
         svc = get_inventory_service()
         result = svc.update_item(x_org_id, item_id, data)

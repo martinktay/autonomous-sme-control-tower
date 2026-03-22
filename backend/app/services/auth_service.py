@@ -303,6 +303,120 @@ class AuthService:
             logger.error("Failed to deactivate user: %s", exc)
             raise ValueError("Failed to deactivate user")
 
+    # ---- Team / Invite flow ----
+
+    async def invite_member(
+        self,
+        org_id: str,
+        email: str,
+        role: str,
+        invited_by: str,
+        business_name: str = "",
+        tier: str = "starter",
+    ) -> Dict[str, Any]:
+        """Invite a user to an existing org. Creates a user record with a temp password.
+
+        The invited user can log in with the temp password and change it later,
+        or use the forgot-password flow to set their own.
+        """
+        email = email.strip().lower()
+        valid_roles = {"admin", "member", "viewer"}
+        if role not in valid_roles:
+            raise ValueError(f"Invite role must be one of: {valid_roles}")
+
+        existing = self._get_user_by_email(email)
+        if existing:
+            raise ValueError("A user with this email already exists")
+
+        user_id = generate_id("user")
+        # Generate a temporary password the invitee can use to log in
+        temp_password = secrets.token_urlsafe(12)
+        pw_hash, pw_salt = _hash_password(temp_password)
+        now = datetime.now(timezone.utc).isoformat()
+
+        item = {
+            "email": email,
+            "user_id": user_id,
+            "org_id": org_id,
+            "full_name": "",
+            "phone": "",
+            "business_name": business_name,
+            "business_type": "other",
+            "role": role,
+            "tier": tier,
+            "pw_hash": pw_hash,
+            "pw_salt": pw_salt,
+            "is_active": True,
+            "email_verified": False,
+            "invited_by": invited_by,
+            "created_at": now,
+            "last_login": "",
+        }
+        self.users_table.put_item(Item=item)
+        logger.info("Invited %s to org %s as %s by %s", email, org_id, role, invited_by)
+
+        return {
+            "user_id": user_id,
+            "email": email,
+            "org_id": org_id,
+            "role": role,
+            "temp_password": temp_password,
+            "status": "invited",
+        }
+
+    async def list_org_members(self, org_id: str) -> list[Dict[str, Any]]:
+        """List all users belonging to an org."""
+        try:
+            resp = self.users_table.scan(
+                FilterExpression="org_id = :oid",
+                ExpressionAttributeValues={":oid": org_id},
+                ProjectionExpression="user_id, email, org_id, full_name, #r, is_active, created_at, last_login, phone, email_verified, invited_by",
+                ExpressionAttributeNames={"#r": "role"},
+            )
+            return resp.get("Items", [])
+        except Exception as exc:
+            logger.error("Failed to list org members for %s: %s", org_id, exc)
+            return []
+
+    async def update_member_role(self, org_id: str, email: str, new_role: str, requester_role: str) -> Dict[str, Any]:
+        """Change a team member's role within the same org."""
+        valid_roles = {"admin", "member", "viewer"}
+        if new_role not in valid_roles:
+            raise ValueError(f"Role must be one of: {valid_roles}")
+
+        user = self._get_user_by_email(email)
+        if not user:
+            raise ValueError("User not found")
+        if user.get("org_id") != org_id:
+            raise ValueError("User does not belong to this organisation")
+        if user.get("role") == "owner":
+            raise ValueError("Cannot change the owner's role")
+
+        self.users_table.update_item(
+            Key={"email": email},
+            UpdateExpression="SET #r = :r",
+            ExpressionAttributeNames={"#r": "role"},
+            ExpressionAttributeValues={":r": new_role},
+        )
+        return {"email": email, "role": new_role}
+
+    async def remove_member(self, org_id: str, email: str) -> Dict[str, Any]:
+        """Remove (deactivate) a team member from the org."""
+        user = self._get_user_by_email(email)
+        if not user:
+            raise ValueError("User not found")
+        if user.get("org_id") != org_id:
+            raise ValueError("User does not belong to this organisation")
+        if user.get("role") == "owner":
+            raise ValueError("Cannot remove the organisation owner")
+
+        self.users_table.update_item(
+            Key={"email": email},
+            UpdateExpression="SET is_active = :a",
+            ExpressionAttributeValues={":a": False},
+        )
+        return {"email": email, "status": "removed"}
+
 
 _auth_service: Optional[AuthService] = None
 

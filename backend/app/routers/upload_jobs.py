@@ -11,7 +11,7 @@ Handles the multi-step upload flow:
 import logging
 from typing import Optional
 
-from fastapi import APIRouter, File, Header, HTTPException, Query, UploadFile
+from fastapi import APIRouter, File, Header, HTTPException, Query, Request, UploadFile
 
 from app.agents.mapping_agent import get_mapping_agent
 from app.services.upload_service import get_upload_service
@@ -20,6 +20,7 @@ from app.utils.upload_validator import (
     FINANCE_EXTENSIONS,
     validate_upload_file,
 )
+from app.middleware.auth import require_role
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/upload-jobs", tags=["upload-jobs"])
@@ -27,11 +28,13 @@ router = APIRouter(prefix="/api/upload-jobs", tags=["upload-jobs"])
 
 @router.post("")
 async def create_upload_job(
+    request: Request,
     file: UploadFile = File(...),
     x_org_id: str = Header(..., alias="X-Org-ID"),
     source_channel: str = Query("manual_upload"),
 ):
-    """Upload a file and create a processing job."""
+    """Upload a file and create a processing job (member+ only)."""
+    require_role(request, "member")
     content, safe_name, ext = await validate_upload_file(
         file, FINANCE_CONTENT_TYPES, FINANCE_EXTENSIONS,
     )

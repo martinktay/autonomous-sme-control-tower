@@ -1,15 +1,18 @@
 """
-JWT authentication middleware.
+JWT authentication middleware + RBAC helpers.
 
 Validates the Authorization Bearer token on all /api/ routes except
 public endpoints (auth, health, pricing, docs). Extracts user_id and
 org_id from JWT claims and sets them on request.state for downstream use.
+
+RBAC hierarchy (ascending privilege):
+  viewer < member < admin < owner < super_admin
 """
 
 import logging
 from typing import Callable
 
-from fastapi import Request, Response
+from fastapi import Request, Response, HTTPException
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 
@@ -27,6 +30,39 @@ PUBLIC_PREFIXES = [
 ]
 
 PUBLIC_EXACT = ["/", "/health"]
+
+# ---------------------------------------------------------------------------
+# RBAC helpers
+# ---------------------------------------------------------------------------
+
+ROLE_HIERARCHY = ["viewer", "member", "admin", "owner", "super_admin"]
+
+
+def _role_level(role: str) -> int:
+    """Return numeric level for a role (higher = more privilege)."""
+    try:
+        return ROLE_HIERARCHY.index(role)
+    except ValueError:
+        return 0
+
+
+def require_role(request: Request, min_role: str = "member") -> None:
+    """Raise 403 if the caller's role is below *min_role*.
+
+    Usage in a router endpoint::
+
+        from app.middleware.auth import require_role
+        @router.post("/something")
+        async def create_something(request: Request, ...):
+            require_role(request, "member")
+            ...
+    """
+    user_role = getattr(request.state, "role", "viewer")
+    if _role_level(user_role) < _role_level(min_role):
+        raise HTTPException(
+            status_code=403,
+            detail=f"Insufficient permissions. Requires at least '{min_role}' role.",
+        )
 
 
 class AuthMiddleware(BaseHTTPMiddleware):

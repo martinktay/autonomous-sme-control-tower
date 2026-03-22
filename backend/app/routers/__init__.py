@@ -29,6 +29,8 @@ from . import (
     forecasting,
     branch_optimisation,
     tax,
+    admin,
+    team,
 )
 
 __all__ = [
@@ -60,4 +62,6 @@ __all__ = [
     "forecasting",
     "branch_optimisation",
     "tax",
+    "admin",
+    "team",
 ]

@@ -9,11 +9,12 @@ Endpoints cover the full email lifecycle:
 - Manage task status (create, update, filter)
 """
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request as FastAPIRequest
 from typing import Dict, Any, Optional, List
 from pydantic import BaseModel
 
 from app.services.email_task_service import get_email_task_service
+from app.middleware.auth import require_role
 
 router = APIRouter(prefix="/api/emails", tags=["emails"])
 
@@ -89,12 +90,13 @@ async def verify_sender(email: str) -> Dict[str, Any]:
 
 
 @router.post("/ingest")
-async def ingest_email(request: IngestEmailRequest) -> Dict[str, Any]:
+async def ingest_email(request: IngestEmailRequest, req: FastAPIRequest) -> Dict[str, Any]:
     """Ingest a business email: AI-classify, extract tasks, persist as signal.
 
     If the email requires action, a WhatsApp notification action is created
     for human-in-the-loop review.
     """
+    require_role(req, "member")
     svc = get_email_task_service()
     result = svc.ingest_email(
         org_id=request.org_id,
@@ -204,8 +206,9 @@ async def get_task(org_id: str, task_id: str) -> Dict[str, Any]:
 
 
 @router.post("/{org_id}/tasks")
-async def create_task(org_id: str, request: CreateTaskRequest) -> Dict[str, Any]:
-    """Create a manual task."""
+async def create_task(org_id: str, request: CreateTaskRequest, req: FastAPIRequest) -> Dict[str, Any]:
+    """Create a manual task (member+ only)."""
+    require_role(req, "member")
     svc = get_email_task_service()
     task = svc.create_manual_task(org_id, request.model_dump())
     return task
@@ -226,8 +229,9 @@ async def update_task(org_id: str, task_id: str, request: UpdateTaskRequest) -> 
 
 
 @router.post("/{org_id}/send")
-async def send_email(org_id: str, request: SendReplyRequest) -> Dict[str, Any]:
-    """Send an outbound email via AWS SES on behalf of the organisation."""
+async def send_email(org_id: str, request: SendReplyRequest, req: FastAPIRequest) -> Dict[str, Any]:
+    """Send an outbound email via AWS SES on behalf of the organisation (member+ only)."""
+    require_role(req, "member")
     from app.services.ses_service import get_ses_service
     ses = get_ses_service()
     try:

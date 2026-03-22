@@ -3,9 +3,10 @@
 import logging
 from typing import Any, Dict, List
 
-from fastapi import APIRouter, HTTPException, Header
+from fastapi import APIRouter, HTTPException, Header, Request
 from app.models.counterparty import CounterpartyCreate
 from app.services.counterparty_service import get_counterparty_service
+from app.middleware.auth import require_role
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/counterparties", tags=["counterparties"])
@@ -19,8 +20,9 @@ async def list_counterparties(x_org_id: str = Header(..., alias="X-Org-ID")):
 
 
 @router.post("", response_model=Dict[str, Any])
-async def create_counterparty(data: CounterpartyCreate, x_org_id: str = Header(..., alias="X-Org-ID")):
-    """Create a new supplier or customer."""
+async def create_counterparty(request: Request, data: CounterpartyCreate, x_org_id: str = Header(..., alias="X-Org-ID")):
+    """Create a new supplier or customer (member+ only)."""
+    require_role(request, "member")
     try:
         svc = get_counterparty_service()
         cp = svc.create_counterparty(x_org_id, data)
