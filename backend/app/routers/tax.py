@@ -20,6 +20,7 @@ class TaxReportRequest(BaseModel):
     vat_registered: bool = False
     has_employees: bool = False
     monthly_staff_cost: float = 0.0
+    country_code: str = "NG"
 
 
 @router.post("/annual-report")
@@ -37,6 +38,7 @@ async def generate_annual_report(
         vat_registered=data.vat_registered,
         has_employees=data.has_employees,
         monthly_staff_cost=data.monthly_staff_cost,
+        country_code=data.country_code,
     )
     return report.model_dump(mode="json")
 
@@ -46,10 +48,11 @@ async def get_vat_summary(
     x_org_id: str = Header(..., alias="X-Org-ID"),
     fiscal_year: int = Query(...),
     quarter: int = Query(..., ge=1, le=4),
+    country_code: str = Query("NG"),
 ):
     """Get VAT summary for a specific quarter."""
     svc = get_tax_service()
-    return svc.get_quarterly_vat_summary(x_org_id, fiscal_year, quarter)
+    return svc.get_quarterly_vat_summary(x_org_id, fiscal_year, quarter, country_code)
 
 
 @router.post("/ai-guidance")
@@ -69,6 +72,7 @@ async def get_ai_guidance(
         vat_registered=data.vat_registered,
         has_employees=data.has_employees,
         monthly_staff_cost=data.monthly_staff_cost,
+        country_code=data.country_code,
     )
 
     agent = get_tax_agent()

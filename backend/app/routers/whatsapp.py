@@ -229,6 +229,80 @@ async def get_whatsapp_messages(org_id: str) -> Dict[str, Any]:
     return {"org_id": org_id, "messages": messages, "count": len(messages)}
 
 
+class ActionApprovalRequest(BaseModel):
+    """Approve or reject a pending WhatsApp action."""
+    action_id: str
+    org_id: str
+    decision: str  # "approve" or "reject"
+
+
+@router.post("/actions/review")
+async def review_whatsapp_action(request: ActionApprovalRequest) -> Dict[str, Any]:
+    """Human-in-the-loop: approve or reject a pending WhatsApp notification action.
+
+    When approved, the action status changes to 'approved' and the WhatsApp
+    message payload is returned for delivery. When rejected, status becomes 'rejected'.
+    """
+    org_id = validate_org_id(request.org_id)
+    decision = request.decision.lower()
+    if decision not in ("approve", "reject"):
+        raise HTTPException(400, "Decision must be 'approve' or 'reject'")
+
+    try:
+        resp = ddb_service.actions_table.get_item(Key={"action_id": request.action_id})
+        action = resp.get("Item")
+        if not action:
+            raise HTTPException(404, "Action not found")
+        if action.get("org_id") != org_id:
+            raise HTTPException(403, "Action does not belong to this organisation")
+        if action.get("status") != "pending_approval":
+            raise HTTPException(400, f"Action already {action.get('status')}")
+
+        new_status = "approved" if decision == "approve" else "rejected"
+        ddb_service.actions_table.update_item(
+            Key={"action_id": request.action_id},
+            UpdateExpression="SET #s = :s",
+            ExpressionAttributeNames={"#s": "status"},
+            ExpressionAttributeValues={":s": new_status},
+        )
+
+        result: Dict[str, Any] = {
+            "action_id": request.action_id,
+            "status": new_status,
+            "message": f"Action {new_status}",
+        }
+        if decision == "approve":
+            result["whatsapp_message"] = action.get("payload", {}).get("message_template", "")
+
+        return result
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error("Failed to review WhatsApp action: %s", e)
+        raise HTTPException(500, "Failed to process action review")
+
+
+@router.get("/{org_id}/actions")
+async def get_pending_whatsapp_actions(org_id: str) -> Dict[str, Any]:
+    """List pending WhatsApp notification actions for human review."""
+    org_id = validate_org_id(org_id)
+    try:
+        resp = ddb_service.actions_table.scan(
+            FilterExpression="org_id = :o AND action_type = :t",
+            ExpressionAttributeValues={
+                ":o": org_id,
+                ":t": "whatsapp_notification",
+            },
+        )
+        actions = resp.get("Items", [])
+        # Sort pending first
+        actions.sort(key=lambda a: (0 if a.get("status") == "pending_approval" else 1))
+        return {"org_id": org_id, "actions": actions, "count": len(actions)}
+    except Exception as e:
+        logger.error("Failed to fetch WhatsApp actions for org=%s: %s", org_id, e)
+        raise HTTPException(500, "Failed to retrieve actions")
+
+
 # --- Helpers ---
 
 def _auto_create_counterparty_from_whatsapp(org_id: str, extracted: Dict[str, Any]) -> None:

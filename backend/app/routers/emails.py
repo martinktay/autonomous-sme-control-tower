@@ -90,7 +90,11 @@ async def verify_sender(email: str) -> Dict[str, Any]:
 
 @router.post("/ingest")
 async def ingest_email(request: IngestEmailRequest) -> Dict[str, Any]:
-    """Ingest a business email: AI-classify, extract tasks, persist as signal."""
+    """Ingest a business email: AI-classify, extract tasks, persist as signal.
+
+    If the email requires action, a WhatsApp notification action is created
+    for human-in-the-loop review.
+    """
     svc = get_email_task_service()
     result = svc.ingest_email(
         org_id=request.org_id,
@@ -98,6 +102,60 @@ async def ingest_email(request: IngestEmailRequest) -> Dict[str, Any]:
         body=request.body,
         sender=request.sender,
     )
+
+    # Email-to-WhatsApp flow: if action required, create a pending WhatsApp action
+    try:
+        classification = result.get("classification", {})
+        action_required = classification.get("action_required", False)
+        priority = classification.get("priority", "low")
+        if action_required and priority in ("high", "urgent", "medium"):
+            from app.services.ddb_service import get_ddb_service
+            from app.utils.id_generator import generate_id
+            import logging as _log
+
+            ddb = get_ddb_service()
+            action_id = generate_id("action")
+            summary = classification.get("summary", request.subject)
+            category = classification.get("category", "general")
+
+            whatsapp_action = {
+                "action_id": action_id,
+                "org_id": request.org_id,
+                "action_type": "whatsapp_notification",
+                "source": "email_agent",
+                "source_signal_id": result.get("signal_id", ""),
+                "status": "pending_approval",
+                "priority": priority,
+                "title": f"Email action: {request.subject[:80]}",
+                "description": (
+                    f"From: {request.sender}\n"
+                    f"Category: {category}\n"
+                    f"Summary: {summary}\n\n"
+                    f"This email requires your attention. Review and approve to send a WhatsApp notification."
+                ),
+                "payload": {
+                    "message_template": (
+                        f"📧 New email from {request.sender}\n"
+                        f"Subject: {request.subject[:60]}\n"
+                        f"Priority: {priority.upper()}\n"
+                        f"Summary: {summary[:150]}\n\n"
+                        f"Reply APPROVE to take action or DISMISS to skip."
+                    ),
+                    "email_subject": request.subject,
+                    "email_sender": request.sender,
+                    "email_category": category,
+                },
+            }
+            ddb.actions_table.put_item(Item=whatsapp_action)
+            result["whatsapp_action"] = {
+                "action_id": action_id,
+                "status": "pending_approval",
+                "message": "WhatsApp notification queued for human review",
+            }
+    except Exception as e:
+        import logging as _log
+        _log.getLogger(__name__).warning("Email-to-WhatsApp flow failed (non-critical): %s", e)
+
     return result
 
 

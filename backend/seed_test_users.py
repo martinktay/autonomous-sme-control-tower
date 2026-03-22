@@ -72,11 +72,12 @@ async def main():
             # Update role, tier, and mark verified
             svc.users_table.update_item(
                 Key={"email": u["email"]},
-                UpdateExpression="SET #r = :r, tier = :t, email_verified = :v, phone = :p, business_type = :bt",
+                UpdateExpression="SET #r = :r, tier = :t, email_verified = :v, phone = :p, business_type = :bt, country = :c",
                 ExpressionAttributeNames={"#r": "role"},
                 ExpressionAttributeValues={
                     ":r": u["role"], ":t": u["tier"], ":v": True,
                     ":p": u.get("phone", ""), ":bt": u.get("business_type", "other"),
+                    ":c": u.get("country", "NG"),
                 },
             )
             print(f"  Updated: {u['email']} -> {u['role']} / {u['tier']}")
@@ -91,9 +92,9 @@ async def main():
             )
             svc.users_table.update_item(
                 Key={"email": u["email"]},
-                UpdateExpression="SET #r = :r, tier = :t, email_verified = :v",
+                UpdateExpression="SET #r = :r, tier = :t, email_verified = :v, country = :c",
                 ExpressionAttributeNames={"#r": "role"},
-                ExpressionAttributeValues={":r": u["role"], ":t": u["tier"], ":v": True},
+                ExpressionAttributeValues={":r": u["role"], ":t": u["tier"], ":v": True, ":c": u.get("country", "NG")},
             )
             print(f"  Created: {u['email']} -> {u['role']} / {u['tier']}")
 

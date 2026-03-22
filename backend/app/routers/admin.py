@@ -14,6 +14,7 @@ from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel, EmailStr
 
 from app.services.auth_service import get_auth_service
+from app.services.country_tax_config import get_dial_codes, COUNTRY_TAX_CONFIG
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/admin", tags=["admin"])
@@ -84,3 +85,96 @@ async def deactivate_user(payload: DeactivateUser, request: Request):
         return result
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
+
+
+@router.get("/stats")
+async def get_platform_stats(request: Request):
+    """Agentic SaaS metrics dashboard (super_admin only).
+
+    Returns user counts, tier distribution, country distribution,
+    email verification rate, and signal/agent activity metrics.
+    """
+    _require_super_admin(request)
+    svc = get_auth_service()
+    users = await svc.list_users()
+
+    total_users = len(users)
+    active_users = sum(1 for u in users if u.get("is_active") is not False)
+    verified_users = sum(1 for u in users if u.get("email_verified") is True)
+
+    # Tier distribution
+    tier_dist: dict[str, int] = {}
+    for u in users:
+        t = u.get("tier", "starter")
+        tier_dist[t] = tier_dist.get(t, 0) + 1
+
+    # Country distribution
+    country_dist: dict[str, int] = {}
+    for u in users:
+        c = u.get("country", "NG") or "NG"
+        country_dist[c] = country_dist.get(c, 0) + 1
+
+    # Business type distribution
+    btype_dist: dict[str, int] = {}
+    for u in users:
+        bt = u.get("business_type", "other") or "other"
+        btype_dist[bt] = btype_dist.get(bt, 0) + 1
+
+    # Signal and agent metrics from DynamoDB
+    total_signals = 0
+    email_signals = 0
+    whatsapp_signals = 0
+    total_actions = 0
+    total_strategies = 0
+    try:
+        from app.services.ddb_service import get_ddb_service
+        ddb = get_ddb_service()
+        # Scan signals table for counts
+        sig_resp = ddb.signals_table.scan(Select="COUNT")
+        total_signals = sig_resp.get("Count", 0)
+        # Count by type (sample scan — limited for performance)
+        sig_items = ddb.signals_table.scan(
+            ProjectionExpression="signal_type",
+            Limit=5000,
+        ).get("Items", [])
+        for s in sig_items:
+            st = s.get("signal_type", "")
+            if st == "email":
+                email_signals += 1
+            elif st == "whatsapp":
+                whatsapp_signals += 1
+        # Actions count
+        act_resp = ddb.actions_table.scan(Select="COUNT")
+        total_actions = act_resp.get("Count", 0)
+        # Strategies count
+        strat_resp = ddb.strategies_table.scan(Select="COUNT")
+        total_strategies = strat_resp.get("Count", 0)
+    except Exception as e:
+        logger.warning("Could not fetch signal/action metrics: %s", e)
+
+    # Revenue estimate (paid tiers)
+    tier_prices = {"starter": 0, "growth": 14900, "business": 39900, "enterprise": 99900}
+    monthly_revenue = sum(tier_prices.get(u.get("tier", "starter"), 0) for u in users if u.get("is_active") is not False)
+
+    return {
+        "total_users": total_users,
+        "active_users": active_users,
+        "verified_users": verified_users,
+        "verification_rate": round(verified_users / max(total_users, 1) * 100, 1),
+        "tier_distribution": tier_dist,
+        "country_distribution": country_dist,
+        "business_type_distribution": btype_dist,
+        "total_signals": total_signals,
+        "email_signals": email_signals,
+        "whatsapp_signals": whatsapp_signals,
+        "total_actions": total_actions,
+        "total_strategies": total_strategies,
+        "estimated_mrr": monthly_revenue,
+        "paid_users": sum(1 for u in users if u.get("tier", "starter") != "starter"),
+    }
+
+
+@router.get("/config/dial-codes")
+async def get_dial_codes_endpoint():
+    """Return supported dial codes for phone input (public endpoint)."""
+    return {"dial_codes": get_dial_codes()}

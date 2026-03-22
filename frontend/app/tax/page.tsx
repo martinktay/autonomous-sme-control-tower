@@ -8,7 +8,7 @@ import { generateTaxReport, getVatSummary } from "@/lib/api";
 import {
   FileText, Calculator, AlertTriangle, CheckCircle2,
   Download, Loader2, Calendar, Building2, Receipt,
-  Users, Info, ChevronDown, ChevronRight,
+  Users, Info, ChevronDown, ChevronRight, Globe,
 } from "lucide-react";
 
 interface TaxReport {
@@ -50,15 +50,26 @@ interface VatQuarter {
   transaction_count: number;
 }
 
-function formatNaira(amount: number): string {
-  return `₦${amount.toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+const COUNTRIES = [
+  { code: "NG", name: "Nigeria", flag: "\u{1F1F3}\u{1F1EC}", symbol: "\u20A6", authority: "FIRS" },
+  { code: "GH", name: "Ghana", flag: "\u{1F1EC}\u{1F1ED}", symbol: "GH\u20B5", authority: "GRA" },
+  { code: "KE", name: "Kenya", flag: "\u{1F1F0}\u{1F1EA}", symbol: "KSh", authority: "KRA" },
+  { code: "ZA", name: "South Africa", flag: "\u{1F1FF}\u{1F1E6}", symbol: "R", authority: "SARS" },
+  { code: "RW", name: "Rwanda", flag: "\u{1F1F7}\u{1F1FC}", symbol: "FRw", authority: "RRA" },
+  { code: "GB", name: "United Kingdom", flag: "\u{1F1EC}\u{1F1E7}", symbol: "\u00A3", authority: "HMRC" },
+];
+
+function formatCurrency(amount: number, countryCode: string): string {
+  const country = COUNTRIES.find((c) => c.code === countryCode);
+  const sym = country?.symbol || "\u20A6";
+  return `${sym}${amount.toLocaleString("en", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
 export default function TaxPage() {
   const { orgId } = useOrg();
   const currentYear = new Date().getFullYear();
 
-  // Form state
+  const [countryCode, setCountryCode] = useState("NG");
   const [fiscalYear, setFiscalYear] = useState(currentYear - 1);
   const [businessName, setBusinessName] = useState("");
   const [tin, setTin] = useState("");
@@ -66,15 +77,14 @@ export default function TaxPage() {
   const [hasEmployees, setHasEmployees] = useState(false);
   const [monthlyStaffCost, setMonthlyStaffCost] = useState(0);
 
-  // Results
   const [report, setReport] = useState<TaxReport | null>(null);
   const [vatQuarters, setVatQuarters] = useState<VatQuarter[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
-  // UI
   const [showBreakdown, setShowBreakdown] = useState(false);
   const [showVat, setShowVat] = useState(false);
+
+  const selectedCountry = COUNTRIES.find((c) => c.code === countryCode) || COUNTRIES[0];
 
   const handleGenerate = async () => {
     setLoading(true);
@@ -89,17 +99,17 @@ export default function TaxPage() {
         vat_registered: vatRegistered,
         has_employees: hasEmployees,
         monthly_staff_cost: monthlyStaffCost,
+        country_code: countryCode,
       });
       setReport(data);
 
-      // Also fetch quarterly VAT if registered
       if (vatRegistered) {
         const quarters: VatQuarter[] = [];
         for (let q = 1; q <= 4; q++) {
           try {
-            const vq = await getVatSummary(orgId, fiscalYear, q);
+            const vq = await getVatSummary(orgId, fiscalYear, q, countryCode);
             quarters.push(vq);
-          } catch { /* skip failed quarters */ }
+          } catch { /* skip */ }
         }
         setVatQuarters(quarters);
       }
@@ -110,18 +120,42 @@ export default function TaxPage() {
     }
   };
 
-  const handlePrint = () => {
-    window.print();
-  };
+  const fmt = (amount: number) => formatCurrency(amount, countryCode);
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl space-y-6">
       <div>
-        <h1 className="text-3xl font-bold mb-1">Tax & FIRS Compliance</h1>
+        <h1 className="text-3xl font-bold mb-1">Tax & Compliance</h1>
         <p className="text-muted-foreground">
-          Generate your annual tax report from your transaction data. No accounting knowledge needed.
+          Generate your annual tax report from your transaction data. Country-aware calculations.
         </p>
       </div>
+
+      {/* Country Selector */}
+      <Card>
+        <CardContent className="pt-4 pb-4">
+          <div className="flex items-center gap-3 flex-wrap">
+            <Globe className="h-5 w-5 text-muted-foreground" />
+            <span className="text-sm font-medium">Country:</span>
+            <div className="flex gap-2 flex-wrap">
+              {COUNTRIES.map((c) => (
+                <button
+                  key={c.code}
+                  onClick={() => setCountryCode(c.code)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm border transition-colors ${
+                    countryCode === c.code
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "hover:bg-accent border-border"
+                  }`}
+                >
+                  <span>{c.flag}</span>
+                  <span>{c.name}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Tax Education Banner */}
       <Card className="border-blue-200 bg-blue-50/50">
@@ -129,13 +163,14 @@ export default function TaxPage() {
           <div className="flex gap-3">
             <Info className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
             <div className="text-sm space-y-1">
-              <p className="font-medium text-blue-900">What Nigerian SMEs need to know about tax:</p>
+              <p className="font-medium text-blue-900">
+                {selectedCountry.flag} Tax overview for {selectedCountry.name} ({selectedCountry.authority})
+              </p>
               <ul className="text-blue-800 space-y-0.5 list-disc list-inside">
-                <li>All businesses must file annual returns with FIRS, even if turnover is below ₦25M</li>
-                <li>Companies Income Tax (CIT): 0% if turnover ≤ ₦25M, 20% for ₦25M–₦100M, 30% above</li>
-                <li>VAT (7.5%) must be collected and remitted if you sell taxable goods/services</li>
-                <li>Late filing penalty: ₦25,000 first month + ₦5,000 each additional month</li>
-                <li>You need a Tax Identification Number (TIN) — get one at nearest FIRS office</li>
+                <li>Tax rates and thresholds are country-specific and applied automatically</li>
+                <li>VAT rate: {report?.vat_rate ? `${(report.vat_rate * 100).toFixed(1)}%` : "varies by country"}</li>
+                <li>Filing deadlines and penalties follow {selectedCountry.authority} rules</li>
+                <li>All calculations use your uploaded transaction data</li>
               </ul>
             </div>
           </div>
@@ -150,19 +185,14 @@ export default function TaxPage() {
             Generate Annual Tax Report
           </CardTitle>
           <CardDescription>
-            We calculate your CIT, VAT, WHT, and PAYE from your uploaded transactions.
+            We calculate CIT, VAT, WHT, and PAYE using {selectedCountry.name} tax rules.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="text-sm font-medium block mb-1">Fiscal Year</label>
-              <select
-                value={fiscalYear}
-                onChange={(e) => setFiscalYear(Number(e.target.value))}
-                className="w-full border rounded-md px-3 py-2 text-sm"
-                aria-label="Fiscal year"
-              >
+              <select value={fiscalYear} onChange={(e) => setFiscalYear(Number(e.target.value))} className="w-full border rounded-md px-3 py-2 text-sm" aria-label="Fiscal year">
                 {[currentYear - 1, currentYear - 2, currentYear - 3, currentYear].map((y) => (
                   <option key={y} value={y}>{y}</option>
                 ))}
@@ -170,43 +200,19 @@ export default function TaxPage() {
             </div>
             <div>
               <label className="text-sm font-medium block mb-1">Business Name</label>
-              <input
-                type="text"
-                value={businessName}
-                onChange={(e) => setBusinessName(e.target.value)}
-                placeholder="e.g. Ade's Trading Co"
-                className="w-full border rounded-md px-3 py-2 text-sm"
-                aria-label="Business name"
-              />
+              <input type="text" value={businessName} onChange={(e) => setBusinessName(e.target.value)} placeholder="e.g. Ade's Trading Co" className="w-full border rounded-md px-3 py-2 text-sm" aria-label="Business name" />
             </div>
             <div>
               <label className="text-sm font-medium block mb-1">TIN (Tax ID Number)</label>
-              <input
-                type="text"
-                value={tin}
-                onChange={(e) => setTin(e.target.value)}
-                placeholder="Optional — enter if you have one"
-                className="w-full border rounded-md px-3 py-2 text-sm"
-                aria-label="Tax identification number"
-              />
+              <input type="text" value={tin} onChange={(e) => setTin(e.target.value)} placeholder="Optional" className="w-full border rounded-md px-3 py-2 text-sm" aria-label="Tax identification number" />
             </div>
             <div className="flex items-end gap-4">
               <label className="flex items-center gap-2 text-sm cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={vatRegistered}
-                  onChange={(e) => setVatRegistered(e.target.checked)}
-                  className="rounded"
-                />
+                <input type="checkbox" checked={vatRegistered} onChange={(e) => setVatRegistered(e.target.checked)} className="rounded" />
                 VAT Registered
               </label>
               <label className="flex items-center gap-2 text-sm cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={hasEmployees}
-                  onChange={(e) => setHasEmployees(e.target.checked)}
-                  className="rounded"
-                />
+                <input type="checkbox" checked={hasEmployees} onChange={(e) => setHasEmployees(e.target.checked)} className="rounded" />
                 Has Employees
               </label>
             </div>
@@ -214,15 +220,8 @@ export default function TaxPage() {
 
           {hasEmployees && (
             <div className="max-w-xs">
-              <label className="text-sm font-medium block mb-1">Monthly Staff Cost (₦)</label>
-              <input
-                type="number"
-                value={monthlyStaffCost || ""}
-                onChange={(e) => setMonthlyStaffCost(Number(e.target.value))}
-                placeholder="Total monthly payroll"
-                className="w-full border rounded-md px-3 py-2 text-sm"
-                aria-label="Monthly staff cost"
-              />
+              <label className="text-sm font-medium block mb-1">Monthly Staff Cost ({selectedCountry.symbol})</label>
+              <input type="number" value={monthlyStaffCost || ""} onChange={(e) => setMonthlyStaffCost(Number(e.target.value))} placeholder="Total monthly payroll" className="w-full border rounded-md px-3 py-2 text-sm" aria-label="Monthly staff cost" />
             </div>
           )}
 
@@ -232,9 +231,7 @@ export default function TaxPage() {
           </Button>
 
           {error && (
-            <p className="text-sm text-red-600 flex items-center gap-1">
-              <AlertTriangle className="h-4 w-4" /> {error}
-            </p>
+            <p className="text-sm text-red-600 flex items-center gap-1"><AlertTriangle className="h-4 w-4" /> {error}</p>
           )}
         </CardContent>
       </Card>
@@ -242,68 +239,53 @@ export default function TaxPage() {
       {/* Tax Report Results */}
       {report && (
         <>
-          {/* Summary Cards */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 print:grid-cols-4">
             <Card>
               <CardContent className="pt-4 pb-3 text-center">
                 <p className="text-xs text-muted-foreground">Total Revenue</p>
-                <p className="text-lg font-bold text-green-700">{formatNaira(report.total_revenue)}</p>
+                <p className="text-lg font-bold text-green-700">{fmt(report.total_revenue)}</p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="pt-4 pb-3 text-center">
                 <p className="text-xs text-muted-foreground">Total Expenses</p>
-                <p className="text-lg font-bold text-red-600">{formatNaira(report.total_expenses)}</p>
+                <p className="text-lg font-bold text-red-600">{fmt(report.total_expenses)}</p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="pt-4 pb-3 text-center">
                 <p className="text-xs text-muted-foreground">Net Profit</p>
-                <p className={`text-lg font-bold ${report.net_profit >= 0 ? "text-green-700" : "text-red-600"}`}>
-                  {formatNaira(report.net_profit)}
-                </p>
+                <p className={`text-lg font-bold ${report.net_profit >= 0 ? "text-green-700" : "text-red-600"}`}>{fmt(report.net_profit)}</p>
               </CardContent>
             </Card>
             <Card className="border-amber-200 bg-amber-50/50">
               <CardContent className="pt-4 pb-3 text-center">
                 <p className="text-xs text-amber-700 font-medium">Total Tax Due</p>
-                <p className="text-lg font-bold text-amber-800">{formatNaira(report.total_tax_liability)}</p>
+                <p className="text-lg font-bold text-amber-800">{fmt(report.total_tax_liability)}</p>
               </CardContent>
             </Card>
           </div>
 
-          {/* Main Tax Breakdown */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Receipt className="h-5 w-5" />
-                Tax Computation — FY {report.fiscal_year}
-              </CardTitle>
-              <CardDescription>
-                {report.cit_note}
-              </CardDescription>
+              <CardTitle className="flex items-center gap-2"><Receipt className="h-5 w-5" /> Tax Computation — FY {report.fiscal_year}</CardTitle>
+              <CardDescription>{report.cit_note}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 {/* CIT */}
                 <div className="border rounded-lg p-4">
                   <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <Building2 className="h-4 w-4 text-muted-foreground" />
-                      <span className="font-medium">Companies Income Tax (CIT)</span>
-                    </div>
-                    <span className="font-bold">{formatNaira(report.cit_amount)}</span>
+                    <div className="flex items-center gap-2"><Building2 className="h-4 w-4 text-muted-foreground" /><span className="font-medium">Companies Income Tax (CIT)</span></div>
+                    <span className="font-bold">{fmt(report.cit_amount)}</span>
                   </div>
                   <div className="text-sm text-muted-foreground space-y-1">
-                    <p>Turnover: {formatNaira(report.total_revenue)} — {report.cit_note}</p>
+                    <p>Turnover: {fmt(report.total_revenue)} — {report.cit_note}</p>
                     {!report.cit_applicable && (
-                      <p className="flex items-center gap-1 text-green-600">
-                        <CheckCircle2 className="h-3.5 w-3.5" />
-                        Your turnover is below ₦25M — CIT exempt, but you must still file annual returns
-                      </p>
+                      <p className="flex items-center gap-1 text-green-600"><CheckCircle2 className="h-3.5 w-3.5" /> CIT exempt — but you must still file annual returns</p>
                     )}
                     {report.cit_applicable && (
-                      <p>Net profit {formatNaira(report.net_profit)} × {(report.cit_rate * 100).toFixed(0)}% = {formatNaira(report.cit_amount)}</p>
+                      <p>Net profit {fmt(report.net_profit)} x {(report.cit_rate * 100).toFixed(0)}% = {fmt(report.cit_amount)}</p>
                     )}
                   </div>
                 </div>
@@ -311,23 +293,17 @@ export default function TaxPage() {
                 {/* VAT */}
                 <div className="border rounded-lg p-4">
                   <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <Receipt className="h-4 w-4 text-muted-foreground" />
-                      <span className="font-medium">Value Added Tax (VAT — 7.5%)</span>
-                    </div>
-                    <span className="font-bold">{formatNaira(report.vat_payable)}</span>
+                    <div className="flex items-center gap-2"><Receipt className="h-4 w-4 text-muted-foreground" /><span className="font-medium">VAT ({(report.vat_rate * 100).toFixed(1)}%)</span></div>
+                    <span className="font-bold">{fmt(report.vat_payable)}</span>
                   </div>
                   <div className="text-sm text-muted-foreground space-y-1">
                     {!vatRegistered ? (
-                      <p className="text-amber-600 flex items-center gap-1">
-                        <AlertTriangle className="h-3.5 w-3.5" />
-                        Not VAT registered — if you sell taxable goods/services, you should register with FIRS
-                      </p>
+                      <p className="text-amber-600 flex items-center gap-1"><AlertTriangle className="h-3.5 w-3.5" /> Not VAT registered</p>
                     ) : (
                       <>
-                        <p>Output VAT (on sales): {formatNaira(report.vat_collected)}</p>
-                        <p>Input VAT credit (on purchases): {formatNaira(report.vat_on_purchases)}</p>
-                        <p>Net VAT payable: {formatNaira(report.vat_payable)}</p>
+                        <p>Output VAT (on sales): {fmt(report.vat_collected)}</p>
+                        <p>Input VAT credit: {fmt(report.vat_on_purchases)}</p>
+                        <p>Net VAT payable: {fmt(report.vat_payable)}</p>
                       </>
                     )}
                   </div>
@@ -336,15 +312,12 @@ export default function TaxPage() {
                 {/* WHT */}
                 <div className="border rounded-lg p-4">
                   <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <Calculator className="h-4 w-4 text-muted-foreground" />
-                      <span className="font-medium">Withholding Tax (WHT — 5%)</span>
-                    </div>
-                    <span className="font-bold">{formatNaira(report.wht_deducted)}</span>
+                    <div className="flex items-center gap-2"><Calculator className="h-4 w-4 text-muted-foreground" /><span className="font-medium">Withholding Tax (WHT — {(report.wht_rate * 100).toFixed(0)}%)</span></div>
+                    <span className="font-bold">{fmt(report.wht_deducted)}</span>
                   </div>
                   <div className="text-sm text-muted-foreground">
-                    <p>Payments to suppliers/contractors: {formatNaira(report.wht_payments)}</p>
-                    <p>WHT deducted at 5%: {formatNaira(report.wht_deducted)}</p>
+                    <p>Payments to suppliers/contractors: {fmt(report.wht_payments)}</p>
+                    <p>WHT deducted: {fmt(report.wht_deducted)}</p>
                   </div>
                 </div>
 
@@ -352,29 +325,22 @@ export default function TaxPage() {
                 {hasEmployees && (
                   <div className="border rounded-lg p-4">
                     <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <Users className="h-4 w-4 text-muted-foreground" />
-                        <span className="font-medium">PAYE (Staff Income Tax)</span>
-                      </div>
-                      <span className="font-bold">{formatNaira(report.paye_estimate)}</span>
+                      <div className="flex items-center gap-2"><Users className="h-4 w-4 text-muted-foreground" /><span className="font-medium">PAYE (Staff Income Tax)</span></div>
+                      <span className="font-bold">{fmt(report.paye_estimate)}</span>
                     </div>
                     <div className="text-sm text-muted-foreground">
-                      <p>Annual staff costs: {formatNaira(report.total_staff_costs)}</p>
-                      <p>Estimated PAYE (simplified): {formatNaira(report.paye_estimate)}</p>
-                      <p className="text-xs mt-1">Note: Actual PAYE depends on individual employee salaries and tax bands. Consult a tax professional for exact amounts.</p>
+                      <p>Annual staff costs: {fmt(report.total_staff_costs)}</p>
+                      <p>Estimated PAYE: {fmt(report.paye_estimate)}</p>
+                      <p className="text-xs mt-1">Note: Actual PAYE depends on individual employee salaries. Consult a tax professional.</p>
                     </div>
                   </div>
                 )}
 
                 {/* Filing Deadline */}
                 <div className="border rounded-lg p-4 border-red-200 bg-red-50/50">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Calendar className="h-4 w-4 text-red-600" />
-                    <span className="font-medium text-red-800">Filing Deadline</span>
-                  </div>
+                  <div className="flex items-center gap-2 mb-2"><Calendar className="h-4 w-4 text-red-600" /><span className="font-medium text-red-800">Filing Deadline</span></div>
                   <div className="text-sm text-red-700 space-y-1">
                     <p>CIT annual return due: <span className="font-bold">{report.filing_deadline}</span></p>
-                    <p>VAT returns: 21st of the following month (monthly filing)</p>
                     <p className="text-xs">{report.penalties_if_late}</p>
                   </div>
                 </div>
@@ -385,10 +351,7 @@ export default function TaxPage() {
           {/* Revenue/Expense Breakdown */}
           <Card>
             <CardHeader>
-              <button
-                onClick={() => setShowBreakdown(!showBreakdown)}
-                className="flex items-center gap-2 w-full text-left"
-              >
+              <button onClick={() => setShowBreakdown(!showBreakdown)} className="flex items-center gap-2 w-full text-left">
                 {showBreakdown ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                 <CardTitle className="text-base">Revenue & Expense Breakdown</CardTitle>
               </button>
@@ -402,14 +365,12 @@ export default function TaxPage() {
                       <p className="text-sm text-muted-foreground">No revenue data for this period</p>
                     ) : (
                       <div className="space-y-1">
-                        {Object.entries(report.revenue_by_category)
-                          .sort(([, a], [, b]) => b - a)
-                          .map(([cat, amt]) => (
-                            <div key={cat} className="flex justify-between text-sm">
-                              <span className="capitalize">{cat.replace(/_/g, " ")}</span>
-                              <span className="font-medium">{formatNaira(amt)}</span>
-                            </div>
-                          ))}
+                        {Object.entries(report.revenue_by_category).sort(([, a], [, b]) => b - a).map(([cat, amt]) => (
+                          <div key={cat} className="flex justify-between text-sm">
+                            <span className="capitalize">{cat.replace(/_/g, " ")}</span>
+                            <span className="font-medium">{fmt(amt)}</span>
+                          </div>
+                        ))}
                       </div>
                     )}
                   </div>
@@ -419,14 +380,12 @@ export default function TaxPage() {
                       <p className="text-sm text-muted-foreground">No expense data for this period</p>
                     ) : (
                       <div className="space-y-1">
-                        {Object.entries(report.expense_by_category)
-                          .sort(([, a], [, b]) => b - a)
-                          .map(([cat, amt]) => (
-                            <div key={cat} className="flex justify-between text-sm">
-                              <span className="capitalize">{cat.replace(/_/g, " ")}</span>
-                              <span className="font-medium">{formatNaira(amt)}</span>
-                            </div>
-                          ))}
+                        {Object.entries(report.expense_by_category).sort(([, a], [, b]) => b - a).map(([cat, amt]) => (
+                          <div key={cat} className="flex justify-between text-sm">
+                            <span className="capitalize">{cat.replace(/_/g, " ")}</span>
+                            <span className="font-medium">{fmt(amt)}</span>
+                          </div>
+                        ))}
                       </div>
                     )}
                   </div>
@@ -439,10 +398,7 @@ export default function TaxPage() {
           {vatQuarters.length > 0 && (
             <Card>
               <CardHeader>
-                <button
-                  onClick={() => setShowVat(!showVat)}
-                  className="flex items-center gap-2 w-full text-left"
-                >
+                <button onClick={() => setShowVat(!showVat)} className="flex items-center gap-2 w-full text-left">
                   {showVat ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                   <CardTitle className="text-base">Quarterly VAT Breakdown</CardTitle>
                 </button>
@@ -464,10 +420,10 @@ export default function TaxPage() {
                         {vatQuarters.map((q) => (
                           <tr key={q.quarter} className="border-b last:border-0">
                             <td className="py-2">{q.period}</td>
-                            <td className="py-2 text-right">{formatNaira(q.total_revenue)}</td>
-                            <td className="py-2 text-right">{formatNaira(q.vat_output)}</td>
-                            <td className="py-2 text-right text-green-600">({formatNaira(q.vat_input_credit)})</td>
-                            <td className="py-2 text-right font-medium">{formatNaira(q.vat_payable)}</td>
+                            <td className="py-2 text-right">{fmt(q.total_revenue)}</td>
+                            <td className="py-2 text-right">{fmt(q.vat_output)}</td>
+                            <td className="py-2 text-right text-green-600">({fmt(q.vat_input_credit)})</td>
+                            <td className="py-2 text-right font-medium">{fmt(q.vat_payable)}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -478,11 +434,9 @@ export default function TaxPage() {
             </Card>
           )}
 
-          {/* Actions */}
           <div className="flex gap-3 print:hidden">
-            <Button onClick={handlePrint} variant="outline" className="gap-2">
-              <Download className="h-4 w-4" />
-              Print / Save as PDF
+            <Button onClick={() => window.print()} variant="outline" className="gap-2">
+              <Download className="h-4 w-4" /> Print / Save as PDF
             </Button>
           </div>
         </>

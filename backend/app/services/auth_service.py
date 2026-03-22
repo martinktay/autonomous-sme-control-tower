@@ -249,7 +249,7 @@ class AuthService:
         """List all users (admin only). Returns list without password fields."""
         try:
             resp = self.users_table.scan(
-                ProjectionExpression="user_id, email, org_id, full_name, business_name, #r, is_active, created_at, last_login, tier",
+                ProjectionExpression="user_id, email, org_id, full_name, business_name, #r, is_active, created_at, last_login, tier, phone, email_verified, business_type, country",
                 ExpressionAttributeNames={"#r": "role"},
             )
             return resp.get("Items", [])

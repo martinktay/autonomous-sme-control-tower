@@ -8,8 +8,13 @@ import {
   adminUpdateRole,
   adminUpdateTier,
   adminDeactivateUser,
+  adminGetStats,
 } from "@/lib/api";
-import { Shield, Users, Crown, Ban, RefreshCw } from "lucide-react";
+import {
+  Shield, Users, Crown, Ban, RefreshCw, Activity,
+  Mail, MessageSquare, Zap, Globe, BarChart3, CheckCircle2,
+  TrendingUp,
+} from "lucide-react";
 
 interface AdminUser {
   user_id: string;
@@ -22,6 +27,27 @@ interface AdminUser {
   is_active: boolean;
   created_at: string;
   last_login?: string;
+  email_verified?: boolean;
+  phone?: string;
+  business_type?: string;
+  country?: string;
+}
+
+interface PlatformStats {
+  total_users: number;
+  active_users: number;
+  verified_users: number;
+  verification_rate: number;
+  tier_distribution: Record<string, number>;
+  country_distribution: Record<string, number>;
+  business_type_distribution: Record<string, number>;
+  total_signals: number;
+  email_signals: number;
+  whatsapp_signals: number;
+  total_actions: number;
+  total_strategies: number;
+  estimated_mrr: number;
+  paid_users: number;
 }
 
 const ROLES = ["super_admin", "owner", "admin", "member", "viewer"];
@@ -42,33 +68,46 @@ const ROLE_COLORS: Record<string, string> = {
   viewer: "bg-gray-50 text-gray-500",
 };
 
+const COUNTRY_FLAGS: Record<string, string> = {
+  NG: "\u{1F1F3}\u{1F1EC}", GH: "\u{1F1EC}\u{1F1ED}", KE: "\u{1F1F0}\u{1F1EA}",
+  ZA: "\u{1F1FF}\u{1F1E6}", RW: "\u{1F1F7}\u{1F1FC}", GB: "\u{1F1EC}\u{1F1E7}",
+  US: "\u{1F1FA}\u{1F1F8}", TZ: "\u{1F1F9}\u{1F1FF}",
+};
+
+function formatNaira(amount: number): string {
+  return `\u20A6${amount.toLocaleString("en-NG")}`;
+}
+
 export default function AdminPage() {
   const { user } = useAuth();
   const router = useRouter();
   const [users, setUsers] = useState<AdminUser[]>([]);
+  const [stats, setStats] = useState<PlatformStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [actionMsg, setActionMsg] = useState("");
+  const [activeTab, setActiveTab] = useState<"overview" | "users">("overview");
 
   const isSuperAdmin = user?.role === "super_admin";
 
   useEffect(() => {
     if (!user) return;
-    if (!isSuperAdmin) {
-      router.replace("/dashboard");
-      return;
-    }
-    loadUsers();
+    if (!isSuperAdmin) { router.replace("/dashboard"); return; }
+    loadData();
   }, [user, isSuperAdmin]);
 
-  async function loadUsers() {
+  async function loadData() {
     setLoading(true);
     setError("");
     try {
-      const data = await adminListUsers();
-      setUsers(data.users || []);
+      const [usersData, statsData] = await Promise.all([
+        adminListUsers(),
+        adminGetStats().catch(() => null),
+      ]);
+      setUsers(usersData.users || []);
+      if (statsData) setStats(statsData);
     } catch (err: any) {
-      setError(err.message || "Failed to load users");
+      setError(err.message || "Failed to load data");
     } finally {
       setLoading(false);
     }
@@ -78,20 +117,16 @@ export default function AdminPage() {
     try {
       await adminUpdateRole(email, newRole);
       setActionMsg(`Role updated to ${newRole} for ${email}`);
-      loadUsers();
-    } catch (err: any) {
-      setActionMsg(`Error: ${err.message}`);
-    }
+      loadData();
+    } catch (err: any) { setActionMsg(`Error: ${err.message}`); }
   }
 
   async function handleTierChange(email: string, newTier: string) {
     try {
       await adminUpdateTier(email, newTier);
       setActionMsg(`Tier updated to ${newTier} for ${email}`);
-      loadUsers();
-    } catch (err: any) {
-      setActionMsg(`Error: ${err.message}`);
-    }
+      loadData();
+    } catch (err: any) { setActionMsg(`Error: ${err.message}`); }
   }
 
   async function handleDeactivate(email: string) {
@@ -99,10 +134,8 @@ export default function AdminPage() {
     try {
       await adminDeactivateUser(email);
       setActionMsg(`Deactivated ${email}`);
-      loadUsers();
-    } catch (err: any) {
-      setActionMsg(`Error: ${err.message}`);
-    }
+      loadData();
+    } catch (err: any) { setActionMsg(`Error: ${err.message}`); }
   }
 
   if (!isSuperAdmin) {
@@ -114,141 +147,222 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-6">
+    <div className="p-6 max-w-7xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Shield className="h-6 w-6 text-red-600" />
           <h1 className="text-2xl font-semibold">Admin Panel</h1>
         </div>
-        <button
-          onClick={loadUsers}
-          className="flex items-center gap-2 px-3 py-2 text-sm rounded-md border hover:bg-accent transition-colors"
-        >
-          <RefreshCw className="h-4 w-4" />
-          Refresh
-        </button>
-      </div>
-
-      {actionMsg && (
-        <div className="px-4 py-2 rounded-md bg-primary/10 text-primary text-sm">
-          {actionMsg}
-        </div>
-      )}
-
-      {error && (
-        <div className="px-4 py-2 rounded-md bg-red-50 text-red-700 text-sm">
-          {error}
-        </div>
-      )}
-
-      {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="border rounded-lg p-4">
-          <div className="flex items-center gap-2 text-muted-foreground text-sm">
-            <Users className="h-4 w-4" />
-            Total Users
+        <div className="flex items-center gap-2">
+          <div className="flex rounded-md border overflow-hidden">
+            <button
+              onClick={() => setActiveTab("overview")}
+              className={`px-3 py-1.5 text-sm ${activeTab === "overview" ? "bg-primary text-primary-foreground" : "hover:bg-accent"}`}
+            >
+              Overview
+            </button>
+            <button
+              onClick={() => setActiveTab("users")}
+              className={`px-3 py-1.5 text-sm ${activeTab === "users" ? "bg-primary text-primary-foreground" : "hover:bg-accent"}`}
+            >
+              Users
+            </button>
           </div>
-          <p className="text-2xl font-semibold mt-1">{users.length}</p>
-        </div>
-        <div className="border rounded-lg p-4">
-          <div className="flex items-center gap-2 text-muted-foreground text-sm">
-            <Crown className="h-4 w-4" />
-            Active
-          </div>
-          <p className="text-2xl font-semibold mt-1">
-            {users.filter((u) => u.is_active !== false).length}
-          </p>
-        </div>
-        <div className="border rounded-lg p-4">
-          <div className="text-muted-foreground text-sm">Paid Tiers</div>
-          <p className="text-2xl font-semibold mt-1">
-            {users.filter((u) => u.tier && u.tier !== "starter").length}
-          </p>
-        </div>
-        <div className="border rounded-lg p-4">
-          <div className="text-muted-foreground text-sm">Super Admins</div>
-          <p className="text-2xl font-semibold mt-1">
-            {users.filter((u) => u.role === "super_admin").length}
-          </p>
+          <button onClick={loadData} className="flex items-center gap-2 px-3 py-2 text-sm rounded-md border hover:bg-accent transition-colors">
+            <RefreshCw className="h-4 w-4" /> Refresh
+          </button>
         </div>
       </div>
 
-      {/* Users table */}
-      {loading ? (
-        <div className="text-center py-12 text-muted-foreground">Loading users…</div>
-      ) : (
-        <div className="border rounded-lg overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-muted/50">
-              <tr>
-                <th className="text-left px-4 py-3 font-medium">User</th>
-                <th className="text-left px-4 py-3 font-medium">Business</th>
-                <th className="text-left px-4 py-3 font-medium">Role</th>
-                <th className="text-left px-4 py-3 font-medium">Tier</th>
-                <th className="text-left px-4 py-3 font-medium">Status</th>
-                <th className="text-left px-4 py-3 font-medium">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {users.map((u) => (
-                <tr key={u.email} className="hover:bg-muted/30">
-                  <td className="px-4 py-3">
-                    <p className="font-medium">{u.full_name || u.email}</p>
-                    <p className="text-xs text-muted-foreground">{u.email}</p>
-                    <p className="text-xs text-muted-foreground">Org: {u.org_id}</p>
-                  </td>
-                  <td className="px-4 py-3 text-muted-foreground">
-                    {u.business_name || "—"}
-                  </td>
-                  <td className="px-4 py-3">
-                    <select
-                      value={u.role}
-                      onChange={(e) => handleRoleChange(u.email, e.target.value)}
-                      className={`text-xs px-2 py-1 rounded-full font-medium border-0 cursor-pointer ${
-                        ROLE_COLORS[u.role] || "bg-gray-100"
-                      }`}
-                    >
-                      {ROLES.map((r) => (
-                        <option key={r} value={r}>{r}</option>
-                      ))}
-                    </select>
-                  </td>
-                  <td className="px-4 py-3">
-                    <select
-                      value={u.tier || "starter"}
-                      onChange={(e) => handleTierChange(u.email, e.target.value)}
-                      className={`text-xs px-2 py-1 rounded-full font-medium border-0 cursor-pointer ${
-                        TIER_COLORS[u.tier || "starter"] || "bg-gray-100"
-                      }`}
-                    >
-                      {TIERS.map((t) => (
-                        <option key={t} value={t}>{t}</option>
-                      ))}
-                    </select>
-                  </td>
-                  <td className="px-4 py-3">
-                    {u.is_active !== false ? (
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700">Active</span>
-                    ) : (
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-red-100 text-red-700">Inactive</span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3">
-                    {u.is_active !== false && u.role !== "super_admin" && (
-                      <button
-                        onClick={() => handleDeactivate(u.email)}
-                        className="text-xs text-red-600 hover:text-red-800 flex items-center gap-1"
-                      >
-                        <Ban className="h-3 w-3" />
-                        Deactivate
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+      {actionMsg && <div className="px-4 py-2 rounded-md bg-primary/10 text-primary text-sm">{actionMsg}</div>}
+      {error && <div className="px-4 py-2 rounded-md bg-red-50 text-red-700 text-sm">{error}</div>}
+
+      {activeTab === "overview" && (
+        <>
+          {/* Agentic SaaS Metrics */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="border rounded-lg p-4">
+              <div className="flex items-center gap-2 text-muted-foreground text-sm"><Users className="h-4 w-4" /> Total Users</div>
+              <p className="text-2xl font-semibold mt-1">{stats?.total_users ?? users.length}</p>
+              <p className="text-xs text-muted-foreground">{stats?.active_users ?? 0} active</p>
+            </div>
+            <div className="border rounded-lg p-4">
+              <div className="flex items-center gap-2 text-muted-foreground text-sm"><Activity className="h-4 w-4" /> Signals Processed</div>
+              <p className="text-2xl font-semibold mt-1">{stats?.total_signals ?? 0}</p>
+              <p className="text-xs text-muted-foreground">All agent inputs</p>
+            </div>
+            <div className="border rounded-lg p-4">
+              <div className="flex items-center gap-2 text-muted-foreground text-sm"><Zap className="h-4 w-4" /> Agent Actions</div>
+              <p className="text-2xl font-semibold mt-1">{stats?.total_actions ?? 0}</p>
+              <p className="text-xs text-muted-foreground">{stats?.total_strategies ?? 0} strategies</p>
+            </div>
+            <div className="border rounded-lg p-4 border-green-200 bg-green-50/50">
+              <div className="flex items-center gap-2 text-green-700 text-sm"><TrendingUp className="h-4 w-4" /> Est. MRR</div>
+              <p className="text-2xl font-semibold mt-1 text-green-800">{formatNaira(stats?.estimated_mrr ?? 0)}</p>
+              <p className="text-xs text-green-600">{stats?.paid_users ?? 0} paid users</p>
+            </div>
+          </div>
+
+          {/* Channel Metrics */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="border rounded-lg p-4">
+              <div className="flex items-center gap-2 text-muted-foreground text-sm"><Mail className="h-4 w-4" /> Email Ingestions</div>
+              <p className="text-2xl font-semibold mt-1">{stats?.email_signals ?? 0}</p>
+            </div>
+            <div className="border rounded-lg p-4">
+              <div className="flex items-center gap-2 text-muted-foreground text-sm"><MessageSquare className="h-4 w-4" /> WhatsApp Messages</div>
+              <p className="text-2xl font-semibold mt-1">{stats?.whatsapp_signals ?? 0}</p>
+            </div>
+            <div className="border rounded-lg p-4">
+              <div className="flex items-center gap-2 text-muted-foreground text-sm"><CheckCircle2 className="h-4 w-4" /> Email Verified</div>
+              <p className="text-2xl font-semibold mt-1">{stats?.verification_rate ?? 0}%</p>
+              <p className="text-xs text-muted-foreground">{stats?.verified_users ?? 0} of {stats?.total_users ?? 0}</p>
+            </div>
+            <div className="border rounded-lg p-4">
+              <div className="flex items-center gap-2 text-muted-foreground text-sm"><Crown className="h-4 w-4" /> Paid Tiers</div>
+              <p className="text-2xl font-semibold mt-1">{stats?.paid_users ?? users.filter((u) => u.tier && u.tier !== "starter").length}</p>
+            </div>
+          </div>
+
+          {/* Distribution Charts */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Tier Distribution */}
+            <div className="border rounded-lg p-4">
+              <h3 className="text-sm font-medium mb-3 flex items-center gap-2"><BarChart3 className="h-4 w-4" /> Tier Distribution</h3>
+              <div className="space-y-2">
+                {Object.entries(stats?.tier_distribution ?? {}).map(([tier, count]) => (
+                  <div key={tier} className="flex items-center justify-between">
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${TIER_COLORS[tier] || "bg-gray-100"}`}>{tier}</span>
+                    <div className="flex items-center gap-2">
+                      <div className="w-20 h-2 bg-muted rounded-full overflow-hidden">
+                        <div className="h-full bg-primary rounded-full" style={{ width: `${Math.min((count / Math.max(stats?.total_users ?? 1, 1)) * 100, 100)}%` }} />
+                      </div>
+                      <span className="text-sm font-medium w-6 text-right">{count}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Country Distribution */}
+            <div className="border rounded-lg p-4">
+              <h3 className="text-sm font-medium mb-3 flex items-center gap-2"><Globe className="h-4 w-4" /> Country Distribution</h3>
+              <div className="space-y-2">
+                {Object.entries(stats?.country_distribution ?? {}).map(([code, count]) => (
+                  <div key={code} className="flex items-center justify-between">
+                    <span className="text-sm">{COUNTRY_FLAGS[code] || ""} {code}</span>
+                    <span className="text-sm font-medium">{count}</span>
+                  </div>
+                ))}
+                {!stats?.country_distribution || Object.keys(stats.country_distribution).length === 0 ? (
+                  <p className="text-xs text-muted-foreground">No data yet</p>
+                ) : null}
+              </div>
+            </div>
+
+            {/* Business Type Distribution */}
+            <div className="border rounded-lg p-4">
+              <h3 className="text-sm font-medium mb-3 flex items-center gap-2"><Activity className="h-4 w-4" /> Business Types</h3>
+              <div className="space-y-1 max-h-48 overflow-y-auto">
+                {Object.entries(stats?.business_type_distribution ?? {})
+                  .sort(([, a], [, b]) => b - a)
+                  .slice(0, 10)
+                  .map(([bt, count]) => (
+                    <div key={bt} className="flex items-center justify-between text-sm">
+                      <span className="capitalize truncate">{bt.replace(/_/g, " ")}</span>
+                      <span className="font-medium ml-2">{count}</span>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      {activeTab === "users" && (
+        <>
+          {loading ? (
+            <div className="text-center py-12 text-muted-foreground">Loading users...</div>
+          ) : (
+            <div className="border rounded-lg overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-muted/50">
+                  <tr>
+                    <th className="text-left px-4 py-3 font-medium">User</th>
+                    <th className="text-left px-4 py-3 font-medium">Business</th>
+                    <th className="text-left px-4 py-3 font-medium">Role</th>
+                    <th className="text-left px-4 py-3 font-medium">Tier</th>
+                    <th className="text-left px-4 py-3 font-medium">Verified</th>
+                    <th className="text-left px-4 py-3 font-medium">Status</th>
+                    <th className="text-left px-4 py-3 font-medium">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y">
+                  {users.map((u) => (
+                    <tr key={u.email} className="hover:bg-muted/30">
+                      <td className="px-4 py-3">
+                        <p className="font-medium">{u.full_name || u.email}</p>
+                        <p className="text-xs text-muted-foreground">{u.email}</p>
+                        {u.phone && <p className="text-xs text-muted-foreground">{u.phone}</p>}
+                      </td>
+                      <td className="px-4 py-3">
+                        <p className="text-muted-foreground">{u.business_name || "\u2014"}</p>
+                        {u.business_type && (
+                          <p className="text-xs text-muted-foreground capitalize">{u.business_type.replace(/_/g, " ")}</p>
+                        )}
+                        {u.country && (
+                          <p className="text-xs">{COUNTRY_FLAGS[u.country] || ""} {u.country}</p>
+                        )}
+                      </td>
+                      <td className="px-4 py-3">
+                        <select
+                          value={u.role}
+                          onChange={(e) => handleRoleChange(u.email, e.target.value)}
+                          className={`text-xs px-2 py-1 rounded-full font-medium border-0 cursor-pointer ${ROLE_COLORS[u.role] || "bg-gray-100"}`}
+                        >
+                          {ROLES.map((r) => (<option key={r} value={r}>{r}</option>))}
+                        </select>
+                      </td>
+                      <td className="px-4 py-3">
+                        <select
+                          value={u.tier || "starter"}
+                          onChange={(e) => handleTierChange(u.email, e.target.value)}
+                          className={`text-xs px-2 py-1 rounded-full font-medium border-0 cursor-pointer ${TIER_COLORS[u.tier || "starter"] || "bg-gray-100"}`}
+                        >
+                          {TIERS.map((t) => (<option key={t} value={t}>{t}</option>))}
+                        </select>
+                      </td>
+                      <td className="px-4 py-3">
+                        {u.email_verified ? (
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700">Verified</span>
+                        ) : (
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700">Pending</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3">
+                        {u.is_active !== false ? (
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700">Active</span>
+                        ) : (
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-red-100 text-red-700">Inactive</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3">
+                        {u.is_active !== false && u.role !== "super_admin" && (
+                          <button
+                            onClick={() => handleDeactivate(u.email)}
+                            className="text-xs text-red-600 hover:text-red-800 flex items-center gap-1"
+                          >
+                            <Ban className="h-3 w-3" /> Deactivate
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

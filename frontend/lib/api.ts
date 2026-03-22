@@ -748,6 +748,7 @@ export const generateTaxReport = async (orgId: string, data: {
   vat_registered?: boolean;
   has_employees?: boolean;
   monthly_staff_cost?: number;
+  country_code?: string;
 }) => {
   const res = await apiFetch('/api/tax/annual-report', {
     method: 'POST',
@@ -758,8 +759,8 @@ export const generateTaxReport = async (orgId: string, data: {
 };
 
 /** Get quarterly VAT summary. */
-export const getVatSummary = async (orgId: string, fiscalYear: number, quarter: number) => {
-  const res = await apiFetch(`/api/tax/vat-summary?fiscal_year=${fiscalYear}&quarter=${quarter}`, {
+export const getVatSummary = async (orgId: string, fiscalYear: number, quarter: number, countryCode = "NG") => {
+  const res = await apiFetch(`/api/tax/vat-summary?fiscal_year=${fiscalYear}&quarter=${quarter}&country_code=${countryCode}`, {
     headers: { 'X-Org-ID': orgId },
   });
   return res.json();
@@ -773,12 +774,44 @@ export const getTaxGuidance = async (orgId: string, data: {
   vat_registered?: boolean;
   has_employees?: boolean;
   monthly_staff_cost?: number;
+  country_code?: string;
 }) => {
   const res = await apiFetch('/api/tax/ai-guidance', {
     method: 'POST',
     headers: { 'X-Org-ID': orgId },
     body: JSON.stringify(data),
   }, 60000);
+  return res.json();
+};
+
+// ─── Admin Stats & Config ─────────────────────────────────────────────────
+
+/** Fetch agentic SaaS platform stats (super_admin only). */
+export const adminGetStats = async () => {
+  const res = await apiFetch('/api/admin/stats');
+  return res.json();
+};
+
+/** Fetch supported dial codes for phone input. */
+export const getDialCodes = async () => {
+  const res = await apiFetch('/api/admin/config/dial-codes');
+  return res.json();
+};
+
+// ─── WhatsApp Actions ─────────────────────────────────────────────────────
+
+/** Get pending WhatsApp notification actions for human review. */
+export const getWhatsAppActions = async (orgId: string) => {
+  const res = await apiFetch(`/api/whatsapp/${orgId}/actions`);
+  return res.json();
+};
+
+/** Approve or reject a pending WhatsApp action. */
+export const reviewWhatsAppAction = async (orgId: string, actionId: string, decision: 'approve' | 'reject') => {
+  const res = await apiFetch('/api/whatsapp/actions/review', {
+    method: 'POST',
+    body: JSON.stringify({ action_id: actionId, org_id: orgId, decision }),
+  });
   return res.json();
 };
 
@@ -863,4 +896,8 @@ export const apiClient = {
   generateTaxReport,
   getVatSummary,
   getTaxGuidance,
+  adminGetStats,
+  getDialCodes,
+  getWhatsAppActions,
+  reviewWhatsAppAction,
 };
