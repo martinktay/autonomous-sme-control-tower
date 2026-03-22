@@ -19,6 +19,7 @@ interface AuthUser {
   role: string;
   business_name: string;
   tier: string;
+  email_verified: boolean;
 }
 
 interface AuthContextType {
@@ -28,13 +29,20 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (data: RegisterData) => Promise<void>;
   logout: () => void;
+  verifyOtp: (email: string, code: string) => Promise<void>;
+  resendOtp: (email: string) => Promise<void>;
+  requestPasswordReset: (email: string) => Promise<void>;
+  confirmPasswordReset: (email: string, code: string, newPassword: string) => Promise<void>;
+  setEmailVerified: () => void;
 }
 
 interface RegisterData {
   email: string;
   password: string;
   full_name?: string;
+  phone?: string;
   business_name?: string;
+  business_type?: string;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -44,6 +52,11 @@ const AuthContext = createContext<AuthContextType>({
   login: async () => {},
   register: async () => {},
   logout: () => {},
+  verifyOtp: async () => {},
+  resendOtp: async () => {},
+  requestPasswordReset: async () => {},
+  confirmPasswordReset: async () => {},
+  setEmailVerified: () => {},
 });
 
 const TOKEN_KEY = "sme_access_token";
@@ -72,7 +85,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (savedToken && savedUser) {
         const exp = parseJwtExp(savedToken);
         if (exp && exp * 1000 < Date.now()) {
-          // Token expired — clear session
           localStorage.removeItem(TOKEN_KEY);
           localStorage.removeItem(USER_KEY);
         } else {
@@ -112,6 +124,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       role: data.role,
       business_name: data.business_name || "",
       tier: data.tier || "starter",
+      email_verified: data.email_verified ?? false,
     });
   }, [saveSession]);
 
@@ -134,8 +147,65 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       role: data.role,
       business_name: data.business_name || "",
       tier: data.tier || "starter",
+      email_verified: data.email_verified ?? false,
     });
   }, [saveSession]);
+
+  const verifyOtp = useCallback(async (email: string, code: string) => {
+    const res = await fetch(`${API_BASE_URL}/api/auth/otp/verify`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, code }),
+    });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({ detail: res.statusText }));
+      throw new Error(body.detail || "Verification failed");
+    }
+  }, []);
+
+  const resendOtp = useCallback(async (email: string) => {
+    const res = await fetch(`${API_BASE_URL}/api/auth/otp/resend`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({ detail: res.statusText }));
+      throw new Error(body.detail || "Failed to resend code");
+    }
+  }, []);
+
+  const requestPasswordReset = useCallback(async (email: string) => {
+    const res = await fetch(`${API_BASE_URL}/api/auth/password-reset/request`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({ detail: res.statusText }));
+      throw new Error(body.detail || "Failed to send reset code");
+    }
+  }, []);
+
+  const confirmPasswordReset = useCallback(async (email: string, code: string, newPassword: string) => {
+    const res = await fetch(`${API_BASE_URL}/api/auth/password-reset/confirm`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, code, new_password: newPassword }),
+    });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({ detail: res.statusText }));
+      throw new Error(body.detail || "Password reset failed");
+    }
+  }, []);
+
+  const setEmailVerified = useCallback(() => {
+    if (user) {
+      const updated = { ...user, email_verified: true };
+      setUser(updated);
+      localStorage.setItem(USER_KEY, JSON.stringify(updated));
+    }
+  }, [user]);
 
   const logout = useCallback(() => {
     setToken(null);
@@ -145,7 +215,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, register, logout }}>
+    <AuthContext.Provider value={{
+      user, token, loading, login, register, logout,
+      verifyOtp, resendOtp, requestPasswordReset, confirmPasswordReset, setEmailVerified,
+    }}>
       {children}
     </AuthContext.Provider>
   );

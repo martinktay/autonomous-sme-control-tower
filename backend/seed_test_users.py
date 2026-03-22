@@ -27,6 +27,8 @@ TEST_USERS = [
         "business_name": "SME Control Tower",
         "role": "super_admin",
         "tier": "enterprise",
+        "business_type": "professional_service",
+        "phone": "+2349000000001",
     },
     {
         "email": "starter@demo.com",
@@ -35,6 +37,8 @@ TEST_USERS = [
         "business_name": "Ade's Trading Co",
         "role": "owner",
         "tier": "starter",
+        "business_type": "supermarket",
+        "phone": "+2348012345678",
     },
     {
         "email": "growth@demo.com",
@@ -43,6 +47,8 @@ TEST_USERS = [
         "business_name": "GreenField Farms",
         "role": "owner",
         "tier": "growth",
+        "business_type": "agriculture",
+        "phone": "+2348023456789",
     },
     {
         "email": "business@demo.com",
@@ -51,6 +57,8 @@ TEST_USERS = [
         "business_name": "TechBridge Solutions",
         "role": "owner",
         "tier": "business",
+        "business_type": "professional_service",
+        "phone": "+2348034567890",
     },
 ]
 
@@ -61,12 +69,15 @@ async def main():
     for u in TEST_USERS:
         existing = svc._get_user_by_email(u["email"])
         if existing:
-            # Update role and tier
+            # Update role, tier, and mark verified
             svc.users_table.update_item(
                 Key={"email": u["email"]},
-                UpdateExpression="SET #r = :r, tier = :t",
+                UpdateExpression="SET #r = :r, tier = :t, email_verified = :v, phone = :p, business_type = :bt",
                 ExpressionAttributeNames={"#r": "role"},
-                ExpressionAttributeValues={":r": u["role"], ":t": u["tier"]},
+                ExpressionAttributeValues={
+                    ":r": u["role"], ":t": u["tier"], ":v": True,
+                    ":p": u.get("phone", ""), ":bt": u.get("business_type", "other"),
+                },
             )
             print(f"  Updated: {u['email']} -> {u['role']} / {u['tier']}")
         else:
@@ -74,13 +85,15 @@ async def main():
                 email=u["email"],
                 password=u["password"],
                 full_name=u["full_name"],
+                phone=u.get("phone", ""),
                 business_name=u["business_name"],
+                business_type=u.get("business_type", "other"),
             )
             svc.users_table.update_item(
                 Key={"email": u["email"]},
-                UpdateExpression="SET #r = :r, tier = :t",
+                UpdateExpression="SET #r = :r, tier = :t, email_verified = :v",
                 ExpressionAttributeNames={"#r": "role"},
-                ExpressionAttributeValues={":r": u["role"], ":t": u["tier"]},
+                ExpressionAttributeValues={":r": u["role"], ":t": u["tier"], ":v": True},
             )
             print(f"  Created: {u['email']} -> {u['role']} / {u['tier']}")
 

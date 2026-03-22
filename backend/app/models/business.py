@@ -19,6 +19,18 @@ class BusinessType(str, Enum):
     FOOD_VENDOR = "food_vendor"
     AGRICULTURE = "agriculture"
     PROFESSIONAL_SERVICE = "professional_service"
+    PHARMACY = "pharmacy"
+    RESTAURANT = "restaurant"
+    BAR_LOUNGE = "bar_lounge"
+    HOTEL_GUESTHOUSE = "hotel_guesthouse"
+    LOGISTICS = "logistics"
+    FASHION_TEXTILE = "fashion_textile"
+    ELECTRONICS = "electronics"
+    CONSTRUCTION = "construction"
+    EDUCATION = "education"
+    HEALTHCARE = "healthcare"
+    AUTO_MECHANIC = "auto_mechanic"
+    LAUNDRY_CLEANING = "laundry_cleaning"
     OTHER = "other"
 
 

@@ -17,9 +17,11 @@ class User(BaseModel):
     user_id: str = Field(..., description="Cognito sub or unique user ID")
     email: str = Field(..., description="User email address")
     full_name: str = Field("", description="Display name")
+    phone: str = Field("", description="Phone number (e.g. +2348012345678)")
     org_id: str = Field(..., description="Organisation the user belongs to")
     role: str = Field(default="owner", description="Role: owner, admin, member, viewer")
     is_active: bool = Field(default=True)
+    email_verified: bool = Field(default=False, description="Whether email has been verified via OTP")
     created_at: datetime = Field(default_factory=_utc_now)
     last_login: Optional[datetime] = None
 
@@ -43,9 +45,11 @@ class UserCreate(BaseModel):
     """Payload for user registration."""
     email: str
     full_name: str = ""
+    phone: str = Field("", description="Phone number (e.g. +2348012345678)")
     password: str = Field(..., min_length=8, description="Min 8 chars")
     org_id: Optional[str] = None
     business_name: Optional[str] = None
+    business_type: Optional[str] = None
 
     @field_validator("email")
     @classmethod
@@ -73,3 +77,55 @@ class TokenResponse(BaseModel):
     role: str = "owner"
     business_name: str = ""
     tier: str = "starter"
+    email_verified: bool = False
+
+
+class OTPRequest(BaseModel):
+    """Request to send or resend an OTP."""
+    email: str
+
+    @field_validator("email")
+    @classmethod
+    def validate_email(cls, v: str) -> str:
+        if not _EMAIL_RE.match(v):
+            raise ValueError("Invalid email address")
+        return v.lower()
+
+
+class OTPVerify(BaseModel):
+    """Verify an OTP code."""
+    email: str
+    code: str = Field(..., min_length=6, max_length=6)
+
+    @field_validator("email")
+    @classmethod
+    def validate_email(cls, v: str) -> str:
+        if not _EMAIL_RE.match(v):
+            raise ValueError("Invalid email address")
+        return v.lower()
+
+
+class PasswordResetRequest(BaseModel):
+    """Request a password reset OTP."""
+    email: str
+
+    @field_validator("email")
+    @classmethod
+    def validate_email(cls, v: str) -> str:
+        if not _EMAIL_RE.match(v):
+            raise ValueError("Invalid email address")
+        return v.lower()
+
+
+class PasswordResetConfirm(BaseModel):
+    """Confirm password reset with OTP and new password."""
+    email: str
+    code: str = Field(..., min_length=6, max_length=6)
+    new_password: str = Field(..., min_length=8)
+
+    @field_validator("email")
+    @classmethod
+    def validate_email(cls, v: str) -> str:
+        if not _EMAIL_RE.match(v):
+            raise ValueError("Invalid email address")
+        return v.lower()

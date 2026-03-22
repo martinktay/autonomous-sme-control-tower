@@ -83,9 +83,11 @@ class AuthService:
         email: str,
         password: str,
         full_name: str = "",
+        phone: str = "",
         business_name: Optional[str] = None,
+        business_type: Optional[str] = None,
     ) -> Dict[str, Any]:
-        """Register a new user. Creates an org_id automatically."""
+        """Register a new user. Creates an org_id automatically. Account starts unverified."""
         email = email.strip().lower()
 
         # Check if email already exists
@@ -103,12 +105,15 @@ class AuthService:
             "user_id": user_id,
             "org_id": org_id,
             "full_name": full_name,
+            "phone": phone,
             "business_name": business_name or "",
+            "business_type": business_type or "other",
             "role": "owner",
             "tier": "starter",
             "pw_hash": pw_hash,
             "pw_salt": pw_salt,
             "is_active": True,
+            "email_verified": False,
             "created_at": now,
             "last_login": now,
         }
@@ -134,6 +139,7 @@ class AuthService:
             "role": "owner",
             "business_name": business_name or "",
             "tier": "starter",
+            "email_verified": False,
         }
 
     # ---- Login ----
@@ -180,7 +186,30 @@ class AuthService:
             "role": user.get("role", "owner"),
             "business_name": user.get("business_name", ""),
             "tier": user.get("tier", "starter"),
+            "email_verified": user.get("email_verified", False),
         }
+
+    # ---- Password Reset ----
+
+    async def reset_password(self, email: str, new_password: str) -> Dict[str, Any]:
+        """Reset a user's password (called after OTP verification)."""
+        email = email.strip().lower()
+        user = self._get_user_by_email(email)
+        if not user:
+            raise ValueError("User not found")
+
+        pw_hash, pw_salt = _hash_password(new_password)
+        try:
+            self.users_table.update_item(
+                Key={"email": email},
+                UpdateExpression="SET pw_hash = :h, pw_salt = :s",
+                ExpressionAttributeValues={":h": pw_hash, ":s": pw_salt},
+            )
+            logger.info("Password reset for %s", email)
+            return {"email": email, "status": "password_reset"}
+        except Exception as exc:
+            logger.error("Failed to reset password for %s: %s", email, exc)
+            raise ValueError("Failed to reset password")
 
     # ---- Profile ----
 
@@ -194,9 +223,12 @@ class AuthService:
             "email": user["email"],
             "org_id": user["org_id"],
             "full_name": user.get("full_name", ""),
+            "phone": user.get("phone", ""),
             "role": user.get("role", "owner"),
             "business_name": user.get("business_name", ""),
+            "business_type": user.get("business_type", "other"),
             "is_active": user.get("is_active", True),
+            "email_verified": user.get("email_verified", False),
             "created_at": user.get("created_at", ""),
         }
 

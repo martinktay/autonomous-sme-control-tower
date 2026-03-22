@@ -5,17 +5,51 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 
+const BUSINESS_TYPES = [
+  { value: "supermarket", label: "Supermarket / Mini Mart" },
+  { value: "kiosk", label: "Kiosk / Provision Store" },
+  { value: "salon", label: "Salon / Barbershop" },
+  { value: "food_vendor", label: "Food Vendor / Restaurant" },
+  { value: "bar_lounge", label: "Bar / Lounge / Nightclub" },
+  { value: "pharmacy", label: "Pharmacy / Patent Medicine" },
+  { value: "agriculture", label: "Farm / Agriculture" },
+  { value: "artisan", label: "Artisan / Craftsperson" },
+  { value: "fashion_textile", label: "Fashion / Textile" },
+  { value: "electronics", label: "Electronics / Phone Accessories" },
+  { value: "logistics", label: "Logistics / Transport" },
+  { value: "hotel_guesthouse", label: "Hotel / Guesthouse" },
+  { value: "construction", label: "Construction / Building" },
+  { value: "education", label: "School / Education" },
+  { value: "healthcare", label: "Clinic / Healthcare" },
+  { value: "auto_mechanic", label: "Auto Mechanic / Workshop" },
+  { value: "laundry_cleaning", label: "Laundry / Cleaning" },
+  { value: "professional_service", label: "Professional Service (Legal, Consulting)" },
+  { value: "other", label: "Other" },
+];
+
+type Step = "form" | "otp";
+
 export default function RegisterPage() {
-  const { register } = useAuth();
+  const { register, verifyOtp, resendOtp, setEmailVerified } = useAuth();
   const router = useRouter();
+
+  const [step, setStep] = useState<Step>("form");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
   const [businessName, setBusinessName] = useState("");
+  const [businessType, setBusinessType] = useState("other");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // OTP state
+  const [otpCode, setOtpCode] = useState("");
+  const [otpError, setOtpError] = useState("");
+  const [otpLoading, setOtpLoading] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
+
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
@@ -24,15 +58,129 @@ export default function RegisterPage() {
         email,
         password,
         full_name: fullName,
+        phone,
         business_name: businessName,
+        business_type: businessType,
       });
-      router.push("/dashboard");
+      setStep("otp");
     } catch (err: any) {
       setError(err.message || "Registration failed");
     } finally {
       setLoading(false);
     }
   };
+
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setOtpError("");
+    setOtpLoading(true);
+    try {
+      await verifyOtp(email, otpCode);
+      setEmailVerified();
+      router.push("/dashboard");
+    } catch (err: any) {
+      setOtpError(err.message || "Invalid code");
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
+  const handleResend = async () => {
+    if (resendCooldown > 0) return;
+    try {
+      await resendOtp(email);
+      setResendCooldown(60);
+      const interval = setInterval(() => {
+        setResendCooldown((prev) => {
+          if (prev <= 1) { clearInterval(interval); return 0; }
+          return prev - 1;
+        });
+      }, 1000);
+    } catch (err: any) {
+      setOtpError(err.message || "Failed to resend");
+    }
+  };
+
+  const handleSkip = () => {
+    router.push("/dashboard");
+  };
+
+  if (step === "otp") {
+    return (
+      <div className="min-h-[80vh] flex items-center justify-center px-4">
+        <div className="w-full max-w-md space-y-6">
+          <div className="text-center space-y-2">
+            <div className="flex justify-center mb-2">
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
+                <svg className="h-7 w-7 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </div>
+            </div>
+            <h1 className="text-2xl font-semibold tracking-tight">Verify your email</h1>
+            <p className="text-sm text-muted-foreground">
+              We sent a 6-digit code to <span className="font-medium text-foreground">{email}</span>
+            </p>
+          </div>
+
+          <form onSubmit={handleVerifyOtp} className="space-y-4">
+            {otpError && (
+              <div className="rounded-md bg-red-50 border border-red-200 p-3 text-sm text-red-700">
+                {otpError}
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <label htmlFor="otpCode" className="text-sm font-medium">
+                Verification code
+              </label>
+              <input
+                id="otpCode"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]{6}"
+                maxLength={6}
+                required
+                autoFocus
+                value={otpCode}
+                onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                className="w-full rounded-md border px-3 py-3 text-center text-2xl font-mono tracking-[0.5em] focus:outline-none focus:ring-2 focus:ring-primary"
+                placeholder="000000"
+                aria-label="6-digit verification code"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={otpLoading || otpCode.length !== 6}
+              className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-colors"
+            >
+              {otpLoading ? "Verifying…" : "Verify email"}
+            </button>
+          </form>
+
+          <div className="text-center space-y-3">
+            <p className="text-sm text-muted-foreground">
+              Did not receive the code?{" "}
+              <button
+                onClick={handleResend}
+                disabled={resendCooldown > 0}
+                className="text-primary hover:underline font-medium disabled:opacity-50"
+              >
+                {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : "Resend code"}
+              </button>
+            </p>
+            <button
+              onClick={handleSkip}
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Skip for now — verify later
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center px-4">
@@ -46,25 +194,41 @@ export default function RegisterPage() {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleRegister} className="space-y-4">
           {error && (
             <div className="rounded-md bg-red-50 border border-red-200 p-3 text-sm text-red-700">
               {error}
             </div>
           )}
 
-          <div className="space-y-2">
-            <label htmlFor="fullName" className="text-sm font-medium">
-              Your name
-            </label>
-            <input
-              id="fullName"
-              type="text"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              className="w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-              placeholder="Ade Johnson"
-            />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label htmlFor="fullName" className="text-sm font-medium">
+                Your name
+              </label>
+              <input
+                id="fullName"
+                type="text"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                className="w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                placeholder="Ade Johnson"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="phone" className="text-sm font-medium">
+                Phone number
+              </label>
+              <input
+                id="phone"
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                className="w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                placeholder="+234 801 234 5678"
+              />
+            </div>
           </div>
 
           <div className="space-y-2">
@@ -79,6 +243,22 @@ export default function RegisterPage() {
               className="w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
               placeholder="Ade's Trading Co"
             />
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="businessType" className="text-sm font-medium">
+              Business type
+            </label>
+            <select
+              id="businessType"
+              value={businessType}
+              onChange={(e) => setBusinessType(e.target.value)}
+              className="w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary bg-background"
+            >
+              {BUSINESS_TYPES.map((bt) => (
+                <option key={bt.value} value={bt.value}>{bt.label}</option>
+              ))}
+            </select>
           </div>
 
           <div className="space-y-2">
