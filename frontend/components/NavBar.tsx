@@ -1,130 +1,48 @@
 /**
- * @file NavBar — Top navigation bar for the SME Control Tower.
- * Renders desktop horizontal links and a collapsible mobile hamburger menu.
- * Highlights the currently active route and includes the OrgSwitcher.
+ * @file NavBar — Slim top bar for the SME Control Tower.
+ * Shows logo, org switcher, and user auth controls.
+ * All feature navigation lives in the Sidebar component.
  */
 "use client";
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import {
-  Building2,
-  LayoutDashboard,
-  Upload,
-  Zap,
-  Mic,
-  HelpCircle,
-  Lightbulb,
-  ClipboardList,
-  Search,
-  Menu,
-  X,
-  Wallet,
-  Mail,
-  CheckSquare,
-  Package,
-  Users,
-  Bell,
-  CreditCard,
-  ArrowLeftRight,
-  MessageCircle,
-  HardDrive,
-  BarChart3,
-  Shield,
-  Landmark,
-  LineChart,
-  GitBranch,
-} from "lucide-react";
+import { Building2, Bell, LogOut, Menu, X } from "lucide-react";
 import OrgSwitcher from "@/components/OrgSwitcher";
 import { useAuth } from "@/lib/auth-context";
 import { useState } from "react";
 
-// Static list of navigation destinations shown in both desktop and mobile menus
-const navLinks = [
-  { href: "/dashboard", label: "My Business", icon: LayoutDashboard },
-  { href: "/upload", label: "Upload", icon: Upload },
-  { href: "/portal", label: "Analyse", icon: Zap },
-  { href: "/strategy", label: "Strategies", icon: Lightbulb },
-  { href: "/actions", label: "Actions", icon: ClipboardList },
-  { href: "/finance", label: "Finance", icon: Wallet },
-  { href: "/transactions", label: "Transactions", icon: ArrowLeftRight },
-  { href: "/inventory", label: "Stock", icon: Package },
-  { href: "/suppliers", label: "Suppliers", icon: Users },
-  { href: "/supplier-intelligence", label: "Intel", icon: Shield },
-  { href: "/predictions", label: "Predict", icon: BarChart3 },
-  { href: "/emails", label: "Emails", icon: Mail },
-  { href: "/emails/tasks", label: "Tasks", icon: CheckSquare },
-  { href: "/alerts", label: "Alerts", icon: Bell },
-  { href: "/whatsapp", label: "WhatsApp", icon: MessageCircle },
-  { href: "/sync", label: "Sync", icon: HardDrive },
-  { href: "/pos", label: "POS", icon: CreditCard },
-  { href: "/bank-sync", label: "Bank", icon: Landmark },
-  { href: "/forecasting", label: "Forecast", icon: LineChart },
-  { href: "/branch-optimisation", label: "Branches", icon: GitBranch },
-  { href: "/voice", label: "Voice", icon: Mic },
-  { href: "/memory", label: "Search", icon: Search },
-  { href: "/pricing", label: "Pricing", icon: CreditCard },
-  { href: "/help", label: "Help", icon: HelpCircle },
-];
+/** Public routes that don't show the authenticated top bar. */
+const PUBLIC_ROUTES = ["/", "/login", "/register"];
 
-/** Main navigation bar component with responsive desktop/mobile layouts. */
 export default function NavBar() {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuth();
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Determine if a nav link matches the current route (handles nested paths)
-  const isLinkActive = (href: string) => {
-    if (pathname === href) return true;
-    // For /emails/tasks, don't highlight /emails parent
-    if (href === "/emails" && pathname.startsWith("/emails/tasks")) return false;
-    return href !== "/" && pathname.startsWith(href + "/");
-  };
+  const isPublic = PUBLIC_ROUTES.includes(pathname);
 
-  return (
-    <nav className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto px-4 h-14 flex items-center justify-between">
-        <Link
-          href="/"
-          className="flex items-center gap-2 font-semibold tracking-tight hover:opacity-80 transition-opacity"
-        >
-          <Building2 className="h-5 w-5 text-primary" />
-          <span className="hidden sm:inline text-base">SME Control Tower</span>
-          <span className="sm:hidden text-base">Control Tower</span>
-        </Link>
-
-        {/* Desktop nav */}
-        <div className="hidden lg:flex items-center gap-0.5">
-          {navLinks.map((link) => {
-            const Icon = link.icon;
-            const isActive = isLinkActive(link.href);
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`flex items-center gap-1.5 px-2.5 py-2 text-sm rounded-md transition-colors whitespace-nowrap ${
-                  isActive
-                    ? "bg-primary/10 text-primary font-medium"
-                    : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-                }`}
-              >
-                <Icon className="h-4 w-4" />
-                <span>{link.label}</span>
-              </Link>
-            );
-          })}
-          <div className="ml-2 border-l pl-2 flex items-center gap-2">
+  // Public top bar (landing, login, register)
+  if (isPublic) {
+    return (
+      <nav className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container mx-auto px-4 h-14 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2 font-semibold tracking-tight hover:opacity-80 transition-opacity">
+            <Building2 className="h-5 w-5 text-primary" />
+            <span className="text-base">SME Control Tower</span>
+          </Link>
+          <div className="flex items-center gap-3">
+            <Link href="/pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Pricing
+            </Link>
+            <Link href="/help" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Help
+            </Link>
             {user ? (
-              <>
-                <OrgSwitcher />
-                <button
-                  onClick={() => { logout(); router.push("/login"); }}
-                  className="text-xs text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded-md hover:bg-accent"
-                >
-                  Sign out
-                </button>
-              </>
+              <Link href="/dashboard" className="text-sm bg-primary text-primary-foreground px-3 py-1.5 rounded-md hover:bg-primary/90 transition-colors">
+                Dashboard
+              </Link>
             ) : (
               <>
                 <Link href="/login" className="text-sm text-muted-foreground hover:text-foreground transition-colors px-2 py-1">
@@ -137,64 +55,55 @@ export default function NavBar() {
             )}
           </div>
         </div>
+      </nav>
+    );
+  }
 
-        {/* Mobile: auth + org switcher + hamburger */}
-        <div className="flex lg:hidden items-center gap-2">
-          {user ? (
-            <>
-              <OrgSwitcher />
+  // Authenticated top bar
+  return (
+    <nav className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="px-4 h-14 flex items-center justify-between">
+        {/* Left: logo + mobile sidebar toggle */}
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="lg:hidden p-1.5 rounded-md hover:bg-accent transition-colors"
+            aria-label="Toggle sidebar"
+          >
+            {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+          <Link href="/dashboard" className="flex items-center gap-2 font-semibold tracking-tight hover:opacity-80 transition-opacity">
+            <Building2 className="h-5 w-5 text-primary" />
+            <span className="hidden sm:inline text-base">SME Control Tower</span>
+          </Link>
+        </div>
+
+        {/* Right: org switcher, alerts, user */}
+        <div className="flex items-center gap-2">
+          <OrgSwitcher />
+          <Link
+            href="/alerts"
+            className="p-2 rounded-md hover:bg-accent transition-colors text-muted-foreground hover:text-foreground"
+            aria-label="Alerts"
+          >
+            <Bell className="h-4 w-4" />
+          </Link>
+          {user && (
+            <div className="flex items-center gap-2 ml-1 border-l pl-3">
+              <span className="hidden md:inline text-sm text-muted-foreground truncate max-w-[120px]">
+                {user.full_name || user.email}
+              </span>
               <button
                 onClick={() => { logout(); router.push("/login"); }}
-                className="text-xs text-muted-foreground hover:text-foreground px-2 py-1"
+                className="p-2 rounded-md hover:bg-accent transition-colors text-muted-foreground hover:text-foreground"
+                aria-label="Sign out"
               >
-                Out
+                <LogOut className="h-4 w-4" />
               </button>
-            </>
-          ) : (
-            <Link href="/login" className="text-sm text-primary font-medium px-2 py-1">
-              Sign in
-            </Link>
+            </div>
           )}
-          <button
-            onClick={() => setMobileOpen(!mobileOpen)}
-            className="p-2 rounded-md hover:bg-accent transition-colors"
-            aria-label="Toggle menu"
-          >
-            {mobileOpen ? (
-              <X className="h-5 w-5" />
-            ) : (
-              <Menu className="h-5 w-5" />
-            )}
-          </button>
         </div>
       </div>
-
-      {/* Mobile menu */}
-      {mobileOpen && (
-        <div className="lg:hidden border-t bg-background">
-          <div className="container mx-auto px-4 py-2 space-y-1">
-            {navLinks.map((link) => {
-              const Icon = link.icon;
-              const isActive = isLinkActive(link.href);
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setMobileOpen(false)}
-                  className={`flex items-center gap-3 px-3 py-2.5 text-sm rounded-md transition-colors ${
-                    isActive
-                      ? "bg-primary/10 text-primary font-medium"
-                      : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-                  }`}
-                >
-                  <Icon className="h-4 w-4" />
-                  <span>{link.label}</span>
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-      )}
     </nav>
   );
 }
