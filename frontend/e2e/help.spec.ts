@@ -1,35 +1,26 @@
 /**
- * E2E tests for the Help / Onboarding page.
- * Verifies page loads, FAQ sections, and accordion interactions.
+ * E2E tests for the Help / FAQ page (public route, no auth needed).
  */
 import { test, expect } from "@playwright/test";
 
 test.describe("Help Page", () => {
   test("loads with help heading", async ({ page }) => {
     await page.goto("/help");
-    await expect(page.locator("h1")).toContainText(/help|onboarding|guide/i);
+    await expect(page.locator("h1")).toContainText(/help|getting started/i);
   });
 
-  test("shows FAQ sections", async ({ page }) => {
+  test("shows quick start section", async ({ page }) => {
     await page.goto("/help");
-    // Should have multiple FAQ question elements
-    const questions = page.locator("button, summary, [role='button']");
-    const count = await questions.count();
-    expect(count).toBeGreaterThan(5);
+    await expect(page.locator("text=Quick Start")).toBeVisible();
   });
 
-  test("has email FAQ section heading", async ({ page }) => {
+  test("has platform overview section", async ({ page }) => {
     await page.goto("/help");
-    await expect(page.getByRole("heading", { name: /emails.*tasks/i })).toBeVisible();
+    await expect(page.locator("text=Platform Overview")).toBeVisible();
   });
 
-  test("FAQ accordion expands on click", async ({ page }) => {
+  test("has emails and tasks FAQ section", async ({ page }) => {
     await page.goto("/help");
-    // Find the first clickable FAQ item and click it
-    const firstFaq = page.locator("button, summary, [role='button']").first();
-    await firstFaq.click();
-    // After clicking, more content should be visible
-    const body = page.locator("body");
-    await expect(body).toBeVisible();
+    await expect(page.locator("text=Emails & Tasks")).toBeVisible();
   });
 });

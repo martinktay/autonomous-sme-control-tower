@@ -38,7 +38,7 @@ const tiers = [
   },
   {
     name: "Growth",
-    price: "₦15,000 – ₦25,000",
+    price: "₦9,900",
     period: "per month",
     badge: null,
     target: "Active supermarkets and SMEs",
@@ -56,7 +56,7 @@ const tiers = [
   },
   {
     name: "Business",
-    price: "₦40,000 – ₦70,000",
+    price: "₦29,900",
     period: "per month",
     badge: "POPULAR",
     target: "Multi-branch SMEs",
@@ -73,7 +73,7 @@ const tiers = [
   },
   {
     name: "Enterprise",
-    price: "₦100,000 – ₦250,000",
+    price: "₦79,900",
     period: "per month",
     badge: null,
     target: "Large retail chains",

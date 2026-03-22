@@ -8,7 +8,6 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Building2, Bell, LogOut, Menu, X } from "lucide-react";
-import OrgSwitcher from "@/components/OrgSwitcher";
 import { useAuth } from "@/lib/auth-context";
 import { useState } from "react";
 
@@ -78,9 +77,8 @@ export default function NavBar() {
           </Link>
         </div>
 
-        {/* Right: org switcher, alerts, user */}
+        {/* Right: alerts, user */}
         <div className="flex items-center gap-2">
-          <OrgSwitcher />
           <Link
             href="/alerts"
             className="p-2 rounded-md hover:bg-accent transition-colors text-muted-foreground hover:text-foreground"
@@ -90,8 +88,8 @@ export default function NavBar() {
           </Link>
           {user && (
             <div className="flex items-center gap-2 ml-1 border-l pl-3">
-              <span className="hidden md:inline text-sm text-muted-foreground truncate max-w-[120px]">
-                {user.full_name || user.email}
+              <span className="hidden md:inline text-sm text-muted-foreground truncate max-w-[160px]">
+                {user.business_name || user.full_name || user.email}
               </span>
               <button
                 onClick={() => { logout(); router.push("/login"); }}

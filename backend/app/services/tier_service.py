@@ -55,9 +55,9 @@ TIER_LIMITS: Dict[str, Dict[str, Any]] = {
 
 TIER_PRICING_NGN = {
     PricingTier.STARTER: {"price": 0, "label": "Free"},
-    PricingTier.GROWTH: {"price_min": 15000, "price_max": 25000, "label": "₦15,000 – ₦25,000/mo"},
-    PricingTier.BUSINESS: {"price_min": 40000, "price_max": 70000, "label": "₦40,000 – ₦70,000/mo"},
-    PricingTier.ENTERPRISE: {"price_min": 100000, "price_max": 250000, "label": "₦100,000 – ₦250,000/mo"},
+    PricingTier.GROWTH: {"price": 9900, "label": "₦9,900/mo"},
+    PricingTier.BUSINESS: {"price": 29900, "label": "₦29,900/mo"},
+    PricingTier.ENTERPRISE: {"price": 79900, "label": "₦79,900/mo"},
 }
 
 

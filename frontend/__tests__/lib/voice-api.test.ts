@@ -50,16 +50,15 @@ describe("Voice API", () => {
     await expect(askVoiceQuestion("org-1", "test")).rejects.toThrow(/Voice query failed/);
   });
 
-  it("getVoiceBrief returns blob", async () => {
-    const fakeBlob = new Blob(["audio"], { type: "audio/wav" });
+  it("getVoiceBrief returns json", async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      blob: async () => fakeBlob,
+      json: async () => ({ audio_url: "https://example.com/brief.wav", transcript: "All good" }),
     });
     const { getVoiceBrief } = require("@/lib/api");
     const result = await getVoiceBrief("org-1");
     expect(mockFetch.mock.calls[0][0]).toContain("/api/voice/brief");
-    expect(result).toBeInstanceOf(Blob);
+    expect(result.transcript).toBe("All good");
   });
 
   it("getBusinessInsights fetches insights", async () => {
