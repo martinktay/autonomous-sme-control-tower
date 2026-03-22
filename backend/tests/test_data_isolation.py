@@ -101,8 +101,8 @@ class TestDDBServiceIsolation:
         from app.services.ddb_service import DynamoDBService
 
         svc = DynamoDBService()
-        # Should not raise
-        svc._enforce_org_id({"org_id": "org_1"}, "org_1")
+        # Should not raise — use valid org_id format
+        svc._enforce_org_id({"org_id": "org-abcdef123456"}, "org-abcdef123456")
 
     @patch("app.services.ddb_service.boto3")
     def test_query_signals_filters_by_org(self, mock_boto):
@@ -164,10 +164,19 @@ class TestMiddlewareIsolation:
     def test_mismatched_org_blocked(self):
         from fastapi.testclient import TestClient
         from app.middleware.org_isolation import OrgIsolationMiddleware
+        from starlette.middleware.base import BaseHTTPMiddleware
         from fastapi import FastAPI
 
         test_app = FastAPI()
+
+        # Shim that copies X-Org-ID header into request.state.org_id
+        class _FakeAuth(BaseHTTPMiddleware):
+            async def dispatch(self, request, call_next):
+                request.state.org_id = request.headers.get("X-Org-ID", "")
+                return await call_next(request)
+
         test_app.add_middleware(OrgIsolationMiddleware)
+        test_app.add_middleware(_FakeAuth)
 
         @test_app.get("/api/test/{org_id}")
         def endpoint(org_id: str):

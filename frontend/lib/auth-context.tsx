@@ -49,19 +49,36 @@ const AuthContext = createContext<AuthContextType>({
 const TOKEN_KEY = "sme_access_token";
 const USER_KEY = "sme_user";
 
+/** Decode JWT payload without verification (browser-side expiry check only). */
+function parseJwtExp(token: string): number | null {
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    return typeof payload.exp === "number" ? payload.exp : null;
+  } catch {
+    return null;
+  }
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Hydrate from localStorage on mount
+  // Hydrate from localStorage on mount — reject expired tokens
   useEffect(() => {
     try {
       const savedToken = localStorage.getItem(TOKEN_KEY);
       const savedUser = localStorage.getItem(USER_KEY);
       if (savedToken && savedUser) {
-        setToken(savedToken);
-        setUser(JSON.parse(savedUser));
+        const exp = parseJwtExp(savedToken);
+        if (exp && exp * 1000 < Date.now()) {
+          // Token expired — clear session
+          localStorage.removeItem(TOKEN_KEY);
+          localStorage.removeItem(USER_KEY);
+        } else {
+          setToken(savedToken);
+          setUser(JSON.parse(savedUser));
+        }
       }
     } catch {
       // corrupted storage — ignore

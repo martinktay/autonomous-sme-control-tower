@@ -8,6 +8,7 @@ and security event logging.
 import pytest
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.testclient import TestClient
+from starlette.middleware.base import BaseHTTPMiddleware
 from app.middleware import OrgIsolationMiddleware, validate_org_id_from_body
 import json
 from pydantic import BaseModel
@@ -18,7 +19,19 @@ from pydantic import BaseModel
 # ============================================================================
 
 app = FastAPI()
+
+
+# Shim middleware that simulates AuthMiddleware by copying X-Org-ID header
+# into request.state.org_id (the real AuthMiddleware reads it from the JWT).
+class _FakeAuthMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        org_id = request.headers.get("X-Org-ID", "")
+        request.state.org_id = org_id
+        return await call_next(request)
+
+
 app.add_middleware(OrgIsolationMiddleware)
+app.add_middleware(_FakeAuthMiddleware)
 
 
 class ActionRequest(BaseModel):

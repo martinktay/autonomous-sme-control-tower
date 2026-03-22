@@ -9,8 +9,9 @@ All endpoints require a valid JWT with role=super_admin.
 """
 
 import logging
+from typing import Literal
 from fastapi import APIRouter, HTTPException, Request
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 from app.services.auth_service import get_auth_service
 
@@ -20,23 +21,24 @@ router = APIRouter(prefix="/api/admin", tags=["admin"])
 
 def _require_super_admin(request: Request):
     """Raise 403 if the caller is not a super_admin."""
+    user_id = getattr(request.state, "user_id", "")
     role = getattr(request.state, "role", "")
-    if role != "super_admin":
+    if not user_id or role != "super_admin":
         raise HTTPException(status_code=403, detail="Super admin access required")
 
 
 class RoleUpdate(BaseModel):
-    email: str
-    role: str
+    email: EmailStr
+    role: Literal["super_admin", "owner", "admin", "member", "viewer"]
 
 
 class TierUpdate(BaseModel):
-    email: str
-    tier: str
+    email: EmailStr
+    tier: Literal["starter", "growth", "business", "enterprise"]
 
 
 class DeactivateUser(BaseModel):
-    email: str
+    email: EmailStr
 
 
 @router.get("/users")

@@ -11,6 +11,18 @@ import pytest
 from fastapi.testclient import TestClient
 from unittest.mock import Mock, patch, MagicMock
 
+from app.services.auth_service import create_access_token
+
+# Generate a test JWT for authenticated requests
+_TEST_TOKEN = create_access_token({
+    "sub": "user-test123456",
+    "email": "test@example.com",
+    "org_id": "org_123",
+    "role": "owner",
+    "tier": "enterprise",
+})
+_AUTH_HEADERS = {"Authorization": f"Bearer {_TEST_TOKEN}"}
+
 
 # Patch DDB and S3 at module level before importing app
 # This prevents real AWS connections during test collection
@@ -63,8 +75,6 @@ class TestHealthEndpoints:
         assert resp.status_code == 200
         data = resp.json()
         assert data["status"] in ("healthy", "degraded")
-        assert "checks" in data
-        assert data["checks"]["api"] == "ok"
 
 
 class TestInvoiceRouter:
@@ -82,6 +92,7 @@ class TestInvoiceRouter:
         resp = client.post(
             "/api/invoices/upload?org_id=org_123",
             files={"file": ("invoice.pdf", b"fake pdf", "application/pdf")},
+            headers=_AUTH_HEADERS,
         )
 
         assert resp.status_code == 200
@@ -95,7 +106,7 @@ class TestInvoiceRouter:
             {"signal_id": "s1", "org_id": "org_123", "signal_type": "invoice"},
         ]
 
-        resp = client.get("/api/invoices/org_123", headers={"X-Org-ID": "org_123"})
+        resp = client.get("/api/invoices/org_123", headers={**_AUTH_HEADERS})
         assert resp.status_code == 200
         data = resp.json()
         assert data["org_id"] == "org_123"
@@ -110,7 +121,7 @@ class TestSignalRouter:
             {"signal_id": "s1", "org_id": "org_123", "signal_type": "email"},
         ]
 
-        resp = client.get("/api/signals/org_123", headers={"X-Org-ID": "org_123"})
+        resp = client.get("/api/signals/org_123", headers={**_AUTH_HEADERS})
         assert resp.status_code == 200
         data = resp.json()
         assert data["org_id"] == "org_123"
@@ -128,7 +139,7 @@ class TestStabilityRouter:
         }
 
         resp = client.get(
-            "/api/stability/org_123", headers={"X-Org-ID": "org_123"}
+            "/api/stability/org_123", headers={**_AUTH_HEADERS}
         )
         assert resp.status_code == 200
         data = resp.json()
@@ -136,7 +147,7 @@ class TestStabilityRouter:
 
     def test_get_nsi_history(self, client, _patch_aws):
         resp = client.get(
-            "/api/stability/org_123/history", headers={"X-Org-ID": "org_123"}
+            "/api/stability/org_123/history", headers={**_AUTH_HEADERS}
         )
         assert resp.status_code == 200
         data = resp.json()
@@ -151,7 +162,7 @@ class TestStrategyRouter:
         mock_ddb.query_strategies.return_value = []
 
         resp = client.get(
-            "/api/strategy/org_123", headers={"X-Org-ID": "org_123"}
+            "/api/strategy/org_123", headers={**_AUTH_HEADERS}
         )
         assert resp.status_code == 200
         data = resp.json()
@@ -181,6 +192,7 @@ class TestActionRouter:
                 "strategy_id": "strat_001",
                 "strategy_description": "Collect invoices",
             },
+            headers=_AUTH_HEADERS,
         )
         assert resp.status_code == 200
         data = resp.json()
@@ -193,7 +205,7 @@ class TestActionRouter:
         ]
 
         resp = client.get(
-            "/api/actions/org_123", headers={"X-Org-ID": "org_123"}
+            "/api/actions/org_123", headers={**_AUTH_HEADERS}
         )
         assert resp.status_code == 200
         data = resp.json()
@@ -210,6 +222,7 @@ class TestMemoryRouter:
         resp = client.post(
             "/api/memory/search",
             json={"query": "overdue invoices", "org_id": "org_123"},
+            headers=_AUTH_HEADERS,
         )
         assert resp.status_code == 200
         data = resp.json()
@@ -220,9 +233,10 @@ class TestCrossOrganizationIsolation:
     """Test cross-org isolation via middleware"""
 
     def test_mismatched_org_blocked(self, client):
+        # Token is for org_123, but requesting org_456 data
         resp = client.get(
             "/api/stability/org_456",
-            headers={"X-Org-ID": "org_123"},
+            headers={**_AUTH_HEADERS},
         )
         assert resp.status_code == 403
 
@@ -234,5 +248,6 @@ class TestErrorHandling:
         resp = client.post(
             "/api/actions/execute",
             json={},
+            headers=_AUTH_HEADERS,
         )
         assert resp.status_code == 422

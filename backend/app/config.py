@@ -56,7 +56,7 @@ class Settings(BaseSettings):
     # --- JWT authentication ---
     jwt_secret: str = "change-me-in-production-use-a-long-random-string"
     jwt_algorithm: str = "HS256"
-    jwt_expiry_hours: int = 24
+    jwt_expiry_hours: int = 8
 
     # --- Application-level settings ---
     app_name: str = "Autonomous SME Control Tower"

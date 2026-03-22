@@ -104,11 +104,14 @@ class DynamoDBService:
         return converted
     
     def _enforce_org_id(self, data: Dict[str, Any], org_id: str) -> None:
-        """Enforce org_id is present in data"""
+        """Enforce org_id is present and well-formed in data"""
+        import re
         if "org_id" not in data:
             raise ValueError("org_id is required for all DynamoDB operations")
         if data["org_id"] != org_id:
             raise ValueError(f"org_id mismatch: expected {org_id}, got {data['org_id']}")
+        if not re.match(r"^org-[a-z0-9]{12}$", org_id):
+            raise ValueError(f"Invalid org_id format: {org_id}")
     
     # ==================== CREATE OPERATIONS ====================
     

@@ -29,13 +29,13 @@ def _hash_password(password: str, salt: Optional[str] = None) -> tuple[str, str]
     """Hash a password with PBKDF2-SHA256. Returns (hash_hex, salt_hex)."""
     if salt is None:
         salt = secrets.token_hex(16)
-    dk = hashlib.pbkdf2_hmac("sha256", password.encode(), salt.encode(), 100_000)
+    dk = hashlib.pbkdf2_hmac("sha256", password.encode(), salt.encode(), 600_000)
     return dk.hex(), salt
 
 
 def _verify_password(password: str, stored_hash: str, salt: str) -> bool:
     """Verify a password against stored hash + salt."""
-    dk = hashlib.pbkdf2_hmac("sha256", password.encode(), salt.encode(), 100_000)
+    dk = hashlib.pbkdf2_hmac("sha256", password.encode(), salt.encode(), 600_000)
     return hmac.compare_digest(dk.hex(), stored_hash)
 
 

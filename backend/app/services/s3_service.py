@@ -48,13 +48,16 @@ class S3Service:
                 else:
                     raise e
     
-    def upload_file(self, file_content: bytes, s3_key: str) -> str:
+    def upload_file(self, file_content: bytes, s3_key: str, content_type: str = "application/octet-stream") -> str:
         """Upload file to S3 with retry logic"""
         def _upload():
             self.client.put_object(
                 Bucket=self.bucket,
                 Key=s3_key,
-                Body=file_content
+                Body=file_content,
+                ContentType=content_type,
+                ContentDisposition="attachment",
+                ServerSideEncryption="AES256",
             )
             return s3_key
         
@@ -81,8 +84,9 @@ class S3Service:
         
         self._retry_with_backoff(_delete)
     
-    def generate_presigned_url(self, s3_key: str, expiration: int = 3600) -> str:
-        """Generate presigned URL for file access with retry logic"""
+    def generate_presigned_url(self, s3_key: str, expiration: int = 300) -> str:
+        """Generate presigned URL for file access with retry logic. Max 900s (15 min)."""
+        expiration = min(expiration, 900)  # Cap at 15 minutes
         def _generate():
             url = self.client.generate_presigned_url(
                 "get_object",
