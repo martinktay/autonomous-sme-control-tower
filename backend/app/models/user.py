@@ -33,7 +33,7 @@ class User(BaseModel):
     @field_validator("role")
     @classmethod
     def validate_role(cls, v: str) -> str:
-        valid = {"owner", "admin", "member", "viewer"}
+        valid = {"super_admin", "owner", "admin", "member", "viewer"}
         if v not in valid:
             raise ValueError(f"Role must be one of: {valid}")
         return v
@@ -72,3 +72,4 @@ class TokenResponse(BaseModel):
     full_name: str = ""
     role: str = "owner"
     business_name: str = ""
+    tier: str = "starter"

@@ -105,6 +105,7 @@ class AuthService:
             "full_name": full_name,
             "business_name": business_name or "",
             "role": "owner",
+            "tier": "starter",
             "pw_hash": pw_hash,
             "pw_salt": pw_salt,
             "is_active": True,
@@ -119,6 +120,7 @@ class AuthService:
             "email": email,
             "org_id": org_id,
             "role": "owner",
+            "tier": "starter",
         })
 
         return {
@@ -131,6 +133,7 @@ class AuthService:
             "full_name": full_name,
             "role": "owner",
             "business_name": business_name or "",
+            "tier": "starter",
         }
 
     # ---- Login ----
@@ -163,6 +166,7 @@ class AuthService:
             "email": email,
             "org_id": user["org_id"],
             "role": user.get("role", "owner"),
+            "tier": user.get("tier", "starter"),
         })
 
         return {
@@ -175,6 +179,7 @@ class AuthService:
             "full_name": user.get("full_name", ""),
             "role": user.get("role", "owner"),
             "business_name": user.get("business_name", ""),
+            "tier": user.get("tier", "starter"),
         }
 
     # ---- Profile ----
@@ -205,6 +210,66 @@ class AuthService:
         except Exception as exc:
             logger.error("DynamoDB get_item failed: %s", exc)
             return None
+
+    # ---- Admin operations ----
+
+    async def list_users(self) -> list[Dict[str, Any]]:
+        """List all users (admin only). Returns list without password fields."""
+        try:
+            resp = self.users_table.scan(
+                ProjectionExpression="user_id, email, org_id, full_name, business_name, #r, is_active, created_at, last_login, tier",
+                ExpressionAttributeNames={"#r": "role"},
+            )
+            return resp.get("Items", [])
+        except Exception as exc:
+            logger.error("Failed to list users: %s", exc)
+            return []
+
+    async def update_user_role(self, email: str, new_role: str) -> Optional[Dict[str, Any]]:
+        """Change a user's role (admin only)."""
+        valid_roles = {"super_admin", "owner", "admin", "member", "viewer"}
+        if new_role not in valid_roles:
+            raise ValueError(f"Invalid role. Must be one of: {valid_roles}")
+        try:
+            self.users_table.update_item(
+                Key={"email": email},
+                UpdateExpression="SET #r = :r",
+                ExpressionAttributeNames={"#r": "role"},
+                ExpressionAttributeValues={":r": new_role},
+            )
+            return {"email": email, "role": new_role}
+        except Exception as exc:
+            logger.error("Failed to update role: %s", exc)
+            raise ValueError("Failed to update user role")
+
+    async def update_user_tier(self, email: str, tier: str) -> Optional[Dict[str, Any]]:
+        """Change a user's pricing tier (admin only)."""
+        valid_tiers = {"starter", "growth", "business", "enterprise"}
+        if tier not in valid_tiers:
+            raise ValueError(f"Invalid tier. Must be one of: {valid_tiers}")
+        try:
+            self.users_table.update_item(
+                Key={"email": email},
+                UpdateExpression="SET tier = :t",
+                ExpressionAttributeValues={":t": tier},
+            )
+            return {"email": email, "tier": tier}
+        except Exception as exc:
+            logger.error("Failed to update tier: %s", exc)
+            raise ValueError("Failed to update user tier")
+
+    async def deactivate_user(self, email: str) -> Dict[str, Any]:
+        """Deactivate a user account (admin only)."""
+        try:
+            self.users_table.update_item(
+                Key={"email": email},
+                UpdateExpression="SET is_active = :a",
+                ExpressionAttributeValues={":a": False},
+            )
+            return {"email": email, "is_active": False}
+        except Exception as exc:
+            logger.error("Failed to deactivate user: %s", exc)
+            raise ValueError("Failed to deactivate user")
 
 
 _auth_service: Optional[AuthService] = None

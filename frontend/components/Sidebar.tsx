@@ -112,6 +112,7 @@ const NAV_GROUPS: NavGroup[] = [
 ];
 
 const BOTTOM_LINKS: NavItem[] = [
+  { href: "/admin", label: "Admin Panel", icon: Shield, minTier: "starter" },
   { href: "/pricing", label: "Pricing & Plans", icon: CreditCard, minTier: "starter" },
   { href: "/help", label: "Help & FAQs", icon: HelpCircle, minTier: "starter" },
 ];
@@ -143,7 +144,7 @@ export default function Sidebar() {
   });
 
   // Default to starter if no user/tier info
-  const userTier: Tier = (user as any)?.tier || "starter";
+  const userTier: Tier = ((user as any)?.tier as Tier) || "starter";
 
   const toggleGroup = (label: string) => {
     setOpenGroups((prev) => ({ ...prev, [label]: !prev[label] }));
@@ -239,7 +240,9 @@ export default function Sidebar() {
             </span>
           </div>
         )}
-        {BOTTOM_LINKS.map((item) => {
+        {BOTTOM_LINKS
+          .filter((item) => item.href !== "/admin" || user?.role === "super_admin")
+          .map((item) => {
           const Icon = item.icon;
           const active = isActive(item.href);
           return (

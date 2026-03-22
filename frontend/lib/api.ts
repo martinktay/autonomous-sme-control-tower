@@ -703,6 +703,41 @@ export const getBranchBenchmarks = async (orgId: string) => {
   return res.json();
 };
 
+// ─── Admin ────────────────────────────────────────────────────────────────
+
+/** List all users (super_admin only). */
+export const adminListUsers = async () => {
+  const res = await apiFetch('/api/admin/users');
+  return res.json();
+};
+
+/** Update a user's role (super_admin only). */
+export const adminUpdateRole = async (email: string, role: string) => {
+  const res = await apiFetch('/api/admin/users/role', {
+    method: 'PUT',
+    body: JSON.stringify({ email, role }),
+  });
+  return res.json();
+};
+
+/** Update a user's pricing tier (super_admin only). */
+export const adminUpdateTier = async (email: string, tier: string) => {
+  const res = await apiFetch('/api/admin/users/tier', {
+    method: 'PUT',
+    body: JSON.stringify({ email, tier }),
+  });
+  return res.json();
+};
+
+/** Deactivate a user (super_admin only). */
+export const adminDeactivateUser = async (email: string) => {
+  const res = await apiFetch('/api/admin/users/deactivate', {
+    method: 'PUT',
+    body: JSON.stringify({ email }),
+  });
+  return res.json();
+};
+
 // ==================== Unified Client ====================
 
 /** Object-style export bundling all API functions for convenient dashboard imports. */
@@ -777,4 +812,8 @@ export const apiClient = {
   getCashRunway,
   getBranchOptimisation,
   getBranchBenchmarks,
+  adminListUsers,
+  adminUpdateRole,
+  adminUpdateTier,
+  adminDeactivateUser,
 };

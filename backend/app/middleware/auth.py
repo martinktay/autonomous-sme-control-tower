@@ -66,6 +66,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
         request.state.org_id = claims.get("org_id", "")
         request.state.email = claims.get("email", "")
         request.state.role = claims.get("role", "owner")
+        request.state.tier = claims.get("tier", "starter")
 
         # Also set X-Org-ID header equivalent so org isolation middleware works
         # (it reads from request.state.org_id which we just set)

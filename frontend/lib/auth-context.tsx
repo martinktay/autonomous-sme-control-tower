@@ -18,6 +18,7 @@ interface AuthUser {
   full_name: string;
   role: string;
   business_name: string;
+  tier: string;
 }
 
 interface AuthContextType {
@@ -93,6 +94,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       full_name: data.full_name,
       role: data.role,
       business_name: data.business_name || "",
+      tier: data.tier || "starter",
     });
   }, [saveSession]);
 
@@ -114,6 +116,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       full_name: data.full_name,
       role: data.role,
       business_name: data.business_name || "",
+      tier: data.tier || "starter",
     });
   }, [saveSession]);
 
