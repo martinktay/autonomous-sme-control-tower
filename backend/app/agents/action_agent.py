@@ -1,8 +1,8 @@
-import uuid
 from datetime import datetime, timezone
 from typing import Dict, Any
 from app.utils.bedrock_client import get_bedrock_client
 from app.models import ActionExecution
+from app.utils.id_generator import generate_id
 
 
 class ActionAgent:
@@ -20,7 +20,7 @@ class ActionAgent:
     ) -> ActionExecution:
         """Execute strategy using Nova Lite to plan and simulate the action"""
         
-        execution_id = f"exec_{uuid.uuid4().hex[:12]}"
+        execution_id = generate_id("action")
         
         prompt = f"""You are an autonomous business operations agent. Execute the following strategy and return the result as JSON.
 

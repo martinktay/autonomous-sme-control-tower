@@ -53,6 +53,7 @@ export default function TransactionsPage() {
   const [summary, setSummary] = useState<Summary | null>(null);
   const [loading, setLoading] = useState(true);
   const [filterType, setFilterType] = useState<string>("all");
+  const [filterStatus, setFilterStatus] = useState<string>("all");
   const [showForm, setShowForm] = useState(false);
 
   useEffect(() => {
@@ -70,10 +71,9 @@ export default function TransactionsPage() {
       .finally(() => setLoading(false));
   }, [orgId]);
 
-  const filtered =
-    filterType === "all"
-      ? transactions
-      : transactions.filter((t) => t.transaction_type === filterType);
+  const filtered = transactions
+    .filter((t) => filterType === "all" || t.transaction_type === filterType)
+    .filter((t) => filterStatus === "all" || t.payment_status === filterStatus);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -94,13 +94,19 @@ export default function TransactionsPage() {
 
       {/* Summary cards */}
       {summary && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
           <SummaryCard label="Revenue" value={summary.total_revenue} color="text-green-600" />
           <SummaryCard label="Expenses" value={summary.total_expenses} color="text-red-500" />
-          <SummaryCard label="Net" value={summary.net} color={summary.net >= 0 ? "text-green-600" : "text-red-500"} />
+          <SummaryCard label="Net Profit" value={summary.net} color={summary.net >= 0 ? "text-green-600" : "text-red-500"} />
           <div className="bg-card border rounded-lg p-3">
             <p className="text-xs text-muted-foreground">Transactions</p>
             <p className="text-lg font-semibold">{summary.count}</p>
+          </div>
+          <div className="bg-card border rounded-lg p-3">
+            <p className="text-xs text-muted-foreground">Overdue</p>
+            <p className="text-lg font-semibold text-red-500">
+              {transactions.filter((t) => t.payment_status === "overdue").length}
+            </p>
           </div>
         </div>
       )}
@@ -109,7 +115,7 @@ export default function TransactionsPage() {
       {showForm && <QuickAddForm orgId={orgId} onCreated={(t) => { setTransactions((prev) => [t, ...prev]); setShowForm(false); }} />}
 
       {/* Filter bar */}
-      <div className="flex items-center gap-2 mb-4 overflow-x-auto pb-1">
+      <div className="flex flex-wrap items-center gap-2 mb-4">
         <Filter className="h-4 w-4 text-muted-foreground shrink-0" />
         {["all", "revenue", "expense", "payment", "transfer"].map((t) => (
           <button
@@ -120,6 +126,18 @@ export default function TransactionsPage() {
             }`}
           >
             {t}
+          </button>
+        ))}
+        <span className="text-muted-foreground text-xs">|</span>
+        {["all", "pending", "paid", "overdue", "partial"].map((s) => (
+          <button
+            key={s}
+            onClick={() => setFilterStatus(s)}
+            className={`px-3 py-1 rounded-full text-xs font-medium capitalize whitespace-nowrap ${
+              filterStatus === s ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/80"
+            }`}
+          >
+            {s}
           </button>
         ))}
       </div>

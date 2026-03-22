@@ -253,6 +253,69 @@ const faqs: FaqItem[] = [
     answer:
       "Any currency. The AI reads the currency from your invoices and spreadsheets automatically — NGN, GBP, USD, EUR, ZAR, and more. No configuration needed.",
   },
+  // ── Marketing & Analytics ──
+  {
+    section: "Marketing & Analytics",
+    question: "What is Business Analytics?",
+    answer:
+      "Business Analytics gives you AI-powered insights into your revenue, expenses, customer patterns, and growth opportunities. It pulls data from your transactions, invoices, and inventory to show you what is working and what needs attention — all in plain language, no spreadsheet skills needed. Available on Business tier and above.",
+  },
+  {
+    section: "Marketing & Analytics",
+    question: "What is Customer Segmentation?",
+    answer:
+      "The AI groups your customers by how often they buy, how much they spend, and what they purchase. This helps you identify your most valuable customers and tailor your marketing to each group. Available on Business tier and above.",
+  },
+  {
+    section: "Marketing & Analytics",
+    question: "How does Sales Forecasting work?",
+    answer:
+      "The AI analyses your historical sales data to predict next month's revenue. It accounts for seasonal patterns, growth trends, and your business type. For supermarkets it tracks fast-moving goods, for salons it tracks peak booking days, for farms it tracks harvest cycles. Requires at least 3 months of data.",
+  },
+  {
+    section: "Marketing & Analytics",
+    question: "What business types are supported?",
+    answer:
+      "Supermarkets, mini marts, kiosks, salons, food vendors, farms, artisans, and professional services. Each business type gets tailored insights — inventory predictions for supermarkets, booking patterns for salons, seasonal analysis for farms, and service tracking for artisans.",
+  },
+  // ── Payments & Invoicing ──
+  {
+    section: "Payments & Invoicing",
+    question: "How does payment tracking work?",
+    answer:
+      "Every transaction is tracked with a payment status: pending, paid, overdue, or partial. The system flags overdue payments and sends alerts. You can see who owes you, who you owe, and your overall cash position at a glance.",
+  },
+  {
+    section: "Payments & Invoicing",
+    question: "Can I manage invoices like QuickBooks?",
+    answer:
+      "The platform covers key invoicing features: upload and track invoices, monitor payment status, get overdue alerts, track expenses by category, see P&L reports, and manage tax obligations (VAT, WHT, CIT, PAYE, customs). We are not replacing QuickBooks — we are an AI layer that gives you actionable intelligence on top of your financial data.",
+  },
+  {
+    section: "Payments & Invoicing",
+    question: "How do payment reminders work?",
+    answer:
+      "When a transaction is overdue, the system generates an alert with a recommended action. On Growth tier and above, you can set up automated reminders via email. The AI also suggests collection strategies based on the counterparty's payment history.",
+  },
+  {
+    section: "Payments & Invoicing",
+    question: "Can I track expenses by category?",
+    answer:
+      "Yes. The AI automatically categorises your expenses when you upload invoices or spreadsheets. You can see breakdowns by vendor, by category (rent, supplies, salaries, transport), and by time period. The Finance dashboard shows charts for all your expense categories.",
+  },
+  // ── Pricing & Plans ──
+  {
+    section: "Pricing & Plans",
+    question: "What does each pricing tier include?",
+    answer:
+      "Starter (Free): 20 uploads/month, basic dashboard, transaction tracking, receipt capture. Growth (₦14,900/mo): unlimited uploads, daily alerts, expense tracking, payment reminders, tax tracking, inventory risk, email and WhatsApp ingestion. Business (₦39,900/mo): multi-branch, marketing analytics, customer segmentation, bank reconciliation, advanced forecasting. Enterprise (₦99,900/mo): POS integration, AI pricing, supplier intelligence, marketing ROI, custom reports, API access, unlimited branches.",
+  },
+  {
+    section: "Pricing & Plans",
+    question: "Can I change my plan later?",
+    answer:
+      "Yes. You can upgrade or downgrade at any time from the Pricing page. When you upgrade, you get immediate access to the new features. When you downgrade, you keep access until the end of your current billing period.",
+  },
   // ── Tips & Best Practices ──
   {
     section: "Tips & Best Practices",
@@ -357,6 +420,10 @@ export default function HelpPage() {
               description="Ask questions by voice or text. Get AI answers based on your real business data." />
             <FeatureCard icon={Search} title="Smart Search" href="/memory"
               description="Search your business history in everyday language. The AI understands context." />
+            <FeatureCard icon={BarChart3} title="Business Analytics" href="/analytics"
+              description="AI-powered revenue analysis, customer segmentation, sales forecasting, and marketing insights." />
+            <FeatureCard icon={Receipt} title="Payments & Invoicing" href="/transactions"
+              description="Track payments, manage invoices, monitor overdue balances, and get collection reminders." />
           </div>
         </div>
 

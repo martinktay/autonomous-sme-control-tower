@@ -5,7 +5,6 @@ Pipeline: receive email → AI classify → extract tasks → store signal → c
 Also supports manual task creation, status updates, and AI-generated reply drafts.
 """
 
-import uuid
 import logging
 from datetime import datetime, timezone
 from typing import Dict, Any, List, Optional
@@ -13,6 +12,7 @@ from typing import Dict, Any, List, Optional
 from app.agents.email_agent import EmailAgent
 from app.services.ddb_service import DynamoDBService, get_ddb_service
 from app.config import get_settings
+from app.utils.id_generator import generate_id
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +39,7 @@ class EmailTaskService:
         Returns:
             Dict with signal_id, classification result, and created tasks.
         """
-        signal_id = str(uuid.uuid4())
+        signal_id = generate_id("signal")
 
         # 1. Classify email (category, priority, sentiment) via AI
         try:
@@ -95,7 +95,7 @@ class EmailTaskService:
         self, org_id: str, task_data: Dict[str, Any], source_id: str
     ) -> Dict[str, Any]:
         """Build and persist a task record from AI-extracted task data."""
-        task_id = f"task_{uuid.uuid4().hex[:12]}"
+        task_id = generate_id("task")
         now = datetime.now(timezone.utc).isoformat()
 
         record = {
@@ -159,7 +159,7 @@ class EmailTaskService:
 
     def create_manual_task(self, org_id: str, data: Dict[str, Any]) -> Dict[str, Any]:
         """Create a task manually (not from email)."""
-        task_id = f"task_{uuid.uuid4().hex[:12]}"
+        task_id = generate_id("task")
         now = datetime.now(timezone.utc).isoformat()
 
         record = {

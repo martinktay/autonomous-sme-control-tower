@@ -1,11 +1,11 @@
 import json
-import uuid
 from typing import List
 from datetime import datetime, timezone
 from app.utils.bedrock_client import get_bedrock_client
 from app.utils.prompt_loader import load_prompt
 from app.utils.json_guard import parse_json_safely, clean_model_output
 from app.models import Strategy
+from app.utils.id_generator import generate_id
 
 
 class StrategyAgent:
@@ -75,7 +75,7 @@ Context: {json.dumps(context, indent=2)}
                     reasoning = "; ".join(str(r) for r in reasoning)
 
                 strategy = Strategy(
-                    strategy_id=f"strat_{uuid.uuid4().hex[:12]}",
+                    strategy_id=generate_id("strategy"),
                     org_id=org_id,
                     nsi_snapshot_id=nsi_snapshot_id,
                     description=description,

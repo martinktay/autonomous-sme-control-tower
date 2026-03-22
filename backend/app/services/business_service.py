@@ -1,7 +1,6 @@
 """Business entity management service — registration, onboarding, CRUD."""
 
 import logging
-import uuid
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
@@ -9,6 +8,7 @@ from app.config import get_settings
 from app.models.business import Business, BusinessCreate, BusinessUpdate, BusinessType, PricingTier
 from app.models.branch import Branch
 from app.services.ddb_service import get_ddb_service
+from app.utils.id_generator import generate_id
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
@@ -37,7 +37,7 @@ class BusinessService:
 
     def create_business(self, data: BusinessCreate) -> Business:
         """Register a new business and create its default branch."""
-        business_id = str(uuid.uuid4())
+        business_id = generate_id("business")
         now = datetime.now(timezone.utc)
 
         modules = DEFAULT_MODULES.get(data.business_type, [])
@@ -72,7 +72,7 @@ class BusinessService:
     def _create_default_branch(self, business_id: str, business_name: str, now: datetime) -> Branch:
         """Create the default primary branch for a new business."""
         branch = Branch(
-            branch_id=str(uuid.uuid4()),
+            branch_id=generate_id("branch"),
             business_id=business_id,
             branch_name=f"{business_name} — Main",
             is_primary=True,
@@ -141,7 +141,7 @@ class BusinessService:
     def create_branch(self, business_id: str, branch_name: str, address: Optional[str] = None) -> Branch:
         """Create a new branch for a business."""
         branch = Branch(
-            branch_id=str(uuid.uuid4()),
+            branch_id=generate_id("branch"),
             business_id=business_id,
             branch_name=branch_name,
             address=address,

@@ -15,6 +15,8 @@ import {
   TrendingUp,
   Package,
   ArrowRight,
+  BarChart3,
+  Receipt,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -22,50 +24,60 @@ const tiers = [
   {
     name: "Starter",
     price: "₦0",
+    priceUsd: "$0",
     period: "Free forever",
     badge: "FREE",
-    target: "Informal SMEs and small traders",
+    target: "Kiosks, small traders, new businesses",
     cta: "Start Free",
     ctaVariant: "default" as const,
     features: [
-      "Manual document upload (20/month)",
+      "20 document uploads per month",
       "Basic revenue vs expense dashboard",
+      "Transaction tracking & receipt capture",
+      "Simple P&L overview",
       "Single location",
-      "Up to 5 alerts per week",
+      "5 alerts per week",
       "Weekly AI summary",
       "CSV/Excel data export",
     ],
   },
   {
     name: "Growth",
-    price: "₦9,900",
+    price: "₦14,900",
+    priceUsd: "$9.99",
     period: "per month",
     badge: null,
-    target: "Active supermarkets and SMEs",
+    target: "Active supermarkets, salons, food vendors",
     cta: "Upgrade",
     ctaVariant: "default" as const,
     features: [
       "Unlimited document uploads",
-      "Daily AI alerts",
-      "Cashflow survival insights",
+      "Daily AI alerts & cashflow insights",
+      "Expense tracking & payment reminders",
+      "Invoice management & tax tracking",
       "Inventory risk detection",
       "Supplier balance tracking",
-      "WhatsApp summaries",
+      "Email ingestion & task extraction",
+      "WhatsApp business summaries",
       "Everything in Starter",
     ],
   },
   {
     name: "Business",
-    price: "₦29,900",
+    price: "₦39,900",
+    priceUsd: "$26.99",
     period: "per month",
     badge: "POPULAR",
-    target: "Multi-branch SMEs",
+    target: "Multi-branch SMEs, growing businesses",
     cta: "Upgrade",
     ctaVariant: "default" as const,
     features: [
       "Multi-branch dashboards (up to 10)",
+      "Marketing & business analytics",
+      "Customer segmentation & sales forecasting",
+      "Bank reconciliation & P&L reports",
       "Automated data sync agent",
-      "Advanced forecasting",
+      "Advanced AI forecasting",
       "Staff analytics",
       "Priority support",
       "Everything in Growth",
@@ -73,18 +85,21 @@ const tiers = [
   },
   {
     name: "Enterprise",
-    price: "₦79,900",
+    price: "₦99,900",
+    priceUsd: "$66.99",
     period: "per month",
     badge: null,
-    target: "Large retail chains",
+    target: "Large retail chains, franchise operations",
     cta: "Contact Us",
     ctaVariant: "outline" as const,
     features: [
       "Near real-time POS integration",
       "AI pricing optimisation",
-      "Supplier intelligence",
+      "Supplier intelligence network",
+      "Marketing ROI tracking",
+      "Custom reports & API access",
       "Executive dashboards",
-      "Dedicated onboarding",
+      "Dedicated onboarding manager",
       "Unlimited branches",
       "Everything in Business",
     ],
@@ -95,13 +110,26 @@ const comparisonFeatures = [
   { name: "Document uploads", starter: "20/mo", growth: "Unlimited", business: "Unlimited", enterprise: "Unlimited" },
   { name: "Branches", starter: "1", growth: "1", business: "Up to 10", enterprise: "Unlimited" },
   { name: "AI Alerts", starter: "5/week", growth: "Daily", business: "Daily", enterprise: "Real-time" },
+  { name: "Transaction tracking", starter: true, growth: true, business: true, enterprise: true },
+  { name: "Receipt capture", starter: true, growth: true, business: true, enterprise: true },
+  { name: "Basic P&L", starter: true, growth: true, business: true, enterprise: true },
+  { name: "Expense tracking", starter: false, growth: true, business: true, enterprise: true },
+  { name: "Payment reminders", starter: false, growth: true, business: true, enterprise: true },
+  { name: "Tax tracking (VAT/WHT/CIT)", starter: false, growth: true, business: true, enterprise: true },
+  { name: "Invoice management", starter: false, growth: true, business: true, enterprise: true },
   { name: "Cashflow insights", starter: false, growth: true, business: true, enterprise: true },
   { name: "Inventory risk detection", starter: false, growth: true, business: true, enterprise: true },
   { name: "Supplier tracking", starter: false, growth: true, business: true, enterprise: true },
+  { name: "Email & WhatsApp ingestion", starter: false, growth: true, business: true, enterprise: true },
   { name: "Multi-branch", starter: false, growth: false, business: true, enterprise: true },
+  { name: "Marketing & business analytics", starter: false, growth: false, business: true, enterprise: true },
+  { name: "Customer segmentation", starter: false, growth: false, business: true, enterprise: true },
+  { name: "Bank reconciliation", starter: false, growth: false, business: true, enterprise: true },
   { name: "Advanced forecasting", starter: false, growth: false, business: true, enterprise: true },
   { name: "POS integration", starter: false, growth: false, business: false, enterprise: true },
   { name: "AI pricing optimisation", starter: false, growth: false, business: false, enterprise: true },
+  { name: "Marketing ROI & custom reports", starter: false, growth: false, business: false, enterprise: true },
+  { name: "API access", starter: false, growth: false, business: false, enterprise: true },
   { name: "Data export", starter: true, growth: true, business: true, enterprise: true },
 ];
 
@@ -165,7 +193,9 @@ export default function PricingPage() {
               )}
               <CardHeader className="text-center pb-2">
                 <CardTitle className="text-lg">{tier.name}</CardTitle>
-                <p className="text-2xl font-bold mt-1">{tier.price}</p>
+                <p className="text-2xl font-bold mt-1">
+                  {currency === "NGN" ? tier.price : tier.priceUsd}
+                </p>
                 <p className="text-xs text-muted-foreground">{tier.period}</p>
                 <p className="text-xs text-muted-foreground mt-2">{tier.target}</p>
               </CardHeader>
@@ -179,10 +209,7 @@ export default function PricingPage() {
                   ))}
                 </ul>
                 <Link href={tier.name === "Enterprise" ? "/help" : "/onboarding"}>
-                  <Button
-                    variant={tier.ctaVariant}
-                    className="w-full gap-1"
-                  >
+                  <Button variant={tier.ctaVariant} className="w-full gap-1">
                     {tier.cta}
                     <ArrowRight className="h-4 w-4" />
                   </Button>
@@ -195,9 +222,7 @@ export default function PricingPage() {
 
       {/* Feature Comparison */}
       <section className="container mx-auto px-4 py-12 border-t">
-        <h2 className="text-2xl font-semibold text-center mb-8">
-          Compare Plans
-        </h2>
+        <h2 className="text-2xl font-semibold text-center mb-8">Compare Plans</h2>
         <div className="max-w-5xl mx-auto overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -260,12 +285,25 @@ export default function PricingPage() {
         </div>
       </section>
 
+      {/* Business Types */}
+      <section className="container mx-auto px-4 py-12 border-t">
+        <h2 className="text-2xl font-semibold text-center mb-2">Built for Every African SME</h2>
+        <p className="text-sm text-muted-foreground text-center mb-8">
+          One platform, tailored insights for your business type.
+        </p>
+        <div className="max-w-4xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+          {["Supermarkets", "Mini Marts", "Salons", "Food Vendors", "Farms", "Artisans", "Kiosks", "Professional Services"].map((biz) => (
+            <div key={biz} className="rounded-lg border p-4">
+              <p className="text-sm font-medium">{biz}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* Final CTA */}
       <section className="container mx-auto px-4 py-12 border-t">
         <div className="text-center">
-          <h2 className="text-xl font-semibold mb-2">
-            Start free. Upgrade when you grow.
-          </h2>
+          <h2 className="text-xl font-semibold mb-2">Start free. Upgrade when you grow.</h2>
           <p className="text-sm text-muted-foreground mb-6">
             No credit card required. See value in 10 minutes.
           </p>

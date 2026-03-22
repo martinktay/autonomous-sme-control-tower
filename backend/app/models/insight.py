@@ -14,7 +14,7 @@ class Insight(BaseModel):
 
     insight_id: str = Field(..., description="Unique insight identifier")
     business_id: str = Field(..., description="Business identifier")
-    insight_type: str = Field(..., description="sales_trend | profitable_product | cost_saving | seasonal_pattern | inventory_risk | cashflow")
+    insight_type: str = Field(..., description="sales_trend | profitable_product | cost_saving | seasonal_pattern | inventory_risk | cashflow | customer_segmentation | marketing_roi | sales_forecast | revenue_analysis | expense_analysis")
     title: str = Field(..., min_length=1, max_length=300)
     description: str = Field(..., description="Plain-language insight")
     data: Dict[str, Any] = Field(default_factory=dict, description="Supporting metrics")

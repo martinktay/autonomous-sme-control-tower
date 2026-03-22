@@ -5,7 +5,6 @@ Handles user registration, login, password hashing, and JWT token
 generation/validation. Uses DynamoDB for user persistence (keyed by email).
 """
 
-import uuid
 import hashlib
 import hmac
 import secrets
@@ -17,6 +16,7 @@ import boto3
 from jose import jwt, JWTError
 
 from app.config import get_settings
+from app.utils.id_generator import generate_id
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
@@ -93,8 +93,8 @@ class AuthService:
         if existing:
             raise ValueError("An account with this email already exists")
 
-        user_id = f"user-{uuid.uuid4().hex[:12]}"
-        org_id = f"org-{uuid.uuid4().hex[:12]}"
+        user_id = generate_id("user")
+        org_id = generate_id("org")
         pw_hash, pw_salt = _hash_password(password)
         now = datetime.now(timezone.utc).isoformat()
 

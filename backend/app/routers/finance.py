@@ -14,7 +14,6 @@ and safe error messages that don't leak internals.
 from fastapi import APIRouter, UploadFile, File, HTTPException, Query
 from fastapi.responses import StreamingResponse
 from typing import Dict, Any, Optional
-import uuid
 import io
 import logging
 from datetime import datetime, timezone
@@ -32,6 +31,7 @@ from app.utils.upload_validator import (
     FINANCE_EXTENSIONS,
 )
 from app.services.counterparty_service import get_counterparty_service
+from app.utils.id_generator import generate_id
 
 logger = logging.getLogger(__name__)
 
@@ -80,8 +80,8 @@ async def _handle_spreadsheet_upload(
     created = []
 
     for row in reader:
-        signal_id = str(uuid.uuid4())
-        document_id = str(uuid.uuid4())
+        signal_id = generate_id("signal")
+        document_id = generate_id("document")
         amount_raw = row.get("amount", row.get("Amount", "0"))
         try:
             amount = float(str(amount_raw).replace(",", ""))
@@ -132,8 +132,8 @@ async def _handle_document_upload(
     org_id: str, file_content: bytes, filename: str,
 ) -> Dict[str, Any]:
     """Process a PDF/image: upload to S3, run AI extraction & classification, detect anomalies."""
-    document_id = str(uuid.uuid4())
-    signal_id = str(uuid.uuid4())
+    document_id = generate_id("document")
+    signal_id = generate_id("signal")
     s3_key = f"documents/{org_id}/{document_id}/{filename}"
 
     # Upload to S3

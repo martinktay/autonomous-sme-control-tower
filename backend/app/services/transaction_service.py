@@ -1,13 +1,13 @@
 """Transaction management service — CRUD, summaries, cashflow."""
 
 import logging
-import uuid
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
 from app.config import get_settings
 from app.models.transaction import Transaction, TransactionCreate
 from app.services.ddb_service import get_ddb_service
+from app.utils.id_generator import generate_id
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
@@ -23,7 +23,7 @@ class TransactionService:
     def create_transaction(self, business_id: str, data: TransactionCreate) -> Transaction:
         """Create a new transaction record."""
         txn = Transaction(
-            transaction_id=str(uuid.uuid4()),
+            transaction_id=generate_id("transaction"),
             business_id=business_id,
             branch_id=data.branch_id,
             transaction_type=data.transaction_type,

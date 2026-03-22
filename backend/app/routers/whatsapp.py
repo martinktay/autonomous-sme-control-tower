@@ -9,7 +9,6 @@ Endpoints:
 """
 
 import logging
-import uuid
 from typing import Dict, Any, Optional
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
@@ -18,6 +17,7 @@ from app.agents.whatsapp_agent import WhatsAppAgent
 from app.services.ddb_service import get_ddb_service
 from app.models import Signal
 from app.utils.upload_validator import validate_org_id
+from app.utils.id_generator import generate_id
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/whatsapp", tags=["whatsapp"])
@@ -61,7 +61,7 @@ async def whatsapp_webhook(payload: WhatsAppWebhookPayload) -> Dict[str, Any]:
     It extracts business data from the message and stores it as a signal.
     """
     org_id = validate_org_id(payload.org_id)
-    signal_id = str(uuid.uuid4())
+    signal_id = generate_id("signal")
 
     try:
         extracted = whatsapp_agent.extract_message(payload.message_text)
@@ -113,7 +113,7 @@ async def whatsapp_webhook(payload: WhatsAppWebhookPayload) -> Dict[str, Any]:
 async def ingest_message(request: IngestMessageRequest) -> Dict[str, Any]:
     """Manually ingest a WhatsApp message for testing purposes."""
     org_id = validate_org_id(request.org_id)
-    signal_id = str(uuid.uuid4())
+    signal_id = generate_id("signal")
 
     try:
         extracted = whatsapp_agent.extract_message(request.message_text)

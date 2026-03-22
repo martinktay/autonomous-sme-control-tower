@@ -6,7 +6,6 @@ and validates responses against Pydantic schemas for type safety.
 """
 
 import json
-import uuid
 from typing import Dict, Any, List
 from datetime import datetime, timezone
 from app.utils.bedrock_client import get_bedrock_client

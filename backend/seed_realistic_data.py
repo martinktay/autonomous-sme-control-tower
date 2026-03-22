@@ -12,7 +12,6 @@ Seeds transactions, inventory, counterparties, and alerts for:
 
 import sys
 import os
-import uuid
 import random
 from datetime import datetime, timezone, timedelta
 from decimal import Decimal
@@ -21,6 +20,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 import boto3
 from app.config import get_settings
+from app.utils.id_generator import generate_id
 
 settings = get_settings()
 
@@ -45,8 +45,8 @@ def get_org_id(email):
     return resp["Item"]["org_id"]
 
 
-def uid():
-    return uuid.uuid4().hex[:12]
+def _id(entity: str) -> str:
+    return generate_id(entity)
 
 
 def dec(v):
@@ -79,7 +79,7 @@ def seed_ades_trading(org_id):
     ]
     for name, ctype, phone in suppliers + customers:
         cp_table.put_item(Item={
-            "org_id": org_id, "counterparty_id": f"cp-{uid()}",
+            "org_id": org_id, "counterparty_id": _id("counterparty"),
             "name": name, "counterparty_type": ctype, "phone": phone,
             "balance_owed": dec(random.uniform(0, 150000) if ctype == "supplier" else 0),
             "balance_owing": dec(random.uniform(0, 80000) if ctype == "customer" else 0),
@@ -101,7 +101,7 @@ def seed_ades_trading(org_id):
     ]
     for name, cat, qty, cost, price, reorder in products:
         inv_table.put_item(Item={
-            "org_id": org_id, "item_id": f"inv-{uid()}",
+            "org_id": org_id, "item_id": _id("inventory_item"),
             "name": name, "category": cat,
             "quantity_on_hand": dec(qty), "unit": "units",
             "unit_cost": dec(cost), "selling_price": dec(price),
@@ -117,7 +117,7 @@ def seed_ades_trading(org_id):
         # 3-6 revenue transactions per day
         for _ in range(random.randint(3, 6)):
             txn_table.put_item(Item={
-                "org_id": org_id, "transaction_id": f"txn-{uid()}",
+                "org_id": org_id, "transaction_id": _id("transaction"),
                 "business_id": org_id,
                 "transaction_type": "revenue",
                 "category": random.choice(categories_rev),
@@ -141,7 +141,7 @@ def seed_ades_trading(org_id):
             }.get(cat, random.uniform(5000, 30000))
             if amt > 0:
                 txn_table.put_item(Item={
-                    "org_id": org_id, "transaction_id": f"txn-{uid()}",
+                    "org_id": org_id, "transaction_id": _id("transaction"),
                     "business_id": org_id,
                     "transaction_type": "expense",
                     "category": cat,
@@ -161,7 +161,7 @@ def seed_ades_trading(org_id):
     ]
     for atype, sev, title, desc, action in alerts_data:
         alert_table.put_item(Item={
-            "org_id": org_id, "alert_id": f"alert-{uid()}",
+            "org_id": org_id, "alert_id": _id("alert"),
             "business_id": org_id, "alert_type": atype, "severity": sev,
             "title": title, "description": desc, "recommended_action": action,
             "is_read": False, "created_at": iso(now),
@@ -185,7 +185,7 @@ def seed_greenfield_farms(org_id):
     ]
     for name, ctype, phone in suppliers + customers:
         cp_table.put_item(Item={
-            "org_id": org_id, "counterparty_id": f"cp-{uid()}",
+            "org_id": org_id, "counterparty_id": _id("counterparty"),
             "name": name, "counterparty_type": ctype, "phone": phone,
             "balance_owed": dec(random.uniform(0, 200000) if ctype == "supplier" else 0),
             "balance_owing": dec(random.uniform(0, 300000) if ctype == "customer" else 0),
@@ -203,7 +203,7 @@ def seed_greenfield_farms(org_id):
     ]
     for name, cat, qty, cost, price, reorder in products:
         inv_table.put_item(Item={
-            "org_id": org_id, "item_id": f"inv-{uid()}",
+            "org_id": org_id, "item_id": _id("inventory_item"),
             "name": name, "category": cat,
             "quantity_on_hand": dec(qty), "unit": "units",
             "unit_cost": dec(cost), "selling_price": dec(price) if price > 0 else None,
@@ -217,7 +217,7 @@ def seed_greenfield_farms(org_id):
         # Revenue: 1-3 sales per day (harvest season)
         for _ in range(random.randint(1, 3)):
             txn_table.put_item(Item={
-                "org_id": org_id, "transaction_id": f"txn-{uid()}",
+                "org_id": org_id, "transaction_id": _id("transaction"),
                 "business_id": org_id,
                 "transaction_type": "revenue",
                 "category": random.choice(["Cassava Sales", "Maize Sales", "Vegetable Sales", "Palm Oil Sales"]),
@@ -231,7 +231,7 @@ def seed_greenfield_farms(org_id):
         # Expenses
         if random.random() > 0.4:
             txn_table.put_item(Item={
-                "org_id": org_id, "transaction_id": f"txn-{uid()}",
+                "org_id": org_id, "transaction_id": _id("transaction"),
                 "business_id": org_id,
                 "transaction_type": "expense",
                 "category": random.choice(["Farm Labour", "Fertilizer", "Transport", "Equipment Hire", "Diesel/Fuel"]),
@@ -250,7 +250,7 @@ def seed_greenfield_farms(org_id):
     ]
     for atype, sev, title, desc, action in alerts_data:
         alert_table.put_item(Item={
-            "org_id": org_id, "alert_id": f"alert-{uid()}",
+            "org_id": org_id, "alert_id": _id("alert"),
             "business_id": org_id, "alert_type": atype, "severity": sev,
             "title": title, "description": desc, "recommended_action": action,
             "is_read": False, "created_at": iso(now),
@@ -276,7 +276,7 @@ def seed_techbridge(org_id):
     ]
     for name, ctype, phone in suppliers + customers:
         cp_table.put_item(Item={
-            "org_id": org_id, "counterparty_id": f"cp-{uid()}",
+            "org_id": org_id, "counterparty_id": _id("counterparty"),
             "name": name, "counterparty_type": ctype, "phone": phone,
             "balance_owed": dec(random.uniform(0, 500000) if ctype == "supplier" else 0),
             "balance_owing": dec(random.uniform(0, 2000000) if ctype == "customer" else 0),
@@ -293,7 +293,7 @@ def seed_techbridge(org_id):
     ]
     for name, cat, qty, cost, price, reorder in products:
         inv_table.put_item(Item={
-            "org_id": org_id, "item_id": f"inv-{uid()}",
+            "org_id": org_id, "item_id": _id("inventory_item"),
             "name": name, "category": cat,
             "quantity_on_hand": dec(qty), "unit": "units",
             "unit_cost": dec(cost), "selling_price": dec(price) if price > 0 else None,
@@ -307,7 +307,7 @@ def seed_techbridge(org_id):
         # Revenue: larger but less frequent
         if random.random() > 0.5:
             txn_table.put_item(Item={
-                "org_id": org_id, "transaction_id": f"txn-{uid()}",
+                "org_id": org_id, "transaction_id": _id("transaction"),
                 "business_id": org_id,
                 "transaction_type": "revenue",
                 "category": random.choice(["Software Development", "IT Consulting", "Support Contract", "Cloud Migration"]),
@@ -332,7 +332,7 @@ def seed_techbridge(org_id):
             amt = amounts.get(cat, random.uniform(20000, 100000))
             if amt > 0:
                 txn_table.put_item(Item={
-                    "org_id": org_id, "transaction_id": f"txn-{uid()}",
+                    "org_id": org_id, "transaction_id": _id("transaction"),
                     "business_id": org_id,
                     "transaction_type": "expense",
                     "category": cat,
@@ -351,7 +351,7 @@ def seed_techbridge(org_id):
     ]
     for atype, sev, title, desc, action in alerts_data:
         alert_table.put_item(Item={
-            "org_id": org_id, "alert_id": f"alert-{uid()}",
+            "org_id": org_id, "alert_id": _id("alert"),
             "business_id": org_id, "alert_type": atype, "severity": sev,
             "title": title, "description": desc, "recommended_action": action,
             "is_read": False, "created_at": iso(now),

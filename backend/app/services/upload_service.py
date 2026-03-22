@@ -9,13 +9,13 @@ import csv
 import io
 import json
 import logging
-import uuid
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
 from app.config import get_settings
 from app.models.upload_job import UploadJob, UploadJobStatus
 from app.services.ddb_service import get_ddb_service
+from app.utils.id_generator import generate_id
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
@@ -39,7 +39,7 @@ class UploadService:
         """Create a new upload job record."""
         now = datetime.now(timezone.utc)
         job = UploadJob(
-            job_id=str(uuid.uuid4()),
+            job_id=generate_id("upload_job"),
             business_id=business_id,
             filename=filename,
             file_type=file_type,

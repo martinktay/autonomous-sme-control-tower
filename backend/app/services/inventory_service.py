@@ -1,13 +1,13 @@
 """Inventory management service — CRUD, stock alerts, analytics."""
 
 import logging
-import uuid
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
 from app.config import get_settings
 from app.models.inventory_item import InventoryItem, InventoryItemCreate, InventoryItemUpdate
 from app.services.ddb_service import get_ddb_service
+from app.utils.id_generator import generate_id
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
@@ -24,7 +24,7 @@ class InventoryService:
         """Add a new inventory item."""
         now = datetime.now(timezone.utc)
         item = InventoryItem(
-            item_id=str(uuid.uuid4()),
+            item_id=generate_id("inventory_item"),
             business_id=business_id,
             branch_id=data.branch_id,
             name=data.name,

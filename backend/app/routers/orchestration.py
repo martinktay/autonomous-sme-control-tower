@@ -2,7 +2,6 @@ import logging
 from fastapi import APIRouter, HTTPException
 from typing import Dict, Any
 from pydantic import BaseModel
-import uuid
 from app.agents.risk_agent import RiskAgent
 from app.agents.strategy_agent import StrategyAgent
 from app.agents.action_agent import ActionAgent
@@ -10,6 +9,7 @@ from app.agents.reeval_agent import ReevalAgent
 from app.services.ddb_service import get_ddb_service
 from app.services.transaction_service import get_transaction_service
 from app.services.inventory_service import get_inventory_service
+from app.utils.id_generator import generate_id
 
 logger = logging.getLogger(__name__)
 
@@ -62,7 +62,7 @@ async def run_closed_loop(request: RunLoopRequest) -> Dict[str, Any]:
             logger.debug("Could not fetch inventory alerts for NSI context")
         
         nsi_score = risk_agent.calculate_nsi(org_id, signals, context)
-        nsi_snapshot_id = f"nsi_{uuid.uuid4().hex[:12]}"
+        nsi_snapshot_id = generate_id("nsi")
         
         # Store NSI snapshot
         nsi_snapshot_data = {
@@ -130,7 +130,7 @@ async def run_closed_loop(request: RunLoopRequest) -> Dict[str, Any]:
         
         # Store new NSI
         new_nsi_snapshot_data = {
-            "nsi_id": f"nsi_{uuid.uuid4().hex[:12]}",
+            "nsi_id": generate_id("nsi"),
             "org_id": org_id,
             "nsi_score": new_nsi_score.nova_stability_index,
             "liquidity_index": new_nsi_score.sub_indices.liquidity_index,

@@ -1,13 +1,13 @@
 """Alert management service — creation, retrieval, tier-based limits."""
 
 import logging
-import uuid
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
 from app.config import get_settings
 from app.models.alert import Alert
 from app.services.ddb_service import get_ddb_service
+from app.utils.id_generator import generate_id
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
@@ -32,7 +32,7 @@ class AlertService:
     ) -> Alert:
         """Create a new alert."""
         alert = Alert(
-            alert_id=str(uuid.uuid4()),
+            alert_id=generate_id("alert"),
             business_id=business_id,
             branch_id=branch_id,
             alert_type=alert_type,

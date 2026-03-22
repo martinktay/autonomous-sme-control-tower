@@ -14,7 +14,8 @@ TIER_LIMITS: Dict[str, Dict[str, Any]] = {
         "alerts_per_week": 5,
         "features": [
             "manual_upload", "basic_dashboard", "weekly_summary",
-            "data_export", "single_branch",
+            "data_export", "single_branch", "transaction_tracking",
+            "basic_pnl", "receipt_capture",
         ],
     },
     PricingTier.GROWTH: {
@@ -25,6 +26,9 @@ TIER_LIMITS: Dict[str, Dict[str, Any]] = {
             "manual_upload", "basic_dashboard", "daily_alerts",
             "cashflow_insights", "inventory_risk", "supplier_tracking",
             "whatsapp_summary", "data_export", "single_branch",
+            "transaction_tracking", "basic_pnl", "receipt_capture",
+            "expense_tracking", "payment_reminders", "tax_tracking",
+            "invoice_management", "email_ingestion",
         ],
     },
     PricingTier.BUSINESS: {
@@ -36,6 +40,12 @@ TIER_LIMITS: Dict[str, Dict[str, Any]] = {
             "cashflow_insights", "inventory_risk", "supplier_tracking",
             "whatsapp_summary", "data_export", "multi_branch",
             "auto_sync", "advanced_forecasting", "staff_analytics",
+            "transaction_tracking", "basic_pnl", "receipt_capture",
+            "expense_tracking", "payment_reminders", "tax_tracking",
+            "invoice_management", "email_ingestion",
+            "marketing_analytics", "business_analytics",
+            "bank_reconciliation", "profit_loss_reports",
+            "customer_segmentation", "sales_forecasting",
         ],
     },
     PricingTier.ENTERPRISE: {
@@ -49,15 +59,22 @@ TIER_LIMITS: Dict[str, Dict[str, Any]] = {
             "auto_sync", "advanced_forecasting", "staff_analytics",
             "realtime_pos", "ai_pricing", "supplier_intelligence",
             "executive_dashboard", "dedicated_onboarding",
+            "transaction_tracking", "basic_pnl", "receipt_capture",
+            "expense_tracking", "payment_reminders", "tax_tracking",
+            "invoice_management", "email_ingestion",
+            "marketing_analytics", "business_analytics",
+            "bank_reconciliation", "profit_loss_reports",
+            "customer_segmentation", "sales_forecasting",
+            "marketing_roi", "custom_reports", "api_access",
         ],
     },
 }
 
 TIER_PRICING_NGN = {
     PricingTier.STARTER: {"price": 0, "label": "Free"},
-    PricingTier.GROWTH: {"price": 9900, "label": "₦9,900/mo"},
-    PricingTier.BUSINESS: {"price": 29900, "label": "₦29,900/mo"},
-    PricingTier.ENTERPRISE: {"price": 79900, "label": "₦79,900/mo"},
+    PricingTier.GROWTH: {"price": 14900, "label": "₦14,900/mo"},
+    PricingTier.BUSINESS: {"price": 39900, "label": "₦39,900/mo"},
+    PricingTier.ENTERPRISE: {"price": 99900, "label": "₦99,900/mo"},
 }
 
 

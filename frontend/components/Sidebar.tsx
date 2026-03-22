@@ -29,6 +29,7 @@ import {
   Landmark,
   LineChart,
   GitBranch,
+  TrendingUp,
   Mic,
   Search,
   HelpCircle,
@@ -104,6 +105,13 @@ const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
+    label: "Marketing & Analytics",
+    items: [
+      { href: "/analytics", label: "Business Analytics", icon: BarChart3, minTier: "business" },
+      { href: "/analytics/marketing", label: "Marketing Insights", icon: TrendingUp, minTier: "business" },
+    ],
+  },
+  {
     label: "Multi-Branch",
     items: [
       { href: "/branch-optimisation", label: "Branch Optimisation", icon: GitBranch, minTier: "business" },
@@ -140,6 +148,7 @@ export default function Sidebar() {
     Communication: true,
     "Data Connectors": true,
     "AI & Analytics": true,
+    "Marketing & Analytics": true,
     "Multi-Branch": true,
   });
 

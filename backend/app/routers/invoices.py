@@ -10,7 +10,6 @@ Production-hardened with:
 
 from fastapi import APIRouter, UploadFile, File, HTTPException
 from typing import Dict, Any
-import uuid
 import logging
 
 from app.agents.signal_agent import SignalAgent
@@ -24,6 +23,7 @@ from app.utils.upload_validator import (
     INVOICE_CONTENT_TYPES,
     INVOICE_EXTENSIONS,
 )
+from app.utils.id_generator import generate_id
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +48,7 @@ async def upload_invoice(
         file, INVOICE_CONTENT_TYPES, INVOICE_EXTENSIONS
     )
 
-    signal_id = str(uuid.uuid4())
+    signal_id = generate_id("signal")
 
     # Upload to S3
     try:

@@ -4,8 +4,8 @@ import os
 sys.path.insert(0, os.path.dirname(__file__))
 
 from app.services.ddb_service import get_ddb_service
+from app.utils.id_generator import generate_id
 from datetime import datetime, timedelta, timezone
-import uuid
 
 ddb = get_ddb_service()
 ORG = "demo-org-001"
@@ -19,7 +19,7 @@ def ts(days_ago=0, hours_ago=0):
 # ── Signals (invoices + emails) ──────────────────────────────────
 signals = [
     {
-        "org_id": ORG, "signal_id": f"sig-{uuid.uuid4().hex[:8]}",
+        "org_id": ORG, "signal_id": generate_id("signal"),
         "signal_type": "invoice", "processing_status": "processed",
         "content": {
             "vendor_name": "Lagos Paper Supplies Ltd",
@@ -30,7 +30,7 @@ signals = [
         "created_at": ts(12)
     },
     {
-        "org_id": ORG, "signal_id": f"sig-{uuid.uuid4().hex[:8]}",
+        "org_id": ORG, "signal_id": generate_id("signal"),
         "signal_type": "invoice", "processing_status": "processed",
         "content": {
             "vendor_name": "Dangote Cement PLC",
@@ -41,7 +41,7 @@ signals = [
         "created_at": ts(10)
     },
     {
-        "org_id": ORG, "signal_id": f"sig-{uuid.uuid4().hex[:8]}",
+        "org_id": ORG, "signal_id": generate_id("signal"),
         "signal_type": "invoice", "processing_status": "processed",
         "content": {
             "vendor_name": "MTN Business Nigeria",
@@ -52,7 +52,7 @@ signals = [
         "created_at": ts(8)
     },
     {
-        "org_id": ORG, "signal_id": f"sig-{uuid.uuid4().hex[:8]}",
+        "org_id": ORG, "signal_id": generate_id("signal"),
         "signal_type": "invoice", "processing_status": "processed",
         "content": {
             "vendor_name": "Ibadan Logistics Co",
@@ -63,7 +63,7 @@ signals = [
         "created_at": ts(6)
     },
     {
-        "org_id": ORG, "signal_id": f"sig-{uuid.uuid4().hex[:8]}",
+        "org_id": ORG, "signal_id": generate_id("signal"),
         "signal_type": "email", "processing_status": "processed",
         "content": {
             "sender": "accounts@lagospaper.ng",
@@ -74,7 +74,7 @@ signals = [
         "created_at": ts(4)
     },
     {
-        "org_id": ORG, "signal_id": f"sig-{uuid.uuid4().hex[:8]}",
+        "org_id": ORG, "signal_id": generate_id("signal"),
         "signal_type": "email", "processing_status": "processed",
         "content": {
             "sender": "procurement@clientcorp.ng",
@@ -85,7 +85,7 @@ signals = [
         "created_at": ts(3)
     },
     {
-        "org_id": ORG, "signal_id": f"sig-{uuid.uuid4().hex[:8]}",
+        "org_id": ORG, "signal_id": generate_id("signal"),
         "signal_type": "email", "processing_status": "processed",
         "content": {
             "sender": "ops@ibadanlogistics.ng",
@@ -109,7 +109,7 @@ ORG2 = "demo-org-002"
 
 signals_org2 = [
     {
-        "org_id": ORG2, "signal_id": f"sig-{uuid.uuid4().hex[:8]}",
+        "org_id": ORG2, "signal_id": generate_id("signal"),
         "signal_type": "invoice", "processing_status": "processed",
         "content": {
             "vendor_name": "Ajaokuta Fertilizer Co",
@@ -120,7 +120,7 @@ signals_org2 = [
         "created_at": ts(14)
     },
     {
-        "org_id": ORG2, "signal_id": f"sig-{uuid.uuid4().hex[:8]}",
+        "org_id": ORG2, "signal_id": generate_id("signal"),
         "signal_type": "invoice", "processing_status": "processed",
         "content": {
             "vendor_name": "Ogun Tractor Rentals",
@@ -131,7 +131,7 @@ signals_org2 = [
         "created_at": ts(11)
     },
     {
-        "org_id": ORG2, "signal_id": f"sig-{uuid.uuid4().hex[:8]}",
+        "org_id": ORG2, "signal_id": generate_id("signal"),
         "signal_type": "invoice", "processing_status": "processed",
         "content": {
             "vendor_name": "SeedCo Nigeria Ltd",
@@ -142,7 +142,7 @@ signals_org2 = [
         "created_at": ts(9)
     },
     {
-        "org_id": ORG2, "signal_id": f"sig-{uuid.uuid4().hex[:8]}",
+        "org_id": ORG2, "signal_id": generate_id("signal"),
         "signal_type": "invoice", "processing_status": "processed",
         "content": {
             "vendor_name": "Kano Irrigation Supplies",
@@ -153,7 +153,7 @@ signals_org2 = [
         "created_at": ts(7)
     },
     {
-        "org_id": ORG2, "signal_id": f"sig-{uuid.uuid4().hex[:8]}",
+        "org_id": ORG2, "signal_id": generate_id("signal"),
         "signal_type": "email", "processing_status": "processed",
         "content": {
             "sender": "finance@oguntractors.ng",
@@ -164,7 +164,7 @@ signals_org2 = [
         "created_at": ts(3)
     },
     {
-        "org_id": ORG2, "signal_id": f"sig-{uuid.uuid4().hex[:8]}",
+        "org_id": ORG2, "signal_id": generate_id("signal"),
         "signal_type": "email", "processing_status": "processed",
         "content": {
             "sender": "buyer@josmarket.ng",
@@ -175,7 +175,7 @@ signals_org2 = [
         "created_at": ts(2)
     },
     {
-        "org_id": ORG2, "signal_id": f"sig-{uuid.uuid4().hex[:8]}",
+        "org_id": ORG2, "signal_id": generate_id("signal"),
         "signal_type": "email", "processing_status": "processed",
         "content": {
             "sender": "weather@farmadvisory.ng",
@@ -199,7 +199,7 @@ ORG3 = "demo-org-003"
 
 signals_org3 = [
     {
-        "org_id": ORG3, "signal_id": f"sig-{uuid.uuid4().hex[:8]}",
+        "org_id": ORG3, "signal_id": generate_id("signal"),
         "signal_type": "invoice", "processing_status": "processed",
         "content": {
             "vendor_name": "AWS Nigeria (via Flutterwave)",
@@ -210,7 +210,7 @@ signals_org3 = [
         "created_at": ts(12)
     },
     {
-        "org_id": ORG3, "signal_id": f"sig-{uuid.uuid4().hex[:8]}",
+        "org_id": ORG3, "signal_id": generate_id("signal"),
         "signal_type": "invoice", "processing_status": "processed",
         "content": {
             "vendor_name": "Andela Talent Services",
@@ -221,7 +221,7 @@ signals_org3 = [
         "created_at": ts(10)
     },
     {
-        "org_id": ORG3, "signal_id": f"sig-{uuid.uuid4().hex[:8]}",
+        "org_id": ORG3, "signal_id": generate_id("signal"),
         "signal_type": "invoice", "processing_status": "processed",
         "content": {
             "vendor_name": "MainOne Data Centre",
@@ -232,7 +232,7 @@ signals_org3 = [
         "created_at": ts(8)
     },
     {
-        "org_id": ORG3, "signal_id": f"sig-{uuid.uuid4().hex[:8]}",
+        "org_id": ORG3, "signal_id": generate_id("signal"),
         "signal_type": "invoice", "processing_status": "processed",
         "content": {
             "vendor_name": "Interswitch Payment Gateway",
@@ -243,7 +243,7 @@ signals_org3 = [
         "created_at": ts(5)
     },
     {
-        "org_id": ORG3, "signal_id": f"sig-{uuid.uuid4().hex[:8]}",
+        "org_id": ORG3, "signal_id": generate_id("signal"),
         "signal_type": "email", "processing_status": "processed",
         "content": {
             "sender": "billing@andela.com",
@@ -254,7 +254,7 @@ signals_org3 = [
         "created_at": ts(4)
     },
     {
-        "org_id": ORG3, "signal_id": f"sig-{uuid.uuid4().hex[:8]}",
+        "org_id": ORG3, "signal_id": generate_id("signal"),
         "signal_type": "email", "processing_status": "processed",
         "content": {
             "sender": "cto@fintechstartup.ng",
@@ -265,7 +265,7 @@ signals_org3 = [
         "created_at": ts(2)
     },
     {
-        "org_id": ORG3, "signal_id": f"sig-{uuid.uuid4().hex[:8]}",
+        "org_id": ORG3, "signal_id": generate_id("signal"),
         "signal_type": "email", "processing_status": "processed",
         "content": {
             "sender": "hr@techbridge.ng",
@@ -289,7 +289,7 @@ ORG4 = "demo-org-004"
 
 signals_org4 = [
     {
-        "org_id": ORG4, "signal_id": f"sig-{uuid.uuid4().hex[:8]}",
+        "org_id": ORG4, "signal_id": generate_id("signal"),
         "signal_type": "invoice", "processing_status": "processed",
         "content": {
             "vendor_name": "Wessex Flour Mills",
@@ -300,7 +300,7 @@ signals_org4 = [
         "created_at": ts(14)
     },
     {
-        "org_id": ORG4, "signal_id": f"sig-{uuid.uuid4().hex[:8]}",
+        "org_id": ORG4, "signal_id": generate_id("signal"),
         "signal_type": "invoice", "processing_status": "processed",
         "content": {
             "vendor_name": "South Downs Dairy",
@@ -311,7 +311,7 @@ signals_org4 = [
         "created_at": ts(10)
     },
     {
-        "org_id": ORG4, "signal_id": f"sig-{uuid.uuid4().hex[:8]}",
+        "org_id": ORG4, "signal_id": generate_id("signal"),
         "signal_type": "invoice", "processing_status": "processed",
         "content": {
             "vendor_name": "British Gas Business",
@@ -322,7 +322,7 @@ signals_org4 = [
         "created_at": ts(9)
     },
     {
-        "org_id": ORG4, "signal_id": f"sig-{uuid.uuid4().hex[:8]}",
+        "org_id": ORG4, "signal_id": generate_id("signal"),
         "signal_type": "invoice", "processing_status": "processed",
         "content": {
             "vendor_name": "PackRight UK Ltd",
@@ -333,7 +333,7 @@ signals_org4 = [
         "created_at": ts(7)
     },
     {
-        "org_id": ORG4, "signal_id": f"sig-{uuid.uuid4().hex[:8]}",
+        "org_id": ORG4, "signal_id": generate_id("signal"),
         "signal_type": "email", "processing_status": "processed",
         "content": {
             "sender": "accounts@wessexflour.co.uk",
@@ -344,7 +344,7 @@ signals_org4 = [
         "created_at": ts(3)
     },
     {
-        "org_id": ORG4, "signal_id": f"sig-{uuid.uuid4().hex[:8]}",
+        "org_id": ORG4, "signal_id": generate_id("signal"),
         "signal_type": "email", "processing_status": "processed",
         "content": {
             "sender": "events@brightoncouncil.gov.uk",
@@ -355,7 +355,7 @@ signals_org4 = [
         "created_at": ts(2)
     },
     {
-        "org_id": ORG4, "signal_id": f"sig-{uuid.uuid4().hex[:8]}",
+        "org_id": ORG4, "signal_id": generate_id("signal"),
         "signal_type": "email", "processing_status": "processed",
         "content": {
             "sender": "manager@brightoncraftbakery.co.uk",
@@ -379,7 +379,7 @@ ORG5 = "demo-org-005"
 
 signals_org5 = [
     {
-        "org_id": ORG5, "signal_id": f"sig-{uuid.uuid4().hex[:8]}",
+        "org_id": ORG5, "signal_id": generate_id("signal"),
         "signal_type": "invoice", "processing_status": "processed",
         "content": {
             "vendor_name": "Screwfix Trade Account",
@@ -390,7 +390,7 @@ signals_org5 = [
         "created_at": ts(12)
     },
     {
-        "org_id": ORG5, "signal_id": f"sig-{uuid.uuid4().hex[:8]}",
+        "org_id": ORG5, "signal_id": generate_id("signal"),
         "signal_type": "invoice", "processing_status": "processed",
         "content": {
             "vendor_name": "Vaillant Boilers UK",
@@ -401,7 +401,7 @@ signals_org5 = [
         "created_at": ts(10)
     },
     {
-        "org_id": ORG5, "signal_id": f"sig-{uuid.uuid4().hex[:8]}",
+        "org_id": ORG5, "signal_id": generate_id("signal"),
         "signal_type": "invoice", "processing_status": "processed",
         "content": {
             "vendor_name": "Ford Transit Leasing",
@@ -412,7 +412,7 @@ signals_org5 = [
         "created_at": ts(8)
     },
     {
-        "org_id": ORG5, "signal_id": f"sig-{uuid.uuid4().hex[:8]}",
+        "org_id": ORG5, "signal_id": generate_id("signal"),
         "signal_type": "invoice", "processing_status": "processed",
         "content": {
             "vendor_name": "Simply Business Insurance",
@@ -423,7 +423,7 @@ signals_org5 = [
         "created_at": ts(5)
     },
     {
-        "org_id": ORG5, "signal_id": f"sig-{uuid.uuid4().hex[:8]}",
+        "org_id": ORG5, "signal_id": generate_id("signal"),
         "signal_type": "email", "processing_status": "processed",
         "content": {
             "sender": "trade@vaillant.co.uk",
@@ -434,7 +434,7 @@ signals_org5 = [
         "created_at": ts(4)
     },
     {
-        "org_id": ORG5, "signal_id": f"sig-{uuid.uuid4().hex[:8]}",
+        "org_id": ORG5, "signal_id": generate_id("signal"),
         "signal_type": "email", "processing_status": "processed",
         "content": {
             "sender": "lettings@oxfordproperty.co.uk",
@@ -445,7 +445,7 @@ signals_org5 = [
         "created_at": ts(2)
     },
     {
-        "org_id": ORG5, "signal_id": f"sig-{uuid.uuid4().hex[:8]}",
+        "org_id": ORG5, "signal_id": generate_id("signal"),
         "signal_type": "email", "processing_status": "processed",
         "content": {
             "sender": "admin@thamesvalleyplumbing.co.uk",

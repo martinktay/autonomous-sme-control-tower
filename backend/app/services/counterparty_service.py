@@ -1,13 +1,13 @@
 """Counterparty (supplier/customer) management service."""
 
 import logging
-import uuid
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
 from app.config import get_settings
 from app.models.counterparty import Counterparty, CounterpartyCreate
 from app.services.ddb_service import get_ddb_service
+from app.utils.id_generator import generate_id
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
@@ -23,7 +23,7 @@ class CounterpartyService:
     def create_counterparty(self, business_id: str, data: CounterpartyCreate) -> Counterparty:
         """Create a new counterparty record."""
         cp = Counterparty(
-            counterparty_id=str(uuid.uuid4()),
+            counterparty_id=generate_id("counterparty"),
             business_id=business_id,
             name=data.name,
             counterparty_type=data.counterparty_type,

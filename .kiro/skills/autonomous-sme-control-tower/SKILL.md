@@ -15,17 +15,19 @@ The goal is to build a working **agentic AI operational intelligence platform** 
 
 Use this skill when:
 
-• Creating or updating FastAPI routers for invoices, signals, memory, stability, strategy, actions, voice, emails, finance, or insights  
-• Implementing AI agent modules  
-• Writing or refining prompt templates for Amazon Nova models  
-• Implementing Nova Stability Index (NSI) calculations  
-• Building workflow automation using Nova Act  
-• Developing dashboard components for the Control Tower UI  
-• Working with middleware (org isolation, rate limiting)  
-• Working with utility modules (json_guard, prompt_loader, upload_validator)  
-• Building finance document intelligence features  
-• Implementing email classification and task extraction  
-• Writing documentation for architecture, README, or hackathon submissions  
+- Creating or updating FastAPI routers for invoices, signals, memory, stability, strategy, actions, voice, emails, finance, or insights
+- Implementing AI agent modules
+- Writing or refining prompt templates for Amazon Nova models
+- Implementing Nova Stability Index (NSI) calculations
+- Building workflow automation using Nova Act
+- Developing dashboard components for the Control Tower UI
+- Working with middleware (org isolation, rate limiting, auth, tier enforcement)
+- Working with utility modules (json_guard, prompt_loader, upload_validator, id_generator)
+- Building finance document intelligence features
+- Implementing email classification and task extraction
+- Building marketing analytics or business analytics features
+- Working with payment tracking and transaction management
+- Writing documentation for architecture, README, or hackathon submissions
 
 ---
 
@@ -33,510 +35,412 @@ Use this skill when:
 
 The Autonomous SME Control Tower operates as a **closed-loop operational control system**.
 
-Core operational cycle:
-
-```
-Signal Intake (invoices, emails, finance docs)
-    ↓
-Risk Diagnosis
-    ↓
-Strategy Simulation
-    ↓
-Action Execution
-    ↓
-Re-evaluation
-    ↓
-Updated Stability Score
-```
+Core operational cycle: Signal Intake -> Risk Diagnosis -> Strategy Simulation -> Action Execution -> Re-evaluation -> Updated Stability Score
 
 This loop must always remain functional.
-
-The project's primary goal is to demonstrate this **autonomous decision loop**.
 
 ---
 
 # Agent Architecture
 
-The system contains several specialized agents.
+### Signal Intake Agent (signal_agent.py)
+- Parse invoice documents, extract structured financial fields
+- Classify email messages, assign urgency metadata, store signal records
+- Uses: Nova 2 Lite, Nova Multimodal Embeddings
 
-### Signal Intake Agent (`signal_agent.py`)
+### Email Agent (email_agent.py)
+- Classify inbound business emails, extract actionable tasks
+- Uses: Nova 2 Lite
 
-**Responsibilities**:
-• Parse invoice documents  
-• Extract structured financial fields  
-• Classify email messages  
-• Assign urgency metadata  
-• Store signal records  
+### Finance Agent (finance_agent.py)
+- Classify finance documents (invoices, receipts, statements)
+- Extract structured data, handle informal receipts
+- Uses: Nova 2 Lite
 
-**Uses**: Nova 2 Lite, Nova Multimodal Embeddings
+### Insights Agent (insights_agent.py)
+- Generate business intelligence summaries and trend analysis
+- Insight types: revenue_trend, expense_alert, cashflow_warning, growth_opportunity, seasonal_pattern, supplier_risk, inventory_alert, customer_insight, market_trend, operational_efficiency, marketing_roi, customer_acquisition, campaign_performance, channel_effectiveness
+- Uses: Nova 2 Lite
 
----
+### Memory Agent (memory_agent.py)
+- Generate embeddings, store contextual operational memory, semantic search
+- Uses: Nova Multimodal Embeddings
 
-### Email Agent (`email_agent.py`)
+### Risk Diagnosis Agent (risk_agent.py)
+- Analyze financial signals, identify operational risks, calculate NSI
+- Uses: Nova 2 Lite
 
-**Responsibilities**:
-• Classify inbound business emails  
-• Extract actionable tasks from email content  
-• Assign priority and urgency  
-• Generate structured task records  
+### Strategy Simulation Agent (strategy_agent.py)
+- Generate corrective strategies, predict NSI improvement
+- Uses: Nova 2 Lite
 
-**Uses**: Nova 2 Lite
+### Action Execution Agent (action_agent.py)
+- Execute operational workflows, trigger Nova Act automation
+- Uses: Nova Act
 
----
+### Re-evaluation Agent (reeval_agent.py)
+- Recalculate NSI after execution, compute prediction accuracy
+- Uses: Nova 2 Lite
 
-### Finance Agent (`finance_agent.py`)
+### Voice Operations Agent (voice_agent.py)
+- Provide spoken operational summaries, answer dashboard queries
+- Uses: Nova 2 Sonic
 
-**Responsibilities**:
-• Classify finance documents (invoices, receipts, statements)  
-• Extract structured data from finance documents  
-• Handle informal receipts and handwritten documents  
-• Generate finance insights and analytics  
+### Alert Agent (alert_agent.py)
+- Generate business alerts based on thresholds and anomalies
 
-**Uses**: Nova 2 Lite
+### Inventory Agent (inventory_agent.py)
+- Analyse stock levels, predict reorder points
 
----
+### Categorisation Agent (categorisation_agent.py)
+- Auto-categorise transactions from uploaded data
 
-### Insights Agent (`insights_agent.py`)
+### Mapping Agent (mapping_agent.py)
+- Map CSV/Excel columns to platform schema fields
 
-**Responsibilities**:
-• Generate business intelligence summaries  
-• Analyze trends across signals and operations  
-• Produce actionable insight recommendations  
+### WhatsApp Agent (whatsapp_agent.py)
+- Extract business data from WhatsApp messages
 
-**Uses**: Nova 2 Lite
+### Supplier Agent (supplier_agent.py)
+- Supplier intelligence and risk scoring
 
----
+### Prediction Agent (prediction_agent.py)
+- Inventory demand and sales predictions
 
-### Memory Agent (`memory_agent.py`)
+### Desktop Sync Agent (desktop_sync_agent.py)
+- Extract data from desktop accounting exports
 
-**Responsibilities**:
-• Generate embeddings  
-• Store contextual operational memory  
-• Support semantic search of signals  
+### POS Agent (pos_agent.py)
+- Parse POS export data
 
-**Uses**: Nova Multimodal Embeddings
+### Bank Agent (bank_agent.py)
+- Bank statement reconciliation
 
----
+### Branch Agent (branch_agent.py)
+- Cross-branch performance analysis
 
-### Risk Diagnosis Agent (`risk_agent.py`)
-
-**Responsibilities**:
-• Analyze financial signals  
-• Identify operational risks  
-• Calculate Nova Stability Index  
-
-**Uses**: Nova 2 Lite
-
----
-
-### Strategy Simulation Agent (`strategy_agent.py`)
-
-**Responsibilities**:
-• Generate corrective strategies  
-• Predict NSI improvement  
-• Provide confidence scores  
-
-**Example outputs**:
-• Trigger invoice collections  
-• Prioritize customer response  
-• Delay vendor payment
-
-**Uses**: Nova 2 Lite
-
----
-
-### Action Execution Agent (`action_agent.py`)
-
-**Responsibilities**:
-• Execute operational workflows  
-• Trigger Nova Act automation  
-• Update operational state  
-• Log executed actions  
-
-**Uses**: Nova Act
-
----
-
-### Re-evaluation Agent (`reeval_agent.py`)
-
-**Responsibilities**:
-• Recalculate NSI after execution  
-• Compare predicted vs actual improvement  
-• Compute prediction accuracy  
-
-**Uses**: Nova 2 Lite
-
----
-
-### Voice Operations Agent (`voice_agent.py`)
-
-**Responsibilities**:
-• Provide spoken operational summaries  
-• Answer dashboard queries  
-
-**Uses**: Nova 2 Sonic
+### Forecasting Agent (forecasting_agent.py)
+- Revenue and expense forecasting
 
 ---
 
 # Services Layer
 
-### DynamoDB Service (`ddb_service.py`)
-• CRUD operations for all DynamoDB tables  
-• Org-scoped queries  
+### DynamoDB Service (ddb_service.py)
+- CRUD operations for all DynamoDB tables, org-scoped queries
+- Validates org_id format: `^org-[a-z0-9]{12}$`
 
-### Finance Service (`finance_service.py`)
-• Finance document processing pipeline  
-• Document classification and extraction orchestration  
+### Auth Service (auth_service.py)
+- User registration and login, JWT token creation and validation
+- Password hashing (PBKDF2, 600k iterations)
+- Roles: owner, staff, super_admin
 
-### Email Task Service (`email_task_service.py`)
-• Email-to-task conversion pipeline  
-• Task persistence and retrieval  
+### Transaction Service (transaction_service.py)
+- Transaction CRUD with payment status tracking (pending/paid/overdue/partial)
+- Summary and cashflow aggregation
 
-### Memory Service (`memory_service.py`)
-• Embedding generation and storage  
-• Semantic search operations  
+### Finance Service (finance_service.py)
+- Finance document processing pipeline, classification and extraction
 
-### S3 Service (`s3_service.py`)
-• Document upload and retrieval  
-• Pre-signed URL generation  
+### Email Task Service (email_task_service.py)
+- Email-to-task conversion pipeline, task persistence and retrieval
 
-### SES Service (`ses_service.py`)
-• Email sending via Amazon SES  
-• Notification delivery  
+### Memory Service (memory_service.py)
+- Embedding generation and storage, semantic search operations
+
+### S3 Service (s3_service.py)
+- Document upload and retrieval, pre-signed URL generation
+- Server-side encryption enabled
+
+### SES Service (ses_service.py)
+- Email sending via Amazon SES, notification delivery
+
+### Inventory Service (inventory_service.py)
+- Inventory item management, stock level tracking
+
+### Counterparty Service (counterparty_service.py)
+- Supplier and customer management, balance tracking
+
+### Alert Service (alert_service.py)
+- Business alert generation and management
+
+### Business Service (business_service.py)
+- Business profile management
+
+### Tier Service (tier_service.py)
+- Pricing tier definitions and feature gating
+- Upload and branch limit enforcement
+
+### Upload Service (upload_service.py)
+- Document upload pipeline, upload job tracking
 
 ---
 
 # Middleware
 
-### Org Isolation (`org_isolation.py`)
-• Enforces org_id on all requests  
-• Prevents cross-tenant data access  
+### Auth Middleware (middleware/auth.py)
+- JWT validation on protected routes, sets `request.state.user` and `request.state.tier`
 
-### Rate Limiter (`rate_limiter.py`)
-• Request rate limiting per org  
-• Protects against abuse  
+### Org Isolation Middleware (middleware/org_isolation.py)
+- Ensures all data access is scoped to the authenticated user's org_id
+
+### Rate Limiter (middleware/rate_limiter.py)
+- Tiered rate limiting per org (starter: 30/min, growth: 60/min, business: 120/min, enterprise: 300/min)
+
+### Tier Enforcement (middleware/tier_enforcement.py)
+- Blocks access to features above the user's pricing tier
 
 ---
 
 # Utility Modules
 
-### Bedrock Client (`bedrock_client.py`)
-• Centralized Amazon Bedrock invocation  
-• Model selection and configuration  
+### ID Generator (utils/id_generator.py)
+- Centralized entity ID generation with prefixes
+- Pattern: `{prefix}-{12_hex_chars}`
+- Prefix mapping:
+  - signal -> `sig-`, transaction -> `txn-`, invoice -> `inv-`, alert -> `alt-`
+  - insight -> `ins-`, counterparty -> `ctp-`, inventory_item -> `itm-`, upload_job -> `job-`
+  - evaluation -> `evl-`, action -> `act-`, strategy -> `str-`, nsi -> `nsi-`
+  - business -> `biz-`, user -> `usr-`, branch -> `brn-`, task -> `tsk-`
+  - email -> `eml-`, document -> `doc-`, org -> `org-`
+- Usage: `from app.utils.id_generator import generate_id` then `generate_id("signal")` returns e.g. `sig-a1b2c3d4e5f6`
 
-### JSON Guard (`json_guard.py`)
-• Safe JSON parsing from model responses  
-• Handles malformed output gracefully  
+### JSON Guard (utils/json_guard.py)
+- Safe JSON extraction from model responses, handles markdown fences
 
-### Prompt Loader (`prompt_loader.py`)
-• Loads prompt templates from prompts/v1/  
-• Injects runtime variables  
+### Prompt Loader (utils/prompt_loader.py)
+- Loads prompt templates from `/prompts/v1/`, supports variable substitution
 
-### Upload Validator (`upload_validator.py`)
-• Validates uploaded file types and sizes  
-• Security checks on document uploads  
+### Upload Validator (utils/upload_validator.py)
+- Validates uploaded file types and sizes
 
----
-
-# Nova Stability Index (NSI)
-
-The Nova Stability Index is the primary operational health metric.
-
-**Range**: 0 – 100
-
-**Example weighted risk components**:
-• Cash runway risk  
-• Invoice aging risk  
-• Revenue concentration risk  
-• Expense volatility risk  
-• Customer response latency risk  
-
-**The dashboard must display**:
-• Current NSI  
-• Stability trend  
-• Top operational risks  
-
----
-
-# Prompt Templates
-
-All prompts live in `prompts/v1/`:
-
-| File | Purpose |
-|------|---------|
-| `signal-invoice.md` | Invoice data extraction |
-| `signal-email.md` | Email classification |
-| `risk-diagnosis.md` | Risk analysis and NSI |
-| `strategy-planning.md` | Strategy generation |
-| `reeval.md` | Outcome re-evaluation |
-| `voice.md` | Voice briefing script |
-| `voice-query.md` | Voice query handling |
-| `email-task-extraction.md` | Email-to-task extraction |
-| `finance-document-classification.md` | Finance doc type classification |
-| `finance-document-extraction.md` | Finance doc data extraction |
-| `finance-informal-receipt.md` | Informal receipt handling |
-| `finance-insights.md` | Finance analytics insights |
-| `business-insights.md` | General business insights |
+### Bedrock Client (utils/bedrock_client.py)
+- Wrapper for Amazon Bedrock API calls
 
 ---
 
 # Pydantic Models
 
-All models live in `backend/app/models/`:
+| Model | File | Key Fields |
+|-------|------|------------|
+| Signal | signal.py | signal_id, org_id, source, urgency, payload |
+| NSI | nsi.py | nsi_id, org_id, score, factors |
+| Strategy | strategy.py | strategy_id, org_id, description, predicted_nsi |
+| Action | action.py | action_id, org_id, strategy_id, status |
+| Evaluation | evaluation.py | evaluation_id, org_id, action_id, accuracy |
+| Email | email.py | email_id, org_id, subject, classification |
+| Task | task.py | task_id, org_id, email_id, description |
+| Invoice | invoice.py | invoice_id, org_id, vendor, amount |
+| FinanceDocument | finance_document.py | document_id, org_id, doc_type, extracted_data |
+| Insight | insight.py | insight_id, org_id, insight_type, summary |
+| Transaction | transaction.py | transaction_id, org_id, amount, category, payment_status |
+| InventoryItem | inventory_item.py | item_id, org_id, name, quantity, reorder_point |
+| Counterparty | counterparty.py | counterparty_id, org_id, name, type, balance |
+| Alert | alert.py | alert_id, org_id, alert_type, severity, message |
+| Business | business.py | business_id, org_id, name, tier (PricingTier enum) |
+| Branch | branch.py | branch_id, org_id, business_id, name, location |
+| User | user.py | user_id, org_id, email, role (owner/staff/super_admin), tier |
+| UploadJob | upload_job.py | job_id, org_id, filename, status, row_count |
 
-| File | Purpose |
-|------|---------|
-| `signal.py` | Signal records |
-| `invoice.py` | Invoice data |
-| `nsi.py` | NSI scores and sub-indices |
-| `strategy.py` | Strategy proposals |
-| `action.py` | Executed actions |
-| `evaluation.py` | Re-evaluation results |
-| `email.py` | Email classification and tasks |
-| `finance_document.py` | Finance document types |
-| `task.py` | Task records |
+---
+
+# DynamoDB Tables
+
+| Table | Partition Key | Sort Key |
+|-------|--------------|----------|
+| signals | org_id | signal_id |
+| nsi-scores | org_id | nsi_id |
+| strategies | org_id | strategy_id |
+| actions | org_id | action_id |
+| evaluations | org_id | evaluation_id |
+| embeddings | org_id | embedding_id |
+| tasks | org_id | task_id |
+| users | org_id | user_id |
+| transactions | org_id | transaction_id |
+| inventory | org_id | item_id |
+| counterparties | org_id | counterparty_id |
+| alerts | org_id | alert_id |
+| businesses | org_id | business_id |
+| branches | org_id | branch_id |
+| insights | org_id | insight_id |
+| upload-jobs | org_id | job_id |
 
 ---
 
 # Frontend Pages
 
-| Route | Purpose |
-|-------|---------|
-| `/` | Landing page |
-| `/dashboard` | Main control tower dashboard |
-| `/upload` | Document upload |
-| `/strategy` | Strategy simulation view |
-| `/actions` | Action log and execution |
-| `/voice` | Voice operations interface |
-| `/emails` | Email inbox and classification |
-| `/emails/tasks` | Extracted email tasks |
-| `/finance` | Finance document hub |
-| `/finance/upload` | Finance doc upload |
-| `/finance/review` | Finance doc review queue |
-| `/finance/export` | Finance data export |
-| `/memory` | Semantic memory browser |
-| `/portal` | Organization portal |
-| `/help` | Help and FAQ |
+| Route | Page | Min Tier |
+|-------|------|----------|
+| /dashboard | Main dashboard | starter |
+| /upload | Data upload | starter |
+| /transactions | Transaction tracking & payments | starter |
+| /finance | Finance overview | starter |
+| /finance/upload | Finance doc upload | starter |
+| /finance/export | Data export | starter |
+| /alerts | Business alerts | starter |
+| /inventory | Stock management | growth |
+| /suppliers | Supplier management | growth |
+| /supplier-intelligence | Supplier intel | growth |
+| /predictions | Demand predictions | growth |
+| /emails | Email inbox | growth |
+| /emails/tasks | Email tasks | growth |
+| /whatsapp | WhatsApp ingestion | growth |
+| /pos | POS connector | business |
+| /bank-sync | Bank sync | business |
+| /sync | Desktop sync | business |
+| /portal | AI analysis portal | business |
+| /strategy | Strategy simulation | business |
+| /actions | Action execution | business |
+| /forecasting | Revenue forecasting | business |
+| /voice | Voice assistant | business |
+| /memory | Semantic search | business |
+| /analytics | Business analytics | business |
+| /analytics/marketing | Marketing insights | business |
+| /branch-optimisation | Multi-branch ops | business |
+| /pricing | Pricing & plans | public |
+| /help | Help & FAQs | public |
+| /login | Login | public |
+| /register | Registration | public |
+| /onboarding | New user onboarding | public |
+| /admin | Super admin panel | super_admin only |
 
 ---
 
 # Frontend Components
 
-Key UI components in `frontend/components/`:
-
-• `NsiCard` – NSI score display  
-• `RiskPanel` – Risk breakdown  
-• `StrategyList` – Strategy proposals  
-• `ActionLog` – Action execution log  
-• `InsightsPanel` – Business insights  
-• `CashflowChart` – Cash flow visualization  
-• `PnlSummary` – Profit and loss summary  
-• `FinanceAnalytics` – Finance analytics dashboard  
-• `FinanceInsightsPanel` – Finance-specific insights  
-• `ReconciliationPanel` – Document reconciliation  
-• `ReviewQueue` – Finance doc review queue  
-• `NSITrendChart` – NSI trend over time  
-• `VoiceWidget` – Voice interaction widget  
-• `OrgSwitcher` – Multi-tenant org selector  
-• `NavBar` – Navigation bar  
-• `FaqAccordion` – Help page FAQ  
-• `charts/BarChart` – Bar chart component  
-• `charts/PieChart` – Pie chart component  
+| Component | Purpose |
+|-----------|---------|
+| Sidebar | Tier-aware collapsible sidebar with grouped navigation |
+| AppShell | Layout wrapper, shows sidebar for authenticated pages |
+| NavBar | Top bar with logo, alerts, user menu, business name |
+| NsiCard | NSI score display |
+| RiskPanel | Risk diagnosis display |
+| ActionLog | Action execution log |
+| StrategyList | Strategy cards |
+| InsightsPanel | Business insights |
+| CashflowChart | Cashflow visualisation |
+| PnlSummary | Profit & loss summary |
+| SalesTrendChart | Sales trend chart |
+| TopProductsTable | Top products table |
+| InventoryTable | Inventory list |
+| StockAlertBadge | Low stock indicator |
+| SupplierCard | Supplier info card |
+| CurrencyDisplay | Naira/USD currency formatter |
+| NSITrendChart | NSI trend over time |
 
 ---
 
-# Project Rules
+# Sidebar Navigation Groups
 
-### Infrastructure
+| Group | Features | Min Tier |
+|-------|----------|----------|
+| Core | Dashboard, Upload, Transactions, Finance, Alerts | starter |
+| Inventory & Supply | Stock, Suppliers, Supplier Intel, Predictions | growth |
+| Communication | Emails, Tasks, WhatsApp | growth |
+| Data Connectors | POS, Bank Sync, Desktop Sync | business |
+| AI & Analytics | Analyse, Strategies, Actions, Forecasting, Voice, Search Memory | business |
+| Marketing & Analytics | Business Analytics, Marketing Insights | business |
+| Multi-Branch | Branch Optimisation | business |
 
-• Prefer Docker-first development  
-• Store uploaded documents in S3  
-• Store operational state in DynamoDB  
+Bottom links: Admin Panel (super_admin only), Pricing & Plans, Help & FAQs
 
-### Multi-Tenant Readiness
+---
 
-All records must include `org_id`. This preserves SaaS readiness.
+# Pricing Tiers
 
-### Prompt Management
+| Tier | Price (NGN) | Price (USD) | Uploads/mo | Branches |
+|------|-------------|-------------|------------|----------|
+| Starter | Free | Free | 20 | 1 |
+| Growth | 14,900/mo | ~$9.50/mo | Unlimited | 1 |
+| Business | 39,900/mo | ~$25/mo | Unlimited | 10 |
+| Enterprise | 99,900/mo | ~$63/mo | Unlimited | Unlimited |
 
-Prompts must live in `prompts/v1/`.
+---
 
-**Rules**:
-• Use strict JSON responses  
-• Define explicit output schema  
-• Avoid free-form text responses  
-• Validate responses before storing  
-• Load prompts via `prompt_loader.py`  
+# ID Generation Rules
 
-### Data Storage
+All entity IDs MUST be generated via `generate_id()` from `backend/app/utils/id_generator.py`.
 
-DynamoDB tables:
+```python
+from app.utils.id_generator import generate_id
 
+signal_id = generate_id("signal")   # -> sig-a1b2c3d4e5f6
+txn_id = generate_id("transaction") # -> txn-f6e5d4c3b2a1
 ```
-autonomous-sme-signals
-autonomous-sme-nsi-scores
-autonomous-sme-strategies
-autonomous-sme-actions
-autonomous-sme-evaluations
-```
 
-Each record should include `org_id` and `created_at`.
+The `org_id` format `org-{12_hex}` is validated by `ddb_service.py` regex `^org-[a-z0-9]{12}$`.
 
-### Automation Guidance
+---
 
-For the MVP, implement one reliable Nova Act workflow.
+# Prompt Templates
 
-**Recommended workflow**: Trigger invoice collection reminder.
+All prompts live in `/prompts/v1/`. Load via `prompt_loader.py`.
 
-This should:
-• Update invoice status  
-• Log action  
-• Trigger follow-up  
+| File | Agent |
+|------|-------|
+| signal_invoice.md | Signal Agent |
+| signal_email.md | Signal Agent |
+| risk_diagnosis.md | Risk Agent |
+| strategy_planning.md | Strategy Agent |
+| reeval.md | Re-evaluation Agent |
+| voice.md | Voice Agent |
+| finance-document-classification.md | Finance Agent |
+| finance-document-extraction.md | Finance Agent |
+| finance-informal-receipt.md | Finance Agent |
+| whatsapp-message-extraction.md | WhatsApp Agent |
+| whatsapp-insight-summary.md | WhatsApp Agent |
+| alert-generation.md | Alert Agent |
+| inventory-analysis.md | Inventory Agent |
+| transaction-categorisation.md | Categorisation Agent |
+| field-mapping.md | Mapping Agent |
+| pos-data-extraction.md | POS Agent |
+| bank-reconciliation.md | Bank Agent |
+| revenue-forecasting.md | Forecasting Agent |
+| cross-branch-optimisation.md | Branch Agent |
+| supplier-intelligence.md | Supplier Agent |
+| inventory-prediction.md | Prediction Agent |
+| desktop-sync-extraction.md | Desktop Sync Agent |
 
 ---
 
 # Key Files
 
-```
-backend/app/agents/       # Agent logic modules
-backend/app/routers/      # API route handlers
-backend/app/models/       # Pydantic data models
-backend/app/services/     # Business logic services
-backend/app/utils/        # Helper functions (bedrock_client, json_guard, prompt_loader, upload_validator)
-backend/app/middleware/   # Org isolation, rate limiting
-prompts/v1/              # Versioned prompt templates
-frontend/app/            # Next.js pages
-frontend/components/     # React UI components
-docs/                    # Documentation
-demo-data/               # Demo CSV data and upload scripts
-```
+| File | Purpose |
+|------|---------|
+| backend/app/main.py | FastAPI app entry, CORS, middleware registration |
+| backend/app/config.py | Environment config, AWS settings |
+| backend/app/utils/id_generator.py | Centralized ID generation |
+| backend/app/utils/json_guard.py | Safe JSON extraction |
+| backend/app/utils/prompt_loader.py | Prompt template loading |
+| backend/app/utils/upload_validator.py | File upload validation |
+| backend/app/middleware/auth.py | JWT auth middleware |
+| backend/app/middleware/org_isolation.py | Org data isolation |
+| backend/app/middleware/rate_limiter.py | Tiered rate limiting |
+| backend/app/middleware/tier_enforcement.py | Feature tier gating |
+| backend/app/services/ddb_service.py | DynamoDB operations |
+| backend/app/services/auth_service.py | Auth and JWT |
+| backend/app/services/tier_service.py | Pricing tier logic |
+| backend/seed_demo_data.py | Demo data seeder |
+| backend/seed_realistic_data.py | Realistic Nigerian SME data seeder |
+| backend/seed_test_users.py | Test user accounts seeder |
+| backend/seed_super_admin.py | Super admin account seeder |
+| frontend/lib/api.ts | API client (apiFetch) |
+| frontend/lib/auth-context.tsx | Auth context provider |
+| frontend/lib/org-context.tsx | Org context (derives from JWT) |
+| frontend/components/Sidebar.tsx | Tier-aware sidebar navigation |
+| frontend/components/AppShell.tsx | Authenticated layout shell |
 
 ---
 
-# Documentation Requirements
+# Guardrails
 
-Important documentation files:
-
-```
-docs/architecture.md
-docs/nsi-method.md
-docs/devlog.md
-docs/demo-script.md
-docs/implementation-status.md
-docs/infrastructure-setup.md
-docs/setup-guide.md
-```
-
----
-
-# Hackathon Positioning
-
-When generating descriptions for the AWS Nova Hackathon, emphasize:
-
-• Multi-agent AI architecture  
-• Deep Nova model integration  
-• Closed-loop operational intelligence  
-• Measurable operational impact  
-• Workflow automation  
-• Finance document intelligence  
-• Email-to-task automation  
-
-The Autonomous SME Control Tower should be presented as:
-
-```
-An autonomous operational intelligence system for SMEs
-```
-
----
-
-# Africa SME Commercial Readiness
-
-## Market Focus
-
-The platform is evolving from a hackathon demo to a commercially-ready product targeting:
-- Nigeria and West Africa SMEs
-- East Africa informal and semi-formal SMEs
-- Supermarkets, mini marts, kiosks, artisans, food vendors, agriculture, professional services
-
-## Strategic Positioning
-
-This is NOT accounting software. It is an AI business survival and growth assistant for SMEs operating in African market realities.
-
-## Supported Business Segments
-
-- Supermarkets and retail stores
-- Mini marts and kiosks
-- Artisans and trade businesses
-- Beauty and salon SMEs
-- Food vendors and catering SMEs
-- Agriculture SMEs
-- Professional service SMEs
-
-## Schema Architecture
-
-- Core shared schema plus business-type extension layers
-- Core entities: business, branch, user, document, transaction, revenue_record, expense_record, payment, counterparty, supplier, customer, inventory_item, product_or_service, alert, insight, upload_job, integration_source
-- Extension fields (JSON) or modular extension tables per business category
-- Unified analytics queries must work across all business categories
-
-## Document Ingestion Channels
-
-- PDF upload, Image upload, Excel upload, CSV upload
-- Camera capture, WhatsApp ingestion, Email ingestion
-- POS export ingestion, Manual entry forms
-
-## Pricing Tiers (NGN)
-
-| Tier | Price | Target |
-|------|-------|--------|
-| Starter | Free | Informal SMEs, small traders |
-| Growth | ₦15,000–25,000/mo | Active supermarkets and SMEs |
-| Business | ₦40,000–70,000/mo | Multi-branch SMEs |
-| Enterprise | ₦100,000–250,000/mo | Large retail chains |
-
-## Implementation Phases
-
-1. Phase 1 (Nigeria Launch): Pricing page, flexible onboarding, manual ingestion, basic AI dashboards, supermarket pilot
-2. Phase 2 (Automation): WhatsApp ingestion, desktop sync agent, supplier intelligence, inventory prediction
-3. Phase 3 (Deep Integrations): POS connectors, bank sync, AI forecasting engine, cross-branch optimisation
-
----
-
-# Guardrails and Anti-Drift Rules
-
-## CRITICAL: Do Not
-
-- Do NOT invent features, endpoints, or models not defined in the spec or existing codebase
-- Do NOT create new DynamoDB tables without explicit spec approval
-- Do NOT add new agents without following the nova-agent-builder build sequence
-- Do NOT hardcode prompts in Python files — always use prompts/v1/ via prompt_loader.py
-- Do NOT skip Pydantic validation on any model output
-- Do NOT bypass org_id isolation on any data operation
-- Do NOT create frontend pages without corresponding backend API endpoints
-- Do NOT introduce new AWS services without documenting in docs/infrastructure-setup.md
-- Do NOT generate placeholder or mock data in production code paths
-- Do NOT use free-form text responses from Nova models — always enforce JSON schema
-- Do NOT create pricing or billing logic without explicit spec tasks
-- Do NOT assume business segment schemas — use extension fields pattern only
-
-## CRITICAL: Always
-
-- Always validate all model responses through json_guard.py
-- Always scope all data queries by org_id
-- Always load prompts via prompt_loader.py
-- Always use Pydantic models for request/response contracts
-- Always follow the build sequence: Model → Prompt → Agent → Service → Router → Frontend
-- Always update docs/devlog.md when architecture changes
-- Always include created_at timestamps on persistent records
-- Always handle file upload validation through upload_validator.py
-- Always test with the existing test patterns in backend/tests/
-
----
-
-# Reference Resources
-
-See:
-
-- resources/nsi-method.md
-- resources/architecture.md
-- resources/prompts-guide.md
+1. **Do NOT use `uuid.uuid4()` directly** — always use `generate_id(entity_type)` from `app.utils.id_generator`
+2. **All records MUST include `org_id`** — multi-tenant isolation is mandatory
+3. **All model responses MUST be valid JSON** — use `json_guard.safe_parse()` to extract
+4. **All prompts MUST live in `/prompts/v1/`** — never inline prompts in Python code
+5. **Prompt templates use `{variable}` substitution** — loaded via `prompt_loader.py`
+6. **Never hardcode business-type-specific logic** — use the core shared schema
+7. **Tier feature checks** — use `TierService.has_feature(tier, feature_name)` before granting access
+8. **Password hashing** — PBKDF2 with 600,000 iterations (re-seed users after changing iterations)
+9. **Rate limiting** — tiered per org: starter 30/min, growth 60/min, business 120/min, enterprise 300/min
+10. **CORS** — restricted to configured allowed origins only
