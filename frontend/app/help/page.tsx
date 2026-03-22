@@ -303,6 +303,43 @@ const faqs: FaqItem[] = [
     answer:
       "Yes. The AI automatically categorises your expenses when you upload invoices or spreadsheets. You can see breakdowns by vendor, by category (rent, supplies, salaries, transport), and by time period. The Finance dashboard shows charts for all your expense categories.",
   },
+  // ── Tax & FIRS Compliance ──
+  {
+    section: "Tax & FIRS Compliance",
+    question: "How does the Tax & FIRS feature work?",
+    answer:
+      "Go to Tax & FIRS in the sidebar. Enter your fiscal year, business name, and whether you are VAT registered or have employees. The system calculates your CIT, VAT, WHT, and PAYE from your uploaded transaction data and generates a FIRS-ready annual report you can print or save as PDF.",
+  },
+  {
+    section: "Tax & FIRS Compliance",
+    question: "Do I need to understand tax to use this?",
+    answer:
+      "No. The platform explains everything in plain language. It tells you what you owe, why you owe it, when to file, and what happens if you are late. It even tells you if you are exempt from certain taxes based on your turnover.",
+  },
+  {
+    section: "Tax & FIRS Compliance",
+    question: "What is CIT and do I need to pay it?",
+    answer:
+      "Companies Income Tax (CIT) is a tax on your business profits. If your annual turnover is ₦25 million or less, you pay 0% CIT — but you must still file annual returns with FIRS. Between ₦25M and ₦100M you pay 20%, and above ₦100M you pay 30%. The platform calculates this automatically from your revenue data.",
+  },
+  {
+    section: "Tax & FIRS Compliance",
+    question: "What about VAT?",
+    answer:
+      "VAT (Value Added Tax) is 7.5% on taxable goods and services. If you sell taxable items, you should register with FIRS and collect VAT from customers. The platform calculates your output VAT (on sales), input VAT credit (on purchases), and net VAT payable each quarter.",
+  },
+  {
+    section: "Tax & FIRS Compliance",
+    question: "What are the filing deadlines?",
+    answer:
+      "CIT annual returns are due by June 30 of the following year (e.g. FY2025 is due June 30, 2026). VAT returns are due by the 21st of the following month. Late filing attracts ₦25,000 for the first month and ₦5,000 for each subsequent month, plus 10% penalty on late payments.",
+  },
+  {
+    section: "Tax & FIRS Compliance",
+    question: "Can I use this report for my accountant?",
+    answer:
+      "Yes. The report includes all the numbers your accountant needs: total revenue, expenses, net profit, CIT computation, VAT breakdown, WHT deductions, and PAYE estimates. Print it or save as PDF and hand it to your tax professional. It saves them hours of work.",
+  },
   // ── Pricing & Plans ──
   {
     section: "Pricing & Plans",
@@ -424,6 +461,8 @@ export default function HelpPage() {
               description="AI-powered revenue analysis, customer segmentation, sales forecasting, and marketing insights." />
             <FeatureCard icon={Receipt} title="Payments & Invoicing" href="/transactions"
               description="Track payments, manage invoices, monitor overdue balances, and get collection reminders." />
+            <FeatureCard icon={FileText} title="Tax & FIRS" href="/tax"
+              description="Generate FIRS-ready annual tax reports. CIT, VAT, WHT, PAYE calculated from your data." />
           </div>
         </div>
 

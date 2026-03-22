@@ -15,7 +15,7 @@ TIER_LIMITS: Dict[str, Dict[str, Any]] = {
         "features": [
             "manual_upload", "basic_dashboard", "weekly_summary",
             "data_export", "single_branch", "transaction_tracking",
-            "basic_pnl", "receipt_capture",
+            "basic_pnl", "receipt_capture", "tax_compliance",
         ],
     },
     PricingTier.GROWTH: {
@@ -29,6 +29,7 @@ TIER_LIMITS: Dict[str, Dict[str, Any]] = {
             "transaction_tracking", "basic_pnl", "receipt_capture",
             "expense_tracking", "payment_reminders", "tax_tracking",
             "invoice_management", "email_ingestion",
+            "tax_compliance",
         ],
     },
     PricingTier.BUSINESS: {
@@ -46,6 +47,7 @@ TIER_LIMITS: Dict[str, Dict[str, Any]] = {
             "marketing_analytics", "business_analytics",
             "bank_reconciliation", "profit_loss_reports",
             "customer_segmentation", "sales_forecasting",
+            "tax_compliance",
         ],
     },
     PricingTier.ENTERPRISE: {
@@ -66,6 +68,7 @@ TIER_LIMITS: Dict[str, Dict[str, Any]] = {
             "bank_reconciliation", "profit_loss_reports",
             "customer_segmentation", "sales_forecasting",
             "marketing_roi", "custom_reports", "api_access",
+            "tax_compliance",
         ],
     },
 }

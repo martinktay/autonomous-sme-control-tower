@@ -738,6 +738,50 @@ export const adminDeactivateUser = async (email: string) => {
   return res.json();
 };
 
+// ─── Tax & Compliance ─────────────────────────────────────────────────────
+
+/** Generate FIRS-ready annual tax report from transaction data. */
+export const generateTaxReport = async (orgId: string, data: {
+  fiscal_year: number;
+  business_name?: string;
+  tin?: string;
+  vat_registered?: boolean;
+  has_employees?: boolean;
+  monthly_staff_cost?: number;
+}) => {
+  const res = await apiFetch('/api/tax/annual-report', {
+    method: 'POST',
+    headers: { 'X-Org-ID': orgId },
+    body: JSON.stringify(data),
+  }, 30000);
+  return res.json();
+};
+
+/** Get quarterly VAT summary. */
+export const getVatSummary = async (orgId: string, fiscalYear: number, quarter: number) => {
+  const res = await apiFetch(`/api/tax/vat-summary?fiscal_year=${fiscalYear}&quarter=${quarter}`, {
+    headers: { 'X-Org-ID': orgId },
+  });
+  return res.json();
+};
+
+/** Get AI-powered tax guidance with report. */
+export const getTaxGuidance = async (orgId: string, data: {
+  fiscal_year: number;
+  business_name?: string;
+  tin?: string;
+  vat_registered?: boolean;
+  has_employees?: boolean;
+  monthly_staff_cost?: number;
+}) => {
+  const res = await apiFetch('/api/tax/ai-guidance', {
+    method: 'POST',
+    headers: { 'X-Org-ID': orgId },
+    body: JSON.stringify(data),
+  }, 60000);
+  return res.json();
+};
+
 // ==================== Unified Client ====================
 
 /** Object-style export bundling all API functions for convenient dashboard imports. */
@@ -816,4 +860,7 @@ export const apiClient = {
   adminUpdateRole,
   adminUpdateTier,
   adminDeactivateUser,
+  generateTaxReport,
+  getVatSummary,
+  getTaxGuidance,
 };

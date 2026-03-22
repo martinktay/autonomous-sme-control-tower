@@ -21,7 +21,7 @@ from app.routers import (
     businesses, pricing, inventory, transactions, counterparties, alerts,
     upload_jobs, whatsapp, desktop_sync, supplier_intelligence, predictions,
     pos_connector, bank_sync, forecasting, branch_optimisation,
-    admin,
+    admin, tax,
 )
 from app.middleware import OrgIsolationMiddleware, AuthMiddleware
 from app.middleware.rate_limiter import RateLimiterMiddleware
@@ -121,6 +121,7 @@ app.include_router(bank_sync.router)
 app.include_router(forecasting.router)
 app.include_router(branch_optimisation.router)
 app.include_router(admin.router)
+app.include_router(tax.router)
 
 
 @app.get("/")

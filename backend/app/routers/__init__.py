@@ -28,6 +28,7 @@ from . import (
     bank_sync,
     forecasting,
     branch_optimisation,
+    tax,
 )
 
 __all__ = [
@@ -58,4 +59,5 @@ __all__ = [
     "bank_sync",
     "forecasting",
     "branch_optimisation",
+    "tax",
 ]

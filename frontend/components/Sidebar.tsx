@@ -38,6 +38,7 @@ import {
   ChevronRight,
   PanelLeftClose,
   PanelLeft,
+  FileText,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 
@@ -66,6 +67,7 @@ const NAV_GROUPS: NavGroup[] = [
       { href: "/transactions", label: "Transactions", icon: ArrowLeftRight, minTier: "starter" },
       { href: "/finance", label: "Finance", icon: Wallet, minTier: "starter" },
       { href: "/alerts", label: "Alerts", icon: Bell, minTier: "starter" },
+      { href: "/tax", label: "Tax & FIRS", icon: FileText, minTier: "starter" },
     ],
   },
   {
