@@ -35,6 +35,10 @@ import {
   FileSpreadsheet,
   MessageSquare,
   Receipt,
+  ArrowLeftRight,
+  Package,
+  Users,
+  Bell,
 } from "lucide-react";
 import Link from "next/link";
 import FaqAccordion from "@/components/FaqAccordion";
@@ -51,13 +55,13 @@ const faqs: FaqItem[] = [
     section: "Getting Started",
     question: "What is the SME Control Tower?",
     answer:
-      "The SME Control Tower is an AI-powered business assistant built for small and medium enterprises. It reads your invoices, emails, and financial documents, calculates a health score for your business, spots risks early (like overdue payments or unreliable suppliers), and gives you clear recommendations to improve. Think of it as having a financial advisor, data analyst, and operations manager — all in one app, available 24/7.",
+      "The SME Control Tower is an AI-powered business assistant built for small and medium enterprises in Nigeria and across Africa. It reads your invoices, emails, receipts, and financial documents, calculates a health score for your business, spots risks early (like overdue payments or unreliable suppliers), and gives you clear recommendations to improve. Think of it as having a financial advisor, data analyst, and operations manager — all in one app, available 24/7. It works whether you run a supermarket in Lagos, a salon in Abuja, a farm in Kano, or a kiosk in Accra.",
   },
   {
     section: "Getting Started",
     question: "Who is this built for?",
     answer:
-      "SME owners and managers who do not have in-house accountants, data scientists, or IT teams. Whether you run a trading company in Lagos, a bakery in Brighton, a farm in Kano, or a plumbing business in Oxford — if you deal with invoices, suppliers, and customers, this tool is for you. It works in any currency and adapts to your industry.",
+      "SME owners and managers who do not have in-house accountants, data scientists, or IT teams. Whether you run a trading company, bakery, farm, salon, food vendor, mini mart, kiosk, artisan workshop, or professional service — if you deal with invoices, suppliers, and customers, this tool is for you. It works in Naira, Dollars, Pounds, and any other currency. You do not need any accounting knowledge.",
   },
   {
     section: "Getting Started",
@@ -69,7 +73,31 @@ const faqs: FaqItem[] = [
     section: "Getting Started",
     question: "How long does it take to get started?",
     answer:
-      "About 5 minutes. Upload your first invoice or spreadsheet, run an analysis, and you will have your business health score, risk alerts, and improvement strategies. No setup wizards or configuration forms.",
+      "About 5 minutes. Create your account, upload your first invoice or spreadsheet, and you will have your business health score, risk alerts, and improvement strategies. No setup wizards or configuration forms. If you have a CSV or Excel file of your past transactions, you can import months of data in one go.",
+  },
+  {
+    section: "Getting Started",
+    question: "How do I create an account?",
+    answer:
+      "Click 'Get Started' or go to the Register page. Enter your email, password, and business name. Choose your business type (supermarket, salon, farm, etc.) and you are in. The Starter plan is completely free — no credit card needed. You can upgrade later from the Pricing page.",
+  },
+  {
+    section: "Getting Started",
+    question: "What should I do in my first week?",
+    answer:
+      "Day 1: Create your account and upload your first invoice or receipt (PDF, photo, or spreadsheet). Day 2: Go to Transactions and add your recent sales and expenses. Day 3: Check your Dashboard for your health score and risk alerts. Day 4: Go to Tax & FIRS and generate your first tax report. Day 5: Try the Voice Assistant — ask 'How is my business doing?' The more data you upload, the smarter the AI gets. By the end of the week you will have a clear picture of your business health.",
+  },
+  {
+    section: "Getting Started",
+    question: "I just have a small kiosk — is this too advanced for me?",
+    answer:
+      "Not at all. The free Starter plan is designed for exactly this. You can upload receipts by taking photos with your phone, track your daily sales and expenses, see who owes you money, and get your tax report ready for FIRS. You do not need to use every feature — start with Upload, Transactions, and Tax & FIRS. The rest is there when you need it.",
+  },
+  {
+    section: "Getting Started",
+    question: "Can I use this if I do not have a computer?",
+    answer:
+      "Yes. The platform works fully on your phone browser — Chrome, Safari, or any modern browser. You can upload photos of receipts directly from your phone camera, enter transactions, check your dashboard, and even use voice to ask questions. No app download needed.",
   },
   // ── Uploading & File Types ──
   {
@@ -353,6 +381,106 @@ const faqs: FaqItem[] = [
     answer:
       "Yes. You can upgrade or downgrade at any time from the Pricing page. When you upgrade, you get immediate access to the new features. When you downgrade, you keep access until the end of your current billing period.",
   },
+  // ── Onboarding by Business Type ──
+  {
+    section: "Onboarding by Business Type",
+    question: "I run a supermarket or mini mart — how do I start?",
+    answer:
+      "Upload your POS export or sales spreadsheet (CSV/Excel) to get started immediately. The AI will categorise your products, track fast-moving vs slow-moving stock, flag items running low, and calculate your profit margins per category. Start with Transactions to log daily sales, then check Inventory to see stock levels. Within a week you will have a clear picture of which products make you money and which ones sit on the shelf.",
+  },
+  {
+    section: "Onboarding by Business Type",
+    question: "I run a salon or barbershop — what features matter most?",
+    answer:
+      "Focus on Transactions (log each service and payment), Finance (track daily revenue vs expenses like rent, products, and staff), and Alerts (get notified about slow days or overdue payments from credit customers). Upload receipts for products you buy from suppliers. The AI will spot patterns like your busiest days, most profitable services, and which suppliers give you the best prices.",
+  },
+  {
+    section: "Onboarding by Business Type",
+    question: "I am a farmer — can this work for agriculture?",
+    answer:
+      "Yes. Log your input costs (seeds, fertiliser, labour, transport) as expenses and your harvest sales as revenue. The AI tracks seasonal patterns, calculates your cost per unit, and predicts revenue based on planting cycles. Use the Tax & FIRS section to track your tax obligations — many small farms qualify for CIT exemption under ₦25M turnover. Upload supplier invoices to track who gives you the best prices on inputs.",
+  },
+  {
+    section: "Onboarding by Business Type",
+    question: "I am a food vendor or restaurant owner — how do I use this?",
+    answer:
+      "Start by logging your daily sales and ingredient purchases in Transactions. Upload supplier receipts for your raw materials. The AI will calculate your food cost ratio, flag when ingredient prices spike, and alert you if a supplier becomes unreliable. Use Inventory to track perishable stock and get alerts before items expire. The Voice Assistant is great for quick checks — ask 'What did I spend on ingredients this week?' while you are cooking.",
+  },
+  {
+    section: "Onboarding by Business Type",
+    question: "I am an artisan or craftsperson — is this relevant to me?",
+    answer:
+      "Absolutely. Track your material costs, labour time, and sales prices to understand your true profit per item. Upload invoices from material suppliers and log each sale. The AI will tell you which products are most profitable, which materials are getting more expensive, and when to raise your prices. Use Tax & FIRS to stay compliant — the platform handles all the calculations.",
+  },
+  {
+    section: "Onboarding by Business Type",
+    question: "I run a professional service (consulting, legal, accounting) — what is useful?",
+    answer:
+      "Focus on Finance (track billable hours and client payments), Emails (auto-extract tasks from client emails), and Transactions (monitor who has paid and who is overdue). Upload client invoices and the AI tracks payment timelines, flags late payers, and suggests collection strategies. The Tax section is especially useful for tracking WHT deductions your clients make on your payments.",
+  },
+  // ── Inventory & Supply Chain ──
+  {
+    section: "Inventory & Supply Chain",
+    question: "How does stock tracking work?",
+    answer:
+      "Go to Inventory (available on Growth tier and above) to see all your products with current stock levels, reorder points, and value. The AI monitors stock movement from your transactions and alerts you when items are running low. You can set minimum stock levels for each product and get automatic reorder alerts.",
+  },
+  {
+    section: "Inventory & Supply Chain",
+    question: "How do reorder alerts work?",
+    answer:
+      "When a product's stock drops below its reorder point, the system creates an alert on your Alerts page with the product name, current quantity, and suggested reorder amount. On Growth tier and above, you also get AI predictions for when stock will run out based on your sales velocity.",
+  },
+  {
+    section: "Inventory & Supply Chain",
+    question: "How does supplier management work?",
+    answer:
+      "The Suppliers page shows all your vendors with their payment history, reliability score, and total spend. The AI rates suppliers based on delivery timeliness, price consistency, and invoice accuracy. On Growth tier, Supplier Intelligence gives you deeper analysis — comparing prices across suppliers and suggesting alternatives when a supplier becomes unreliable.",
+  },
+  {
+    section: "Inventory & Supply Chain",
+    question: "Can the AI predict what I need to order?",
+    answer:
+      "Yes. The Predictions page (Growth tier) uses your sales history to forecast demand for each product. It accounts for seasonal patterns, growth trends, and lead times from your suppliers. You get a recommended order list with quantities and timing — so you never overstock or run out.",
+  },
+  // ── Data Connectors ──
+  {
+    section: "Data Connectors",
+    question: "What is POS Connector?",
+    answer:
+      "POS Connector (Business tier) lets you import sales data directly from your point-of-sale system. Upload your POS export file (CSV or Excel) and the AI maps the fields automatically — product names, quantities, prices, timestamps. This saves you from manually entering each sale.",
+  },
+  {
+    section: "Data Connectors",
+    question: "How does Bank Sync work?",
+    answer:
+      "Bank Sync (Business tier) lets you upload your bank statement and automatically match transactions against your invoices and receipts. The AI uses amount matching, date proximity, and description similarity to reconcile your records. Unmatched items are flagged for your review.",
+  },
+  {
+    section: "Data Connectors",
+    question: "What is Desktop Sync?",
+    answer:
+      "Desktop Sync (Business tier) lets you upload files from your computer — spreadsheets, documents, or exports from other software you use. The AI extracts and categorises the data automatically. This is useful if you keep records in Excel or another tool and want to bring everything into one place.",
+  },
+  {
+    section: "Data Connectors",
+    question: "How does WhatsApp ingestion work?",
+    answer:
+      "WhatsApp ingestion (Growth tier) lets you paste business messages from WhatsApp — orders from customers, quotes from suppliers, delivery confirmations. The AI extracts key information like amounts, dates, and action items, and creates records in your system. No more losing important business details in chat threads.",
+  },
+  // ── Multi-Branch ──
+  {
+    section: "Multi-Branch",
+    question: "How does multi-branch management work?",
+    answer:
+      "If you have more than one location (Business tier: up to 10 branches, Enterprise: unlimited), the Branch Optimisation page shows performance comparisons across all your branches. See which branch has the highest revenue, best margins, or most overdue payments. The AI suggests how to redistribute stock or staff between branches for better results.",
+  },
+  {
+    section: "Multi-Branch",
+    question: "Can each branch have its own data?",
+    answer:
+      "Yes. Each branch tracks its own transactions, inventory, and performance metrics. The dashboard aggregates everything so you see the full picture, but you can drill down into any individual branch. Branch managers can be given access to only their branch data.",
+  },
   // ── Tips & Best Practices ──
   {
     section: "Tips & Best Practices",
@@ -426,6 +554,47 @@ export default function HelpPage() {
               <QuickStartStep number={3} title="Ask a Question"
                 description="Go to Voice and ask about your business by typing or speaking. Get instant AI answers."
                 href="/voice" buttonLabel="Ask Now" buttonIcon={Mic} />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Onboarding Checklist */}
+        <Card className="mb-10 border-green-200/50 bg-gradient-to-br from-green-50/30 to-background dark:from-green-950/10">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-xl">
+              <CheckCircle2 className="h-5 w-5 text-green-600" />
+              Your First Month — Onboarding Checklist
+            </CardTitle>
+            <CardDescription>
+              Follow this checklist to get the most out of the platform in your first 30 days.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <ChecklistWeek week="Week 1" title="Get Set Up" items={[
+                "Create your account and choose your business type",
+                "Upload your first invoice, receipt, or spreadsheet",
+                "Go to Transactions and add your recent sales and expenses",
+                "Check your Dashboard for your health score",
+              ]} />
+              <ChecklistWeek week="Week 2" title="Build Your Data" items={[
+                "Upload all invoices and receipts from the past 3 months",
+                "Add your suppliers and their contact details",
+                "Set up inventory items with stock levels (Growth tier)",
+                "Try the Voice Assistant — ask about your business",
+              ]} />
+              <ChecklistWeek week="Week 3" title="Get Insights" items={[
+                "Run a Full Analysis from the Analyse page",
+                "Review AI strategies and act on the top recommendation",
+                "Generate your first Tax & FIRS report",
+                "Set up email ingestion for business emails",
+              ]} />
+              <ChecklistWeek week="Week 4" title="Optimise" items={[
+                "Check Alerts daily for overdue payments and low stock",
+                "Review supplier reliability scores",
+                "Export your financial data for your accountant",
+                "Explore Analytics for revenue trends and forecasts",
+              ]} />
             </div>
           </CardContent>
         </Card>
@@ -505,6 +674,21 @@ export default function HelpPage() {
             <GuideStep number={10} icon={Search} title="Search Your Business History"
               description='Use "Search" to find past invoices, emails, or any business data using everyday language. Type "overdue invoices" or "payments to Dangote" and the AI finds matching records.'
               link="/memory" linkLabel="Search Data" />
+            <GuideStep number={11} icon={ArrowLeftRight} title="Enter and Track Transactions"
+              description='Go to "Transactions" to log sales, expenses, and payments. Each entry tracks amount, category, counterparty, payment status, and date. Filter by status (paid, pending, overdue) to see who owes you and who you owe.'
+              link="/transactions" linkLabel="Transactions" />
+            <GuideStep number={12} icon={Package} title="Set Up Your Inventory"
+              description='Go to "Stock" (Growth tier) to add your products with quantities, prices, and reorder points. The AI monitors stock levels from your sales data and alerts you when items run low.'
+              link="/inventory" linkLabel="Manage Stock" />
+            <GuideStep number={13} icon={Users} title="Track Your Suppliers"
+              description='The "Suppliers" page (Growth tier) shows all your vendors with payment history and reliability scores. Upload supplier invoices to build a complete picture of your supply chain costs.'
+              link="/suppliers" linkLabel="View Suppliers" />
+            <GuideStep number={14} icon={FileText} title="Generate Your Tax Report"
+              description='Go to "Tax & FIRS" and enter your fiscal year and business details. The system calculates CIT, VAT, WHT, and PAYE from your transaction data and generates a printable FIRS-ready report.'
+              link="/tax" linkLabel="Tax & FIRS" />
+            <GuideStep number={15} icon={Bell} title="Monitor Your Alerts"
+              description='The "Alerts" page shows AI-generated notifications — overdue payments, low stock, supplier issues, and tax deadlines. Check this daily to stay on top of your business. Critical alerts appear on your dashboard too.'
+              link="/alerts" linkLabel="View Alerts" />
           </CardContent>
         </Card>
 
@@ -763,6 +947,25 @@ function FormatRow({ label, desc }: { label: string; desc: string }) {
     <div className="flex items-center gap-2">
       <span className="font-mono text-xs bg-muted px-2 py-0.5 rounded">{label}</span>
       <span className="text-muted-foreground">{desc}</span>
+    </div>
+  );
+}
+
+function ChecklistWeek({ week, title, items }: { week: string; title: string; items: string[] }) {
+  return (
+    <div className="rounded-lg border p-4 space-y-2">
+      <div className="flex items-center gap-2">
+        <span className="text-xs font-bold bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 px-2 py-0.5 rounded-full">{week}</span>
+        <span className="font-semibold text-sm">{title}</span>
+      </div>
+      <ul className="space-y-1.5">
+        {items.map((item, i) => (
+          <li key={i} className="flex items-start gap-2 text-xs text-muted-foreground">
+            <CheckCircle2 className="h-3.5 w-3.5 mt-0.5 text-green-500 flex-shrink-0" />
+            <span>{item}</span>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
