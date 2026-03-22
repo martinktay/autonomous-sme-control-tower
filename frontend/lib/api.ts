@@ -6,15 +6,34 @@
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
-/** Internal fetch wrapper with configurable timeout, JSON headers, and error handling. */
+/** Read the JWT from localStorage (set by AuthProvider). */
+function getAuthToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem('sme_access_token');
+}
+
+/** Build auth headers object for direct fetch calls. */
+function authHeaders(extra: Record<string, string> = {}): Record<string, string> {
+  const token = getAuthToken();
+  return {
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...extra,
+  };
+}
+
+/** Internal fetch wrapper with configurable timeout, JSON headers, auth, and error handling. */
 async function apiFetch(path: string, options: RequestInit = {}, timeoutMs = 8000) {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+  const token = getAuthToken();
+  const authHeaders: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
 
   try {
     const res = await fetch(`${API_BASE_URL}${path}`, {
       headers: {
         'Content-Type': 'application/json',
+        ...authHeaders,
         ...(options.headers as Record<string, string>),
       },
       ...options,
@@ -67,7 +86,7 @@ export const runClosedLoop = async (orgId: string) => {
   try {
     const res = await fetch(`${API_BASE_URL}/api/orchestration/run-loop`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: authHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({ org_id: orgId }),
       signal: controller.signal,
     });
@@ -95,6 +114,7 @@ export const uploadInvoice = async (orgId: string, file: File) => {
   try {
     const res = await fetch(`${API_BASE_URL}/api/invoices/upload?org_id=${orgId}`, {
       method: 'POST',
+      headers: authHeaders(),
       body: formData,
       signal: controller.signal,
     });
@@ -121,7 +141,7 @@ export const simulateStrategies = async (orgId: string) => {
   try {
     const res = await fetch(`${API_BASE_URL}/api/strategy/simulate`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: authHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({ org_id: orgId }),
       signal: controller.signal,
     });
@@ -167,7 +187,7 @@ export const getBusinessInsights = async (orgId: string) => {
 export const getVoiceBrief = async (orgId: string) => {
   const res = await fetch(`${API_BASE_URL}/api/voice/brief`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: authHeaders({ 'Content-Type': 'application/json' }),
     body: JSON.stringify({ org_id: orgId }),
   });
   if (!res.ok) throw new Error(`Voice brief failed: ${res.statusText}`);
@@ -178,7 +198,7 @@ export const getVoiceBrief = async (orgId: string) => {
 export const askVoiceQuestion = async (orgId: string, question: string) => {
   const res = await fetch(`${API_BASE_URL}/api/voice/${orgId}/ask`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: authHeaders({ 'Content-Type': 'application/json' }),
     body: JSON.stringify({ org_id: orgId, question }),
   });
   if (!res.ok) throw new Error(`Voice query failed: ${res.statusText}`);
@@ -198,6 +218,7 @@ export const uploadFinanceDocument = async (orgId: string, file: File) => {
   try {
     const res = await fetch(`${API_BASE_URL}/api/finance/upload?org_id=${orgId}`, {
       method: 'POST',
+      headers: authHeaders(),
       body: formData,
       signal: controller.signal,
     });
@@ -264,6 +285,7 @@ export const reconcileDocuments = async (orgId: string, file: File) => {
   formData.append('file', file);
   const res = await fetch(`${API_BASE_URL}/api/finance/${orgId}/reconcile`, {
     method: 'POST',
+    headers: authHeaders(),
     body: formData,
   });
   if (!res.ok) throw new Error(`Reconciliation failed: ${res.statusText}`);
@@ -294,7 +316,7 @@ export const exportFinanceCsv = async (orgId: string, startDate?: string, endDat
   if (endDate) params.set('end_date', endDate);
   if (category) params.set('category', category);
   const qs = params.toString();
-  const res = await fetch(`${API_BASE_URL}/api/finance/${orgId}/export/csv${qs ? `?${qs}` : ''}`, {});
+  const res = await fetch(`${API_BASE_URL}/api/finance/${orgId}/export/csv${qs ? `?${qs}` : ''}`, { headers: authHeaders() });
   if (!res.ok) throw new Error(`Export failed: ${res.statusText}`);
   return res.blob();
 };
@@ -306,7 +328,7 @@ export const exportFinanceXlsx = async (orgId: string, startDate?: string, endDa
   if (endDate) params.set('end_date', endDate);
   if (category) params.set('category', category);
   const qs = params.toString();
-  const res = await fetch(`${API_BASE_URL}/api/finance/${orgId}/export/xlsx${qs ? `?${qs}` : ''}`, {});
+  const res = await fetch(`${API_BASE_URL}/api/finance/${orgId}/export/xlsx${qs ? `?${qs}` : ''}`, { headers: authHeaders() });
   if (!res.ok) throw new Error(`Export failed: ${res.statusText}`);
   return res.blob();
 };
@@ -390,6 +412,297 @@ export const verifySesEmail = async (email: string) => {
   return res.json();
 };
 
+// ─── Business & Onboarding ───────────────────────────────────────────────────
+
+export const createBusiness = async (data: {
+  business_name: string;
+  business_type?: string;
+  country?: string;
+  state_region?: string;
+  currency?: string;
+  phone?: string;
+  email?: string;
+}) => {
+  return apiFetch('/api/businesses', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+};
+
+export const getBusiness = async (businessId: string) => {
+  return apiFetch(`/api/businesses/${businessId}`);
+};
+
+export const updateBusiness = async (businessId: string, data: Record<string, any>) => {
+  return apiFetch(`/api/businesses/${businessId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+};
+
+export const completeOnboarding = async (businessId: string) => {
+  return apiFetch(`/api/businesses/${businessId}/onboarding/complete`, { method: 'POST' });
+};
+
+export const listBranches = async (businessId: string) => {
+  return apiFetch(`/api/businesses/${businessId}/branches`);
+};
+
+export const createBranch = async (businessId: string, data: { branch_name: string; address?: string }) => {
+  return apiFetch(`/api/businesses/${businessId}/branches`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+};
+
+// ─── Pricing ─────────────────────────────────────────────────────────────────
+
+export const getPricingTiers = async () => {
+  return apiFetch('/api/pricing/tiers');
+};
+
+export const getCurrentTier = async (businessId: string) => {
+  return apiFetch(`/api/pricing/current/${businessId}`);
+};
+
+// ─── Inventory ───────────────────────────────────────────────────────────────
+
+export const getInventory = async (orgId: string) => {
+  return apiFetch('/api/inventory', { headers: { 'X-Org-ID': orgId } });
+};
+
+export const createInventoryItem = async (orgId: string, data: Record<string, any>) => {
+  return apiFetch('/api/inventory', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-Org-ID': orgId },
+    body: JSON.stringify(data),
+  });
+};
+
+export const updateInventoryItem = async (orgId: string, itemId: string, data: Record<string, any>) => {
+  return apiFetch(`/api/inventory/${itemId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', 'X-Org-ID': orgId },
+    body: JSON.stringify(data),
+  });
+};
+
+export const getStockAlerts = async (orgId: string) => {
+  return apiFetch('/api/inventory/alerts', { headers: { 'X-Org-ID': orgId } });
+};
+
+export const getInventoryAnalytics = async (orgId: string) => {
+  return apiFetch('/api/inventory/analytics', { headers: { 'X-Org-ID': orgId } });
+};
+
+// ─── Transactions ────────────────────────────────────────────────────────────
+
+export const getTransactions = async (orgId: string) => {
+  return apiFetch('/api/transactions', { headers: { 'X-Org-ID': orgId } });
+};
+
+export const createTransaction = async (orgId: string, data: Record<string, any>) => {
+  return apiFetch('/api/transactions', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-Org-ID': orgId },
+    body: JSON.stringify(data),
+  });
+};
+
+export const getTransactionSummary = async (orgId: string) => {
+  return apiFetch('/api/transactions/summary', { headers: { 'X-Org-ID': orgId } });
+};
+
+export const getTransactionCashflow = async (orgId: string) => {
+  return apiFetch('/api/transactions/cashflow', { headers: { 'X-Org-ID': orgId } });
+};
+
+// ─── Counterparties (Suppliers/Customers) ────────────────────────────────────
+
+export const getCounterparties = async (orgId: string) => {
+  return apiFetch('/api/counterparties', { headers: { 'X-Org-ID': orgId } });
+};
+
+export const createCounterparty = async (orgId: string, data: { name: string; counterparty_type: string; phone?: string; email?: string }) => {
+  return apiFetch('/api/counterparties', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-Org-ID': orgId },
+    body: JSON.stringify(data),
+  });
+};
+
+export const getCounterpartyBalance = async (orgId: string, counterpartyId: string) => {
+  return apiFetch(`/api/counterparties/${counterpartyId}/balance`, { headers: { 'X-Org-ID': orgId } });
+};
+
+// ─── Alerts ──────────────────────────────────────────────────────────────────
+
+export const getAlerts = async (orgId: string) => {
+  return apiFetch('/api/alerts', { headers: { 'X-Org-ID': orgId } });
+};
+
+export const markAlertRead = async (orgId: string, alertId: string) => {
+  return apiFetch(`/api/alerts/${alertId}/read`, {
+    method: 'PUT',
+    headers: { 'X-Org-ID': orgId },
+  });
+};
+
+// ─── WhatsApp ────────────────────────────────────────────────────────────────
+
+/** Ingest a WhatsApp message for AI processing. */
+export const ingestWhatsAppMessage = async (orgId: string, messageText: string, senderName?: string, senderPhone?: string) => {
+  const res = await apiFetch('/api/whatsapp/ingest', {
+    method: 'POST',
+    body: JSON.stringify({ org_id: orgId, message_text: messageText, sender_name: senderName, sender_phone: senderPhone }),
+  });
+  return res.json();
+};
+
+/** Generate a WhatsApp-friendly business insight summary. */
+export const getWhatsAppSummary = async (orgId: string, businessName?: string) => {
+  const res = await apiFetch('/api/whatsapp/summary', {
+    method: 'POST',
+    body: JSON.stringify({ org_id: orgId, business_name: businessName }),
+  });
+  return res.json();
+};
+
+/** List processed WhatsApp messages for an org. */
+export const getWhatsAppMessages = async (orgId: string) => {
+  const res = await apiFetch(`/api/whatsapp/${orgId}/messages`);
+  return res.json();
+};
+
+
+// ─── Desktop Sync ────────────────────────────────────────────────────────────
+
+/** Upload a POS export file for AI extraction. */
+export const uploadSyncFile = async (orgId: string, file: File, businessName?: string) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  const params = new URLSearchParams();
+  if (businessName) params.set('business_name', businessName);
+  const qs = params.toString();
+  const res = await fetch(`${API_BASE_URL}/api/desktop-sync/upload${qs ? `?${qs}` : ''}`, {
+    method: 'POST',
+    headers: authHeaders({ 'X-Org-ID': orgId }),
+    body: formData,
+  });
+  if (!res.ok) throw new Error(`Sync upload failed: ${res.statusText}`);
+  return res.json();
+};
+
+/** Get desktop sync status. */
+export const getSyncStatus = async (orgId: string) => {
+  const res = await apiFetch('/api/desktop-sync/status', { headers: { 'X-Org-ID': orgId } });
+  return res.json();
+};
+
+// ─── Supplier Intelligence ───────────────────────────────────────────────────
+
+/** Get full AI supplier intelligence report. */
+export const getSupplierReport = async (orgId: string) => {
+  const res = await apiFetch(`/api/supplier-intelligence/${orgId}/report`, {}, 30000);
+  return res.json();
+};
+
+/** Get quick supplier reliability scores. */
+export const getSupplierScores = async (orgId: string) => {
+  const res = await apiFetch(`/api/supplier-intelligence/${orgId}/scores`);
+  return res.json();
+};
+
+// ─── Inventory Predictions ───────────────────────────────────────────────────
+
+/** Get AI demand forecast with predictions and seasonal insights. */
+export const getDemandForecast = async (orgId: string) => {
+  const res = await apiFetch(`/api/predictions/${orgId}/demand`, {}, 30000);
+  return res.json();
+};
+
+/** Get quick reorder suggestions based on stock and sales velocity. */
+export const getReorderSuggestions = async (orgId: string) => {
+  const res = await apiFetch(`/api/predictions/${orgId}/reorder`);
+  return res.json();
+};
+
+// ─── POS Connector ───────────────────────────────────────────────────────────
+
+/** Import a POS export file for AI extraction. */
+export const importPosData = async (orgId: string, file: File, posSystem?: string) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  const params = new URLSearchParams();
+  if (posSystem) params.set('pos_system', posSystem);
+  const qs = params.toString();
+  const res = await fetch(`${API_BASE_URL}/api/pos/import${qs ? `?${qs}` : ''}`, {
+    method: 'POST',
+    headers: authHeaders({ 'X-Org-ID': orgId }),
+    body: formData,
+  });
+  if (!res.ok) throw new Error(`POS import failed: ${res.statusText}`);
+  return res.json();
+};
+
+/** List supported POS systems. */
+export const getSupportedPosSystems = async () => {
+  const res = await apiFetch('/api/pos/systems');
+  return res.json();
+};
+
+// ─── Bank Sync ───────────────────────────────────────────────────────────────
+
+/** Import a bank statement for reconciliation. */
+export const importBankStatement = async (orgId: string, file: File) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  const res = await fetch(`${API_BASE_URL}/api/bank-sync/import`, {
+    method: 'POST',
+    headers: authHeaders({ 'X-Org-ID': orgId }),
+    body: formData,
+  });
+  if (!res.ok) throw new Error(`Bank import failed: ${res.statusText}`);
+  return res.json();
+};
+
+/** List supported banks. */
+export const getSupportedBanks = async () => {
+  const res = await apiFetch('/api/bank-sync/supported-banks');
+  return res.json();
+};
+
+// ─── AI Forecasting ──────────────────────────────────────────────────────────
+
+/** Get AI revenue/expense/cash runway forecast. */
+export const getFinanceForecast = async (orgId: string) => {
+  const res = await apiFetch(`/api/forecasting/${orgId}/forecast`, {}, 30000);
+  return res.json();
+};
+
+/** Get quick cash runway calculation. */
+export const getCashRunway = async (orgId: string) => {
+  const res = await apiFetch(`/api/forecasting/${orgId}/cash-runway`);
+  return res.json();
+};
+
+// ─── Cross-Branch Optimisation ───────────────────────────────────────────────
+
+/** Get AI cross-branch optimisation report. */
+export const getBranchOptimisation = async (orgId: string) => {
+  const res = await apiFetch(`/api/branches/${orgId}/optimise`, {}, 30000);
+  return res.json();
+};
+
+/** Get branch benchmarks. */
+export const getBranchBenchmarks = async (orgId: string) => {
+  const res = await apiFetch(`/api/branches/${orgId}/benchmarks`);
+  return res.json();
+};
+
 // ==================== Unified Client ====================
 
 /** Object-style export bundling all API functions for convenient dashboard imports. */
@@ -425,4 +738,43 @@ export const apiClient = {
   sendEmail,
   getSesStatus,
   verifySesEmail,
+  getInventory,
+  getStockAlerts,
+  getInventoryAnalytics,
+  getCounterparties,
+  getCounterpartyBalance,
+  getAlerts,
+  markAlertRead,
+  getTransactions,
+  createTransaction,
+  getTransactionSummary,
+  getTransactionCashflow,
+  createBusiness,
+  getBusiness,
+  updateBusiness,
+  completeOnboarding,
+  listBranches,
+  createBranch,
+  getPricingTiers,
+  getCurrentTier,
+  createInventoryItem,
+  updateInventoryItem,
+  createCounterparty,
+  ingestWhatsAppMessage,
+  getWhatsAppSummary,
+  getWhatsAppMessages,
+  uploadSyncFile,
+  getSyncStatus,
+  getSupplierReport,
+  getSupplierScores,
+  getDemandForecast,
+  getReorderSuggestions,
+  importPosData,
+  getSupportedPosSystems,
+  importBankStatement,
+  getSupportedBanks,
+  getFinanceForecast,
+  getCashRunway,
+  getBranchOptimisation,
+  getBranchBenchmarks,
 };

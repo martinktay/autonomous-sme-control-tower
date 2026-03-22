@@ -24,7 +24,7 @@ class Settings(BaseSettings):
     nova_act_model_id: str = "amazon.nova-act-v1:0"            # Agentic actions
     nova_sonic_model_id: str = "amazon.nova-sonic-v1:0"        # Voice / audio
 
-    # --- DynamoDB table names ---
+    # --- DynamoDB table names (existing) ---
     signals_table: str = "autonomous-sme-signals"
     nsi_scores_table: str = "autonomous-sme-nsi-scores"
     strategies_table: str = "autonomous-sme-strategies"
@@ -33,12 +33,30 @@ class Settings(BaseSettings):
     embeddings_table: str = "autonomous-sme-embeddings"
     tasks_table: str = "autonomous-sme-tasks"
 
+    # --- DynamoDB table names (Africa commercial readiness) ---
+    businesses_table: str = "autonomous-sme-businesses"
+    branches_table: str = "autonomous-sme-branches"
+    transactions_table: str = "autonomous-sme-transactions"
+    inventory_table: str = "autonomous-sme-inventory"
+    counterparties_table: str = "autonomous-sme-counterparties"
+    alerts_table: str = "autonomous-sme-alerts"
+    insights_table: str = "autonomous-sme-insights"
+    upload_jobs_table: str = "autonomous-sme-upload-jobs"
+
     # --- S3 bucket for uploaded documents ---
     documents_bucket: str = "autonomous-sme-documents"
 
     # --- SES email sending ---
     ses_sender_email: str = ""         # Verified sender address (required for sending)
     ses_region: str = "us-east-1"
+
+    # --- DynamoDB table for users ---
+    users_table: str = "autonomous-sme-users"
+
+    # --- JWT authentication ---
+    jwt_secret: str = "change-me-in-production-use-a-long-random-string"
+    jwt_algorithm: str = "HS256"
+    jwt_expiry_hours: int = 24
 
     # --- Application-level settings ---
     app_name: str = "Autonomous SME Control Tower"

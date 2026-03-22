@@ -10,6 +10,11 @@ import NSICard from "@/components/NsiCard";
 import RiskPanel from "@/components/RiskPanel";
 import ActionLog from "@/components/ActionLog";
 import InsightsPanel from "@/components/InsightsPanel";
+import InventoryTable from "@/components/InventoryTable";
+import SupplierCard from "@/components/SupplierCard";
+import StockAlertBadge from "@/components/StockAlertBadge";
+import SalesTrendChart from "@/components/SalesTrendChart";
+import TopProductsTable from "@/components/TopProductsTable";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -19,7 +24,7 @@ import {
 } from "@/components/ui/card";
 import { apiClient } from "@/lib/api";
 import { useOrg } from "@/lib/org-context";
-import { RefreshCw, Play, HelpCircle, WifiOff } from "lucide-react";
+import { RefreshCw, Play, HelpCircle, WifiOff, Package, Users } from "lucide-react";
 import Link from "next/link";
 
 export default function DashboardPage() {
@@ -32,6 +37,10 @@ export default function DashboardPage() {
   const [runningLoop, setRunningLoop] = useState(false);
   const [insights, setInsights] = useState<any>(null);
   const [insightsLoading, setInsightsLoading] = useState(false);
+  const [inventory, setInventory] = useState<any[]>([]);
+  const [stockAlerts, setStockAlerts] = useState<any[]>([]);
+  const [suppliers, setSuppliers] = useState<any[]>([]);
+  const [recentTransactions, setRecentTransactions] = useState<any[]>([]);
 
   // Fetch NSI + actions in parallel; show error only if both fail
   const fetchDashboardData = useCallback(async (silent = false) => {
@@ -61,6 +70,19 @@ export default function DashboardPage() {
           "Could not connect to the server. Make sure the backend is running on port 8000."
         );
       }
+
+      // Fetch inventory, supplier, and transaction data (best-effort, don't block dashboard)
+      Promise.allSettled([
+        apiClient.getInventory(orgId).then((r: any) => r.json ? r.json() : r),
+        apiClient.getStockAlerts(orgId).then((r: any) => r.json ? r.json() : r),
+        apiClient.getCounterparties(orgId).then((r: any) => r.json ? r.json() : r),
+        apiClient.getTransactions(orgId).then((r: any) => r.json ? r.json() : r),
+      ]).then(([invRes, alertRes, suppRes, txnRes]) => {
+        if (invRes.status === "fulfilled") setInventory(Array.isArray(invRes.value) ? invRes.value : []);
+        if (alertRes.status === "fulfilled") setStockAlerts(Array.isArray(alertRes.value) ? alertRes.value : []);
+        if (suppRes.status === "fulfilled") setSuppliers(Array.isArray(suppRes.value) ? suppRes.value : []);
+        if (txnRes.status === "fulfilled") setRecentTransactions(Array.isArray(txnRes.value) ? txnRes.value : []);
+      });
     } catch (err: any) {
       setError(err.message || "Something went wrong");
     } finally {
@@ -251,11 +273,103 @@ export default function DashboardPage() {
           generating={insightsLoading}
         />
 
+        {/* Inventory & Supplier Quick View (shows when data exists) */}
+        {(inventory.length > 0 || stockAlerts.length > 0 || suppliers.length > 0) && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Stock overview */}
+            {(inventory.length > 0 || stockAlerts.length > 0) && (
+              <Card>
+                <CardHeader className="pb-2">
+                  <div className="flex items-center gap-2">
+                    <Package className="h-4 w-4 text-primary" />
+                    <span className="font-medium text-sm">Stock Overview</span>
+                    {stockAlerts.length > 0 && (
+                      <span className="ml-auto text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full">
+                        {stockAlerts.length} alert{stockAlerts.length !== 1 ? "s" : ""}
+                      </span>
+                    )}
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {stockAlerts.length > 0 && (
+                    <div className="space-y-1 mb-3">
+                      {stockAlerts.slice(0, 3).map((alert: any, i: number) => (
+                        <div key={i} className="flex items-center gap-2 text-xs text-red-600">
+                          <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0" />
+                          {alert.item_name || alert.message || "Low stock alert"}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <p className="text-xs text-muted-foreground">
+                    {inventory.length} item{inventory.length !== 1 ? "s" : ""} tracked.{" "}
+                    <Link href="/inventory" className="text-primary hover:underline">View all →</Link>
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Supplier overview */}
+            {suppliers.length > 0 && (
+              <Card>
+                <CardHeader className="pb-2">
+                  <div className="flex items-center gap-2">
+                    <Users className="h-4 w-4 text-primary" />
+                    <span className="font-medium text-sm">Suppliers & Customers</span>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    {suppliers.slice(0, 4).map((s: any) => (
+                      <div key={s.counterparty_id || s.name} className="flex items-center justify-between text-sm">
+                        <span className="truncate">{s.name}</span>
+                        <span className="text-xs text-muted-foreground capitalize">{s.counterparty_type || "supplier"}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    {suppliers.length} total.{" "}
+                    <Link href="/suppliers" className="text-primary hover:underline">View all →</Link>
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        )}
+
         {/* Risks and Actions — pass loading=false once fetch completes */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <RiskPanel risks={risks} loading={loading} />
           <ActionLog actions={actions} loading={loading} />
         </div>
+
+        {/* Sales Trend & Top Products (shows when data exists) */}
+        {(recentTransactions.length > 0 || inventory.length > 0) && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {recentTransactions.length > 0 && (
+              <Card>
+                <CardHeader className="pb-2">
+                  <span className="font-medium text-sm">Sales Trend (14 days)</span>
+                  <CardDescription>Daily revenue from your transactions</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <SalesTrendChart transactions={recentTransactions} />
+                </CardContent>
+              </Card>
+            )}
+            {inventory.length > 0 && (
+              <Card>
+                <CardHeader className="pb-2">
+                  <span className="font-medium text-sm">Top Products</span>
+                  <CardDescription>Best sellers by quantity sold</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <TopProductsTable items={inventory} />
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

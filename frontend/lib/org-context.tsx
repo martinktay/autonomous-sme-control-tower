@@ -1,6 +1,7 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, ReactNode } from "react";
+import { useAuth } from "@/lib/auth-context";
 
 interface Org {
   id: string;
@@ -8,6 +9,7 @@ interface Org {
   industry: string;
 }
 
+/** Fallback demo orgs for unauthenticated / demo mode. */
 const DEMO_ORGS: Org[] = [
   { id: "demo-org-001", name: "Ade's Trading Co", industry: "Retail & Distribution" },
   { id: "demo-org-002", name: "GreenField Farms", industry: "Agriculture" },
@@ -31,13 +33,18 @@ const OrgContext = createContext<OrgContextType>({
 });
 
 export function OrgProvider({ children }: { children: ReactNode }) {
-  const [orgId, setOrgId] = useState(DEMO_ORGS[0].id);
-  const current = DEMO_ORGS.find((o) => o.id === orgId) || DEMO_ORGS[0];
+  const { user } = useAuth();
+
+  // If logged in, use the JWT-derived org; otherwise fall back to demo orgs
+  const orgId = user?.org_id || DEMO_ORGS[0].id;
+  const orgName = user?.business_name || user?.full_name || DEMO_ORGS[0].name;
+
+  const orgs: Org[] = user
+    ? [{ id: user.org_id, name: user.business_name || user.full_name || "My Business", industry: "" }]
+    : DEMO_ORGS;
 
   return (
-    <OrgContext.Provider
-      value={{ orgId, orgName: current.name, orgs: DEMO_ORGS, setOrgId }}
-    >
+    <OrgContext.Provider value={{ orgId, orgName, orgs, setOrgId: () => {} }}>
       {children}
     </OrgContext.Provider>
   );

@@ -1,6 +1,7 @@
 """API Routers for Autonomous SME Control Tower"""
 
 from . import (
+    auth,
     invoices,
     signals,
     memory,
@@ -12,9 +13,25 @@ from . import (
     insights,
     finance,
     emails,
+    businesses,
+    pricing,
+    inventory,
+    transactions,
+    counterparties,
+    alerts,
+    upload_jobs,
+    whatsapp,
+    desktop_sync,
+    supplier_intelligence,
+    predictions,
+    pos_connector,
+    bank_sync,
+    forecasting,
+    branch_optimisation,
 )
 
 __all__ = [
+    "auth",
     "invoices",
     "signals",
     "memory",
@@ -26,4 +43,19 @@ __all__ = [
     "insights",
     "finance",
     "emails",
+    "businesses",
+    "pricing",
+    "inventory",
+    "transactions",
+    "counterparties",
+    "alerts",
+    "upload_jobs",
+    "whatsapp",
+    "desktop_sync",
+    "supplier_intelligence",
+    "predictions",
+    "pos_connector",
+    "bank_sync",
+    "forecasting",
+    "branch_optimisation",
 ]

@@ -2,6 +2,7 @@
 
 from .org_isolation import OrgIsolationMiddleware, SecurityEvent, get_org_id_from_request, validate_org_id_from_body
 from .rate_limiter import RateLimiterMiddleware
+from .auth import AuthMiddleware
 
 __all__ = [
     "OrgIsolationMiddleware",
@@ -9,4 +10,5 @@ __all__ = [
     "get_org_id_from_request",
     "validate_org_id_from_body",
     "RateLimiterMiddleware",
+    "AuthMiddleware",
 ]

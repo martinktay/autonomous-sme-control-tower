@@ -16,6 +16,7 @@ import logging
 from app.agents.signal_agent import SignalAgent
 from app.services.s3_service import get_s3_service
 from app.services.ddb_service import get_ddb_service
+from app.services.counterparty_service import get_counterparty_service
 from app.models import Signal
 from app.utils.upload_validator import (
     validate_org_id,
@@ -82,12 +83,37 @@ async def upload_invoice(
         logger.error(f"DynamoDB put_signal failed for org={org_id}: {e}")
         raise HTTPException(500, "Failed to save invoice data. Please try again.")
 
+    # Best-effort auto-create counterparty from extracted vendor
+    _auto_create_counterparty(org_id, extracted_data)
+
     return {
         "signal_id": signal_id,
         "org_id": org_id,
         "status": "processed",
         "extracted_data": extracted_data
     }
+
+
+def _auto_create_counterparty(org_id: str, extracted_data: Dict[str, Any]) -> None:
+    """Best-effort auto-creation of counterparty from extracted invoice data."""
+    vendor_name = extracted_data.get("vendor_name")
+    if not vendor_name or not isinstance(vendor_name, str) or not vendor_name.strip():
+        return
+    try:
+        from app.models.counterparty import CounterpartyCreate
+        cp_svc = get_counterparty_service()
+        # Check if counterparty already exists
+        existing = cp_svc.list_counterparties(org_id)
+        for cp in existing:
+            if cp.get("name", "").lower() == vendor_name.strip().lower():
+                return  # Already exists
+        cp_svc.create_counterparty(
+            org_id,
+            CounterpartyCreate(name=vendor_name.strip(), counterparty_type="supplier"),
+        )
+        logger.info("Auto-created counterparty '%s' for org %s", vendor_name, org_id)
+    except Exception as e:
+        logger.debug("Auto-create counterparty failed (non-critical): %s", e)
 
 
 @router.get("/{org_id}")

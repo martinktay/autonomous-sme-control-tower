@@ -12,9 +12,17 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import get_settings
-from app.routers import invoices, signals, memory, stability, strategy, actions, voice, orchestration, insights, finance, emails
-from app.middleware import OrgIsolationMiddleware
+from app.routers import (
+    auth,
+    invoices, signals, memory, stability, strategy, actions, voice,
+    orchestration, insights, finance, emails,
+    businesses, pricing, inventory, transactions, counterparties, alerts,
+    upload_jobs, whatsapp, desktop_sync, supplier_intelligence, predictions,
+    pos_connector, bank_sync, forecasting, branch_optimisation,
+)
+from app.middleware import OrgIsolationMiddleware, AuthMiddleware
 from app.middleware.rate_limiter import RateLimiterMiddleware
+from app.middleware.tier_enforcement import TierEnforcementMiddleware
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
@@ -49,10 +57,17 @@ app.add_middleware(
 # Rate limiting — sliding-window counter per client IP
 app.add_middleware(RateLimiterMiddleware, rpm=settings.rate_limit_rpm)
 
-# Org isolation — validates X-Org-ID header matches path org_id
+# Tier enforcement — checks feature access against pricing tier
+app.add_middleware(TierEnforcementMiddleware)
+
+# Org isolation — validates org_id from JWT matches path org_id
 app.add_middleware(OrgIsolationMiddleware)
 
+# JWT authentication — validates Bearer token, sets request.state.user_id/org_id
+app.add_middleware(AuthMiddleware)
+
 # --- Routers (one per domain: invoices, signals, voice, finance, etc.) ---
+app.include_router(auth.router)
 app.include_router(invoices.router)
 app.include_router(signals.router)
 app.include_router(memory.router)
@@ -64,6 +79,21 @@ app.include_router(orchestration.router)
 app.include_router(insights.router)
 app.include_router(finance.router)
 app.include_router(emails.router)
+app.include_router(businesses.router)
+app.include_router(pricing.router)
+app.include_router(inventory.router)
+app.include_router(transactions.router)
+app.include_router(counterparties.router)
+app.include_router(alerts.router)
+app.include_router(upload_jobs.router)
+app.include_router(whatsapp.router)
+app.include_router(desktop_sync.router)
+app.include_router(supplier_intelligence.router)
+app.include_router(predictions.router)
+app.include_router(pos_connector.router)
+app.include_router(bank_sync.router)
+app.include_router(forecasting.router)
+app.include_router(branch_optimisation.router)
 
 
 @app.get("/")

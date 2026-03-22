@@ -1,0 +1,10 @@
+vendor_name,amount,currency,date,category,description,status,vat_amount,wht_amount,cit_amount,paye_amount,customs_levy
+Lagos Paper Supplies Ltd,450000,NGN,2026-02-10,invoice,Packaging materials and cartons — Q1 order,paid,33750,22500,0,0,0
+Lagos Paper Supplies Ltd,620000,NGN,2026-03-01,invoice,Office supplies and printing paper — March restock,overdue,46500,31000,0,0,0
+Lagos Paper Supplies Ltd,380000,NGN,2026-03-12,invoice,Branded packaging for Abuja distribution deal,pending,28500,19000,0,0,0
+Dangote Cement PLC,2800000,NGN,2026-01-20,invoice,Building materials for warehouse expansion phase 1,paid,210000,140000,0,0,0
+Dangote Cement PLC,1950000,NGN,2026-02-15,invoice,Cement and blocks — warehouse phase 2,overdue,146250,97500,0,0,0
+Dangote Cement PLC,750000,NGN,2026-03-08,invoice,Roofing sheets and finishing materials,pending,56250,37500,0,0,0
+Shanghai Trading Corp,4200000,NGN,2026-01-25,invoice,Imported electronics and accessories — container 1,paid,315000,0,0,0,630000
+Shanghai Trading Corp,3600000,NGN,2026-02-20,invoice,Imported phone accessories — container 2,overdue,270000,0,0,0,540000
+Shanghai Trading Corp,5100000,NGN,2026-03-10,invoice,Imported household goods — container 3,pending,382500,0,0,0,765000

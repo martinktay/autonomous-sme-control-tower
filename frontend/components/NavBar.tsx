@@ -6,7 +6,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Building2,
   LayoutDashboard,
@@ -22,8 +22,21 @@ import {
   Wallet,
   Mail,
   CheckSquare,
+  Package,
+  Users,
+  Bell,
+  CreditCard,
+  ArrowLeftRight,
+  MessageCircle,
+  HardDrive,
+  BarChart3,
+  Shield,
+  Landmark,
+  LineChart,
+  GitBranch,
 } from "lucide-react";
 import OrgSwitcher from "@/components/OrgSwitcher";
+import { useAuth } from "@/lib/auth-context";
 import { useState } from "react";
 
 // Static list of navigation destinations shown in both desktop and mobile menus
@@ -34,16 +47,31 @@ const navLinks = [
   { href: "/strategy", label: "Strategies", icon: Lightbulb },
   { href: "/actions", label: "Actions", icon: ClipboardList },
   { href: "/finance", label: "Finance", icon: Wallet },
+  { href: "/transactions", label: "Transactions", icon: ArrowLeftRight },
+  { href: "/inventory", label: "Stock", icon: Package },
+  { href: "/suppliers", label: "Suppliers", icon: Users },
+  { href: "/supplier-intelligence", label: "Intel", icon: Shield },
+  { href: "/predictions", label: "Predict", icon: BarChart3 },
   { href: "/emails", label: "Emails", icon: Mail },
   { href: "/emails/tasks", label: "Tasks", icon: CheckSquare },
+  { href: "/alerts", label: "Alerts", icon: Bell },
+  { href: "/whatsapp", label: "WhatsApp", icon: MessageCircle },
+  { href: "/sync", label: "Sync", icon: HardDrive },
+  { href: "/pos", label: "POS", icon: CreditCard },
+  { href: "/bank-sync", label: "Bank", icon: Landmark },
+  { href: "/forecasting", label: "Forecast", icon: LineChart },
+  { href: "/branch-optimisation", label: "Branches", icon: GitBranch },
   { href: "/voice", label: "Voice", icon: Mic },
   { href: "/memory", label: "Search", icon: Search },
+  { href: "/pricing", label: "Pricing", icon: CreditCard },
   { href: "/help", label: "Help", icon: HelpCircle },
 ];
 
 /** Main navigation bar component with responsive desktop/mobile layouts. */
 export default function NavBar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, logout } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   // Determine if a nav link matches the current route (handles nested paths)
@@ -86,14 +114,47 @@ export default function NavBar() {
               </Link>
             );
           })}
-          <div className="ml-2 border-l pl-2">
-            <OrgSwitcher />
+          <div className="ml-2 border-l pl-2 flex items-center gap-2">
+            {user ? (
+              <>
+                <OrgSwitcher />
+                <button
+                  onClick={() => { logout(); router.push("/login"); }}
+                  className="text-xs text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded-md hover:bg-accent"
+                >
+                  Sign out
+                </button>
+              </>
+            ) : (
+              <>
+                <Link href="/login" className="text-sm text-muted-foreground hover:text-foreground transition-colors px-2 py-1">
+                  Sign in
+                </Link>
+                <Link href="/register" className="text-sm bg-primary text-primary-foreground px-3 py-1.5 rounded-md hover:bg-primary/90 transition-colors">
+                  Get started
+                </Link>
+              </>
+            )}
           </div>
         </div>
 
-        {/* Mobile: org switcher + hamburger */}
+        {/* Mobile: auth + org switcher + hamburger */}
         <div className="flex lg:hidden items-center gap-2">
-          <OrgSwitcher />
+          {user ? (
+            <>
+              <OrgSwitcher />
+              <button
+                onClick={() => { logout(); router.push("/login"); }}
+                className="text-xs text-muted-foreground hover:text-foreground px-2 py-1"
+              >
+                Out
+              </button>
+            </>
+          ) : (
+            <Link href="/login" className="text-sm text-primary font-medium px-2 py-1">
+              Sign in
+            </Link>
+          )}
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
             className="p-2 rounded-md hover:bg-accent transition-colors"

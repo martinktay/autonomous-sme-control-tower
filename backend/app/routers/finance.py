@@ -31,6 +31,7 @@ from app.utils.upload_validator import (
     FINANCE_CONTENT_TYPES,
     FINANCE_EXTENSIONS,
 )
+from app.services.counterparty_service import get_counterparty_service
 
 logger = logging.getLogger(__name__)
 
@@ -223,6 +224,9 @@ async def _handle_document_upload(
     ddb_service = get_ddb_service()
     ddb_service.create_signal(signal.model_dump())
 
+    # Best-effort auto-create counterparty from extracted vendor
+    _auto_create_counterparty_from_finance(org_id, extracted)
+
     return {
         "signal_id": signal_id,
         "document_id": document_id,
@@ -230,6 +234,27 @@ async def _handle_document_upload(
         "status": content["processing_status"],
         "extracted_data": content,
     }
+
+
+def _auto_create_counterparty_from_finance(org_id: str, extracted: Dict[str, Any]) -> None:
+    """Best-effort auto-creation of counterparty from extracted finance document data."""
+    vendor_name = extracted.get("vendor_name")
+    if not vendor_name or not isinstance(vendor_name, str) or not vendor_name.strip():
+        return
+    try:
+        from app.models.counterparty import CounterpartyCreate
+        cp_svc = get_counterparty_service()
+        existing = cp_svc.list_counterparties(org_id)
+        for cp in existing:
+            if cp.get("name", "").lower() == vendor_name.strip().lower():
+                return
+        cp_svc.create_counterparty(
+            org_id,
+            CounterpartyCreate(name=vendor_name.strip(), counterparty_type="supplier"),
+        )
+        logger.info("Auto-created counterparty '%s' from finance doc for org %s", vendor_name, org_id)
+    except Exception as e:
+        logger.debug("Auto-create counterparty from finance doc failed (non-critical): %s", e)
 
 
 @router.get("/{org_id}/documents")

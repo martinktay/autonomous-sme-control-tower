@@ -95,6 +95,113 @@ aws dynamodb create-table \
   --billing-mode PAY_PER_REQUEST \
   --region us-east-1
 
+# ─── Africa Commercial Readiness Tables ───────────────────────────────────────
+
+echo "Creating DynamoDB table: autonomous-sme-businesses..."
+aws dynamodb create-table \
+  --table-name autonomous-sme-businesses \
+  --attribute-definitions \
+    AttributeName=business_id,AttributeType=S \
+  --key-schema \
+    AttributeName=business_id,KeyType=HASH \
+  --billing-mode PAY_PER_REQUEST \
+  --region us-east-1
+
+echo "Creating DynamoDB table: autonomous-sme-branches..."
+aws dynamodb create-table \
+  --table-name autonomous-sme-branches \
+  --attribute-definitions \
+    AttributeName=business_id,AttributeType=S \
+    AttributeName=branch_id,AttributeType=S \
+  --key-schema \
+    AttributeName=business_id,KeyType=HASH \
+    AttributeName=branch_id,KeyType=RANGE \
+  --billing-mode PAY_PER_REQUEST \
+  --region us-east-1
+
+echo "Creating DynamoDB table: autonomous-sme-transactions..."
+aws dynamodb create-table \
+  --table-name autonomous-sme-transactions \
+  --attribute-definitions \
+    AttributeName=business_id,AttributeType=S \
+    AttributeName=transaction_id,AttributeType=S \
+  --key-schema \
+    AttributeName=business_id,KeyType=HASH \
+    AttributeName=transaction_id,KeyType=RANGE \
+  --billing-mode PAY_PER_REQUEST \
+  --region us-east-1
+
+echo "Creating DynamoDB table: autonomous-sme-inventory..."
+aws dynamodb create-table \
+  --table-name autonomous-sme-inventory \
+  --attribute-definitions \
+    AttributeName=business_id,AttributeType=S \
+    AttributeName=item_id,AttributeType=S \
+  --key-schema \
+    AttributeName=business_id,KeyType=HASH \
+    AttributeName=item_id,KeyType=RANGE \
+  --billing-mode PAY_PER_REQUEST \
+  --region us-east-1
+
+echo "Creating DynamoDB table: autonomous-sme-counterparties..."
+aws dynamodb create-table \
+  --table-name autonomous-sme-counterparties \
+  --attribute-definitions \
+    AttributeName=business_id,AttributeType=S \
+    AttributeName=counterparty_id,AttributeType=S \
+  --key-schema \
+    AttributeName=business_id,KeyType=HASH \
+    AttributeName=counterparty_id,KeyType=RANGE \
+  --billing-mode PAY_PER_REQUEST \
+  --region us-east-1
+
+echo "Creating DynamoDB table: autonomous-sme-alerts..."
+aws dynamodb create-table \
+  --table-name autonomous-sme-alerts \
+  --attribute-definitions \
+    AttributeName=business_id,AttributeType=S \
+    AttributeName=alert_id,AttributeType=S \
+  --key-schema \
+    AttributeName=business_id,KeyType=HASH \
+    AttributeName=alert_id,KeyType=RANGE \
+  --billing-mode PAY_PER_REQUEST \
+  --region us-east-1
+
+echo "Creating DynamoDB table: autonomous-sme-insights..."
+aws dynamodb create-table \
+  --table-name autonomous-sme-insights \
+  --attribute-definitions \
+    AttributeName=business_id,AttributeType=S \
+    AttributeName=insight_id,AttributeType=S \
+  --key-schema \
+    AttributeName=business_id,KeyType=HASH \
+    AttributeName=insight_id,KeyType=RANGE \
+  --billing-mode PAY_PER_REQUEST \
+  --region us-east-1
+
+echo "Creating DynamoDB table: autonomous-sme-upload-jobs..."
+aws dynamodb create-table \
+  --table-name autonomous-sme-upload-jobs \
+  --attribute-definitions \
+    AttributeName=business_id,AttributeType=S \
+    AttributeName=job_id,AttributeType=S \
+  --key-schema \
+    AttributeName=business_id,KeyType=HASH \
+    AttributeName=job_id,KeyType=RANGE \
+  --billing-mode PAY_PER_REQUEST \
+  --region us-east-1
+
+echo ""
+echo "Creating DynamoDB table: autonomous-sme-users..."
+aws dynamodb create-table \
+  --table-name autonomous-sme-users \
+  --attribute-definitions \
+    AttributeName=email,AttributeType=S \
+  --key-schema \
+    AttributeName=email,KeyType=HASH \
+  --billing-mode PAY_PER_REQUEST \
+  --region us-east-1
+
 echo ""
 echo "Creating S3 bucket: autonomous-sme-documents..."
 
@@ -127,7 +234,7 @@ rm /tmp/lifecycle-policy.json
 echo ""
 echo "✅ AWS resources created successfully!"
 echo ""
-echo "DynamoDB Tables:"
+echo "DynamoDB Tables (Core):"
 echo "  - autonomous-sme-signals"
 echo "  - autonomous-sme-nsi-scores"
 echo "  - autonomous-sme-strategies"
@@ -135,6 +242,17 @@ echo "  - autonomous-sme-actions"
 echo "  - autonomous-sme-evaluations"
 echo "  - autonomous-sme-embeddings"
 echo "  - autonomous-sme-tasks"
+echo ""
+echo "DynamoDB Tables (Africa Commercial Readiness):"
+echo "  - autonomous-sme-businesses"
+echo "  - autonomous-sme-branches"
+echo "  - autonomous-sme-transactions"
+echo "  - autonomous-sme-inventory"
+echo "  - autonomous-sme-counterparties"
+echo "  - autonomous-sme-alerts"
+echo "  - autonomous-sme-insights"
+echo "  - autonomous-sme-upload-jobs"
+echo "  - autonomous-sme-users"
 echo ""
 echo "S3 Buckets:"
 echo "  - autonomous-sme-documents"

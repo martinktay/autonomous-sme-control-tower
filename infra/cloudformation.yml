@@ -1,0 +1,703 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  Autonomous SME Control Tower — Production infrastructure.
+  Creates DynamoDB tables, S3 bucket, ECS Fargate services, ALB,
+  CloudFront distribution, and IAM roles.
+
+Parameters:
+  Environment:
+    Type: String
+    Default: production
+    AllowedValues: [production, staging]
+  DomainName:
+    Type: String
+    Default: ''
+    Description: Custom domain (leave blank to use CloudFront default)
+  SESVerifiedEmail:
+    Type: String
+    Default: ''
+    Description: Verified SES sender email address
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+    Description: VPC for ECS services
+  SubnetIds:
+    Type: List<AWS::EC2::Subnet::Id>
+    Description: At least 2 subnets in different AZs
+  BackendImage:
+    Type: String
+    Description: ECR image URI for backend (e.g. 123456789.dkr.ecr.us-east-1.amazonaws.com/sme-backend:latest)
+  FrontendImage:
+    Type: String
+    Description: ECR image URI for frontend
+  JWTSecret:
+    Type: String
+    NoEcho: true
+    Default: change-me-in-production
+    Description: Secret key for JWT token signing
+
+Resources:
+
+  # ─── DynamoDB Tables ──────────────────────────────────────────────────────
+
+  SignalsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub 'autonomous-sme-signals-${Environment}'
+      BillingMode: PAY_PER_REQUEST
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      SSESpecification:
+        SSEEnabled: true
+      AttributeDefinitions:
+        - { AttributeName: org_id, AttributeType: S }
+        - { AttributeName: signal_id, AttributeType: S }
+      KeySchema:
+        - { AttributeName: org_id, KeyType: HASH }
+        - { AttributeName: signal_id, KeyType: RANGE }
+      Tags:
+        - { Key: Project, Value: sme-control-tower }
+        - { Key: Environment, Value: !Ref Environment }
+
+  NsiScoresTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub 'autonomous-sme-nsi-scores-${Environment}'
+      BillingMode: PAY_PER_REQUEST
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      SSESpecification:
+        SSEEnabled: true
+      AttributeDefinitions:
+        - { AttributeName: org_id, AttributeType: S }
+        - { AttributeName: nsi_id, AttributeType: S }
+      KeySchema:
+        - { AttributeName: org_id, KeyType: HASH }
+        - { AttributeName: nsi_id, KeyType: RANGE }
+
+  StrategiesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub 'autonomous-sme-strategies-${Environment}'
+      BillingMode: PAY_PER_REQUEST
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      SSESpecification:
+        SSEEnabled: true
+      AttributeDefinitions:
+        - { AttributeName: org_id, AttributeType: S }
+        - { AttributeName: strategy_id, AttributeType: S }
+      KeySchema:
+        - { AttributeName: org_id, KeyType: HASH }
+        - { AttributeName: strategy_id, KeyType: RANGE }
+
+  ActionsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub 'autonomous-sme-actions-${Environment}'
+      BillingMode: PAY_PER_REQUEST
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      SSESpecification:
+        SSEEnabled: true
+      AttributeDefinitions:
+        - { AttributeName: org_id, AttributeType: S }
+        - { AttributeName: execution_id, AttributeType: S }
+      KeySchema:
+        - { AttributeName: org_id, KeyType: HASH }
+        - { AttributeName: execution_id, KeyType: RANGE }
+
+  EvaluationsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub 'autonomous-sme-evaluations-${Environment}'
+      BillingMode: PAY_PER_REQUEST
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      SSESpecification:
+        SSEEnabled: true
+      AttributeDefinitions:
+        - { AttributeName: org_id, AttributeType: S }
+        - { AttributeName: evaluation_id, AttributeType: S }
+      KeySchema:
+        - { AttributeName: org_id, KeyType: HASH }
+        - { AttributeName: evaluation_id, KeyType: RANGE }
+
+  EmbeddingsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub 'autonomous-sme-embeddings-${Environment}'
+      BillingMode: PAY_PER_REQUEST
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      SSESpecification:
+        SSEEnabled: true
+      AttributeDefinitions:
+        - { AttributeName: org_id, AttributeType: S }
+        - { AttributeName: embedding_id, AttributeType: S }
+      KeySchema:
+        - { AttributeName: org_id, KeyType: HASH }
+        - { AttributeName: embedding_id, KeyType: RANGE }
+
+  TasksTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub 'autonomous-sme-tasks-${Environment}'
+      BillingMode: PAY_PER_REQUEST
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      SSESpecification:
+        SSEEnabled: true
+      AttributeDefinitions:
+        - { AttributeName: org_id, AttributeType: S }
+        - { AttributeName: task_id, AttributeType: S }
+      KeySchema:
+        - { AttributeName: org_id, KeyType: HASH }
+        - { AttributeName: task_id, KeyType: RANGE }
+
+  BusinessesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub 'autonomous-sme-businesses-${Environment}'
+      BillingMode: PAY_PER_REQUEST
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      SSESpecification:
+        SSEEnabled: true
+      AttributeDefinitions:
+        - { AttributeName: business_id, AttributeType: S }
+      KeySchema:
+        - { AttributeName: business_id, KeyType: HASH }
+
+  BranchesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub 'autonomous-sme-branches-${Environment}'
+      BillingMode: PAY_PER_REQUEST
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      SSESpecification:
+        SSEEnabled: true
+      AttributeDefinitions:
+        - { AttributeName: business_id, AttributeType: S }
+        - { AttributeName: branch_id, AttributeType: S }
+      KeySchema:
+        - { AttributeName: business_id, KeyType: HASH }
+        - { AttributeName: branch_id, KeyType: RANGE }
+
+  TransactionsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub 'autonomous-sme-transactions-${Environment}'
+      BillingMode: PAY_PER_REQUEST
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      SSESpecification:
+        SSEEnabled: true
+      AttributeDefinitions:
+        - { AttributeName: business_id, AttributeType: S }
+        - { AttributeName: transaction_id, AttributeType: S }
+      KeySchema:
+        - { AttributeName: business_id, KeyType: HASH }
+        - { AttributeName: transaction_id, KeyType: RANGE }
+
+  InventoryTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub 'autonomous-sme-inventory-${Environment}'
+      BillingMode: PAY_PER_REQUEST
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      SSESpecification:
+        SSEEnabled: true
+      AttributeDefinitions:
+        - { AttributeName: business_id, AttributeType: S }
+        - { AttributeName: item_id, AttributeType: S }
+      KeySchema:
+        - { AttributeName: business_id, KeyType: HASH }
+        - { AttributeName: item_id, KeyType: RANGE }
+
+  CounterpartiesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub 'autonomous-sme-counterparties-${Environment}'
+      BillingMode: PAY_PER_REQUEST
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      SSESpecification:
+        SSEEnabled: true
+      AttributeDefinitions:
+        - { AttributeName: business_id, AttributeType: S }
+        - { AttributeName: counterparty_id, AttributeType: S }
+      KeySchema:
+        - { AttributeName: business_id, KeyType: HASH }
+        - { AttributeName: counterparty_id, KeyType: RANGE }
+
+  AlertsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub 'autonomous-sme-alerts-${Environment}'
+      BillingMode: PAY_PER_REQUEST
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      SSESpecification:
+        SSEEnabled: true
+      AttributeDefinitions:
+        - { AttributeName: business_id, AttributeType: S }
+        - { AttributeName: alert_id, AttributeType: S }
+      KeySchema:
+        - { AttributeName: business_id, KeyType: HASH }
+        - { AttributeName: alert_id, KeyType: RANGE }
+
+  InsightsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub 'autonomous-sme-insights-${Environment}'
+      BillingMode: PAY_PER_REQUEST
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      SSESpecification:
+        SSEEnabled: true
+      AttributeDefinitions:
+        - { AttributeName: business_id, AttributeType: S }
+        - { AttributeName: insight_id, AttributeType: S }
+      KeySchema:
+        - { AttributeName: business_id, KeyType: HASH }
+        - { AttributeName: insight_id, KeyType: RANGE }
+
+  UploadJobsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub 'autonomous-sme-upload-jobs-${Environment}'
+      BillingMode: PAY_PER_REQUEST
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      SSESpecification:
+        SSEEnabled: true
+      AttributeDefinitions:
+        - { AttributeName: business_id, AttributeType: S }
+        - { AttributeName: job_id, AttributeType: S }
+      KeySchema:
+        - { AttributeName: business_id, KeyType: HASH }
+        - { AttributeName: job_id, KeyType: RANGE }
+
+  UsersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub 'autonomous-sme-users-${Environment}'
+      BillingMode: PAY_PER_REQUEST
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      SSESpecification:
+        SSEEnabled: true
+      AttributeDefinitions:
+        - { AttributeName: email, AttributeType: S }
+      KeySchema:
+        - { AttributeName: email, KeyType: HASH }
+
+  # ─── S3 Bucket ────────────────────────────────────────────────────────────
+
+  DocumentsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub 'autonomous-sme-documents-${Environment}'
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      VersioningConfiguration:
+        Status: Enabled
+      LifecycleConfiguration:
+        Rules:
+          - Id: DeleteOldLogs
+            Status: Enabled
+            Prefix: logs/
+            ExpirationInDays: 30
+          - Id: TransitionOldDocuments
+            Status: Enabled
+            Prefix: documents/
+            Transitions:
+              - StorageClass: STANDARD_IA
+                TransitionInDays: 90
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      Tags:
+        - { Key: Project, Value: sme-control-tower }
+        - { Key: Environment, Value: !Ref Environment }
+
+  # ─── IAM Roles ────────────────────────────────────────────────────────────
+
+  ECSTaskExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub 'sme-ecs-execution-${Environment}'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+      Tags:
+        - { Key: Project, Value: sme-control-tower }
+
+  ECSTaskRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub 'sme-ecs-task-${Environment}'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: SMEControlTowerAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Sid: DynamoDBAccess
+                Effect: Allow
+                Action:
+                  - dynamodb:PutItem
+                  - dynamodb:GetItem
+                  - dynamodb:Query
+                  - dynamodb:UpdateItem
+                  - dynamodb:DeleteItem
+                  - dynamodb:Scan
+                Resource:
+                  - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/autonomous-sme-*-${Environment}'
+              - Sid: S3Access
+                Effect: Allow
+                Action:
+                  - s3:PutObject
+                  - s3:GetObject
+                  - s3:DeleteObject
+                  - s3:ListBucket
+                Resource:
+                  - !GetAtt DocumentsBucket.Arn
+                  - !Sub '${DocumentsBucket.Arn}/*'
+              - Sid: BedrockAccess
+                Effect: Allow
+                Action:
+                  - bedrock:InvokeModel
+                Resource:
+                  - !Sub 'arn:aws:bedrock:${AWS::Region}::foundation-model/amazon.nova-lite-v1:0'
+                  - !Sub 'arn:aws:bedrock:${AWS::Region}::foundation-model/amazon.nova-embed-v1:0'
+                  - !Sub 'arn:aws:bedrock:${AWS::Region}::foundation-model/amazon.nova-act-v1:0'
+                  - !Sub 'arn:aws:bedrock:${AWS::Region}::foundation-model/amazon.nova-sonic-v1:0'
+              - Sid: SESAccess
+                Effect: Allow
+                Action:
+                  - ses:SendEmail
+                  - ses:SendRawEmail
+                  - ses:GetSendQuota
+                  - ses:VerifyEmailIdentity
+                Resource: '*'
+      Tags:
+        - { Key: Project, Value: sme-control-tower }
+
+  # ─── ECS Cluster ──────────────────────────────────────────────────────────
+
+  ECSCluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: !Sub 'sme-control-tower-${Environment}'
+      ClusterSettings:
+        - Name: containerInsights
+          Value: enabled
+      Tags:
+        - { Key: Project, Value: sme-control-tower }
+
+  # ─── Security Groups ─────────────────────────────────────────────────────
+
+  ALBSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: ALB security group for SME Control Tower
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - { Key: Project, Value: sme-control-tower }
+
+  ECSSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: ECS tasks security group
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 8000
+          ToPort: 8000
+          SourceSecurityGroupId: !Ref ALBSecurityGroup
+        - IpProtocol: tcp
+          FromPort: 3000
+          ToPort: 3000
+          SourceSecurityGroupId: !Ref ALBSecurityGroup
+      Tags:
+        - { Key: Project, Value: sme-control-tower }
+
+  # ─── Application Load Balancer ────────────────────────────────────────────
+
+  ALB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: !Sub 'sme-alb-${Environment}'
+      Scheme: internet-facing
+      Type: application
+      Subnets: !Ref SubnetIds
+      SecurityGroups:
+        - !Ref ALBSecurityGroup
+      Tags:
+        - { Key: Project, Value: sme-control-tower }
+
+  ALBListenerHTTP:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref ALB
+      Port: 80
+      Protocol: HTTP
+      DefaultActions:
+        - Type: redirect
+          RedirectConfig:
+            Protocol: HTTPS
+            Port: '443'
+            StatusCode: HTTP_301
+
+  BackendTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: !Sub 'sme-backend-${Environment}'
+      Port: 8000
+      Protocol: HTTP
+      VpcId: !Ref VpcId
+      TargetType: ip
+      HealthCheckPath: /health
+      HealthCheckIntervalSeconds: 30
+      HealthyThresholdCount: 2
+      UnhealthyThresholdCount: 3
+
+  FrontendTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: !Sub 'sme-frontend-${Environment}'
+      Port: 3000
+      Protocol: HTTP
+      VpcId: !Ref VpcId
+      TargetType: ip
+      HealthCheckPath: /
+      HealthCheckIntervalSeconds: 30
+      HealthyThresholdCount: 2
+      UnhealthyThresholdCount: 3
+
+  # ─── ECS Task Definitions ─────────────────────────────────────────────────
+
+  BackendTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: !Sub 'sme-backend-${Environment}'
+      Cpu: '512'
+      Memory: '1024'
+      NetworkMode: awsvpc
+      RequiresCompatibilities: [FARGATE]
+      ExecutionRoleArn: !GetAtt ECSTaskExecutionRole.Arn
+      TaskRoleArn: !GetAtt ECSTaskRole.Arn
+      ContainerDefinitions:
+        - Name: backend
+          Image: !Ref BackendImage
+          PortMappings:
+            - ContainerPort: 8000
+          Environment:
+            - { Name: AWS_REGION, Value: !Ref 'AWS::Region' }
+            - { Name: DOCUMENTS_BUCKET, Value: !Ref DocumentsBucket }
+            - { Name: SIGNALS_TABLE, Value: !Ref SignalsTable }
+            - { Name: NSI_SCORES_TABLE, Value: !Ref NsiScoresTable }
+            - { Name: STRATEGIES_TABLE, Value: !Ref StrategiesTable }
+            - { Name: ACTIONS_TABLE, Value: !Ref ActionsTable }
+            - { Name: EVALUATIONS_TABLE, Value: !Ref EvaluationsTable }
+            - { Name: EMBEDDINGS_TABLE, Value: !Ref EmbeddingsTable }
+            - { Name: TASKS_TABLE, Value: !Ref TasksTable }
+            - { Name: BUSINESSES_TABLE, Value: !Ref BusinessesTable }
+            - { Name: BRANCHES_TABLE, Value: !Ref BranchesTable }
+            - { Name: TRANSACTIONS_TABLE, Value: !Ref TransactionsTable }
+            - { Name: INVENTORY_TABLE, Value: !Ref InventoryTable }
+            - { Name: COUNTERPARTIES_TABLE, Value: !Ref CounterpartiesTable }
+            - { Name: ALERTS_TABLE, Value: !Ref AlertsTable }
+            - { Name: INSIGHTS_TABLE, Value: !Ref InsightsTable }
+            - { Name: UPLOAD_JOBS_TABLE, Value: !Ref UploadJobsTable }
+            - { Name: USERS_TABLE, Value: !Ref UsersTable }
+            - { Name: JWT_SECRET, Value: !Ref JWTSecret }
+            - { Name: JWT_ALGORITHM, Value: 'HS256' }
+            - { Name: JWT_EXPIRY_HOURS, Value: '24' }
+            - { Name: SES_SENDER_EMAIL, Value: !Ref SESVerifiedEmail }
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref BackendLogGroup
+              awslogs-region: !Ref 'AWS::Region'
+              awslogs-stream-prefix: backend
+
+  FrontendTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: !Sub 'sme-frontend-${Environment}'
+      Cpu: '256'
+      Memory: '512'
+      NetworkMode: awsvpc
+      RequiresCompatibilities: [FARGATE]
+      ExecutionRoleArn: !GetAtt ECSTaskExecutionRole.Arn
+      ContainerDefinitions:
+        - Name: frontend
+          Image: !Ref FrontendImage
+          PortMappings:
+            - ContainerPort: 3000
+          Environment:
+            - Name: NEXT_PUBLIC_API_URL
+              Value: !Sub 'https://${ALB.DNSName}'
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref FrontendLogGroup
+              awslogs-region: !Ref 'AWS::Region'
+              awslogs-stream-prefix: frontend
+
+  # ─── CloudWatch Log Groups ────────────────────────────────────────────────
+
+  BackendLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/ecs/sme-backend-${Environment}'
+      RetentionInDays: 30
+
+  FrontendLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/ecs/sme-frontend-${Environment}'
+      RetentionInDays: 30
+
+  # ─── ECS Services ─────────────────────────────────────────────────────────
+
+  BackendService:
+    Type: AWS::ECS::Service
+    DependsOn: ALBListenerHTTP
+    Properties:
+      ServiceName: !Sub 'sme-backend-${Environment}'
+      Cluster: !Ref ECSCluster
+      TaskDefinition: !Ref BackendTaskDefinition
+      DesiredCount: 2
+      LaunchType: FARGATE
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED
+          Subnets: !Ref SubnetIds
+          SecurityGroups:
+            - !Ref ECSSecurityGroup
+      LoadBalancers:
+        - ContainerName: backend
+          ContainerPort: 8000
+          TargetGroupArn: !Ref BackendTargetGroup
+
+  FrontendService:
+    Type: AWS::ECS::Service
+    DependsOn: ALBListenerHTTP
+    Properties:
+      ServiceName: !Sub 'sme-frontend-${Environment}'
+      Cluster: !Ref ECSCluster
+      TaskDefinition: !Ref FrontendTaskDefinition
+      DesiredCount: 2
+      LaunchType: FARGATE
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED
+          Subnets: !Ref SubnetIds
+          SecurityGroups:
+            - !Ref ECSSecurityGroup
+      LoadBalancers:
+        - ContainerName: frontend
+          ContainerPort: 3000
+          TargetGroupArn: !Ref FrontendTargetGroup
+
+  # ─── CloudFront Distribution ──────────────────────────────────────────────
+
+  CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Comment: !Sub 'SME Control Tower - ${Environment}'
+        DefaultRootObject: ''
+        Origins:
+          - Id: FrontendOrigin
+            DomainName: !GetAtt ALB.DNSName
+            CustomOriginConfig:
+              HTTPPort: 80
+              OriginProtocolPolicy: http-only
+          - Id: BackendOrigin
+            DomainName: !GetAtt ALB.DNSName
+            CustomOriginConfig:
+              HTTPPort: 80
+              OriginProtocolPolicy: http-only
+        DefaultCacheBehavior:
+          TargetOriginId: FrontendOrigin
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods: [GET, HEAD, OPTIONS]
+          CachedMethods: [GET, HEAD]
+          ForwardedValues:
+            QueryString: true
+            Cookies:
+              Forward: none
+          Compress: true
+        CacheBehaviors:
+          - PathPattern: '/api/*'
+            TargetOriginId: BackendOrigin
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods: [GET, HEAD, OPTIONS, PUT, POST, PATCH, DELETE]
+            ForwardedValues:
+              QueryString: true
+              Headers: ['Authorization', 'X-Org-ID', 'Content-Type']
+              Cookies:
+                Forward: none
+            CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad  # CachingDisabled
+        ViewerCertificate:
+          CloudFrontDefaultCertificate: true
+      Tags:
+        - { Key: Project, Value: sme-control-tower }
+
+Outputs:
+
+  ALBDnsName:
+    Description: Application Load Balancer DNS name
+    Value: !GetAtt ALB.DNSName
+
+  CloudFrontDomain:
+    Description: CloudFront distribution domain
+    Value: !GetAtt CloudFrontDistribution.DomainName
+
+  DocumentsBucketName:
+    Description: S3 bucket for document storage
+    Value: !Ref DocumentsBucket
+
+  ECSClusterName:
+    Description: ECS cluster name
+    Value: !Ref ECSCluster
+
+  BackendServiceName:
+    Description: Backend ECS service
+    Value: !GetAtt BackendService.Name
+
+  FrontendServiceName:
+    Description: Frontend ECS service
+    Value: !GetAtt FrontendService.Name

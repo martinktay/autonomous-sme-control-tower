@@ -46,6 +46,31 @@ The Autonomous SME Control Tower is a multi-agent AI system built on AWS Bedrock
 - Summarizes current stability, risks, and recent actions
 - Provides audio responses to dashboard queries
 
+### Categorisation Agent
+- AI-powered transaction categorisation using Nova
+- Maps raw transaction descriptions to standard categories
+
+### Mapping Agent
+- AI field mapping for multi-channel document ingestion
+- Maps uploaded CSV/Excel columns to system fields with confidence scores
+
+### Inventory Agent
+- Stock analysis, reorder alerts, expiry warnings
+- Feeds inventory signals into NSI calculation
+
+### Alert Agent
+- Generates alerts from signals, inventory, and financial data
+- Respects tier-based alert limits
+
+### Finance Agent
+- Document classification (invoice, receipt, statement, informal)
+- Data extraction from financial documents
+- Informal receipt handling for African market
+
+### Insights Agent
+- Generates AI business insights (tax, cashflow, profitability)
+- Produces actionable recommendations in plain language
+
 ## Data Flow
 
 ```
@@ -72,9 +97,36 @@ The Autonomous SME Control Tower is a multi-agent AI system built on AWS Bedrock
 - `autonomous-sme-nsi-scores`: NSI snapshots keyed by org_id + timestamp
 - `autonomous-sme-strategies`: Strategy simulations
 - `autonomous-sme-actions`: Action execution logs
+- `autonomous-sme-businesses`: Business registration and onboarding state
+- `autonomous-sme-branches`: Multi-location branch records
+- `autonomous-sme-transactions`: Unified revenue/expense/payment tracking
+- `autonomous-sme-inventory`: Stock items with quantity, reorder levels, expiry
+- `autonomous-sme-counterparties`: Supplier and customer records with balances
+- `autonomous-sme-alerts`: AI-generated business alerts
+- `autonomous-sme-upload-jobs`: Multi-channel document ingestion job tracking
 
 ### S3 Buckets
-- `autonomous-sme-documents`: Invoice files, raw documents
+- `autonomous-sme-documents`: Invoice files, raw documents, uploaded spreadsheets
+
+## Entity Model
+
+All entities are scoped by `org_id` (aliased as `business_id`) for multi-tenant isolation. Each model includes an `extension_attrs` dict for business-type-specific fields.
+
+- Business → has many Branches, Transactions, Inventory Items, Counterparties, Alerts
+- Transaction → categorised as revenue/expense/payment/transfer, linked to Counterparty
+- InventoryItem → tracks quantity, reorder level, expiry, cost price, sell price
+- Counterparty → supplier or customer with balance tracking
+- UploadJob → tracks multi-channel document ingestion lifecycle (upload → map → process)
+- Alert → AI-generated notifications with severity, read status, tier-based limits
+- FinanceDocument → classified and extracted financial documents (invoices, receipts, statements)
+
+## Pricing Tier System
+
+Four tiers enforce feature access via middleware:
+- Starter (free): 20 uploads/month, 1 branch, 5 alerts/week
+- Growth: Unlimited uploads, daily alerts, cashflow insights
+- Business: Multi-branch (up to 10), forecasting, staff analytics
+- Enterprise: Unlimited branches, POS integration, real-time alerts
 
 ## API Design
 
@@ -87,22 +139,49 @@ RESTful endpoints organized by domain:
 - `/api/actions` - Action execution and history
 - `/api/voice` - Voice briefings
 - `/api/orchestration` - Full closed-loop execution
+- `/api/businesses` - Business registration, onboarding, branch management
+- `/api/pricing` - Tier definitions and current tier lookup
+- `/api/transactions` - Transaction CRUD, summaries, cashflow
+- `/api/inventory` - Stock management, alerts, analytics
+- `/api/counterparties` - Supplier/customer CRUD, balance tracking
+- `/api/alerts` - Alert retrieval and read status
+- `/api/upload-jobs` - Multi-channel document ingestion pipeline
+- `/api/finance` - Document upload, insights, analytics, P&L, export
+- `/api/emails` - Email ingestion, task extraction, SES sending
 
 ## Frontend Architecture
 
 Next.js 14 app with pages:
+- `/` - Africa-focused landing page with business type showcase and pricing preview
+- `/onboarding` - Multi-step business registration wizard
+- `/pricing` - Tier comparison with NGN/USD toggle
 - `/portal` - One-click closed-loop demo
-- `/dashboard` - NSI, risks, actions overview
+- `/dashboard` - NSI, risks, actions, inventory/supplier overview
 - `/upload` - Invoice upload interface
 - `/strategy` - Strategy simulation view
 - `/actions` - Action history
+- `/transactions` - Transaction list with filters and summary
+- `/inventory` - Stock management with alert badges
+- `/suppliers` - Supplier/customer management
+- `/alerts` - Alert centre
+- `/finance` - Financial document management, P&L, cashflow, export
+- `/emails` - Email ingestion and task management
 - `/memory` - Semantic search
 - `/voice` - Voice briefings
+- `/help` - FAQ and guides
 
 Reusable components:
 - `NsiCard` - Displays NSI with color coding
 - `RiskPanel` - Lists top risks
 - `ActionLog` - Shows recent actions
+- `InsightsPanel` - AI-generated business insights
+- `CurrencyDisplay` - Formatted currency display (NGN, USD, GBP, EUR)
+- `InventoryTable` - Stock list with alert badges
+- `StockAlertBadge` - Low stock / expiry visual indicator
+- `SupplierCard` - Supplier balance summary
+- `CashflowChart` - Cashflow visualization
+- `PnlSummary` - Profit and loss summary
+- `OrgSwitcher` - Multi-org context switcher
 
 ## Technology Stack
 

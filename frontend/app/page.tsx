@@ -28,6 +28,14 @@ import {
   Globe,
   Brain,
   BarChart3,
+  ShoppingCart,
+  Store,
+  Scissors,
+  UtensilsCrossed,
+  Sprout,
+  Wrench,
+  CreditCard,
+  Package,
 } from "lucide-react";
 
 export default function Home() {
@@ -37,27 +45,38 @@ export default function Home() {
       <section className="container mx-auto px-4 pt-16 pb-10 text-center">
         <div className="inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-xs text-muted-foreground mb-6">
           <Globe className="h-3.5 w-3.5" />
-          Built for SMEs in Nigeria, the UK, and beyond
+          Built for SMEs in Nigeria, West Africa, and beyond
         </div>
         <h1 className="text-3xl sm:text-5xl font-bold tracking-tight mb-4 max-w-3xl mx-auto leading-tight">
-          Your AI-Powered Business Control Tower
+          Control Your Business Before Problems Start
         </h1>
-        <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
-          Upload invoices, track expenses, spot risks early, and get clear
-          recommendations to grow your business. No accountant or data
-          scientist needed.
+        <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-4">
+          AI that helps African SMEs sell more and lose less. Works with
+          receipts, POS exports, and manual records. Simple dashboards in
+          everyday business language.
         </p>
+        <ul className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-sm text-muted-foreground mb-8 max-w-xl mx-auto">
+          <li>✓ Free plan to get started</li>
+          <li>✓ No accounting knowledge needed</li>
+          <li>✓ See insights in 10 minutes</li>
+        </ul>
         <div className="flex flex-wrap justify-center gap-3">
-          <Link href="/upload">
+          <Link href="/onboarding">
             <Button size="lg" className="gap-2">
-              <Upload className="h-5 w-5" />
-              Upload an Invoice
+              <ArrowRight className="h-5 w-5" />
+              Start Free
             </Button>
           </Link>
           <Link href="/dashboard">
             <Button size="lg" variant="outline" className="gap-2">
               <LayoutDashboard className="h-5 w-5" />
               View My Business
+            </Button>
+          </Link>
+          <Link href="/pricing">
+            <Button size="lg" variant="ghost" className="gap-2">
+              <CreditCard className="h-5 w-5" />
+              See Pricing
             </Button>
           </Link>
         </div>
@@ -90,6 +109,34 @@ export default function Home() {
             title="Follow the Recommendations"
             description="See clear, plain-language strategies to improve cash flow, cut costs, and grow. Some actions run automatically for you."
           />
+        </div>
+      </section>
+
+      {/* Business types supported */}
+      <section className="container mx-auto px-4 py-12 border-t">
+        <h2 className="text-2xl font-semibold text-center mb-2">
+          Built for Every Type of African Business
+        </h2>
+        <p className="text-center text-muted-foreground mb-8 max-w-lg mx-auto">
+          Whether you run a supermarket, salon, or farm — we adapt to your business.
+        </p>
+        <div className="flex flex-wrap justify-center gap-4 max-w-3xl mx-auto">
+          {[
+            { icon: ShoppingCart, label: "Supermarkets" },
+            { icon: Store, label: "Mini Marts" },
+            { icon: Scissors, label: "Salons" },
+            { icon: UtensilsCrossed, label: "Food Vendors" },
+            { icon: Sprout, label: "Farms" },
+            { icon: Wrench, label: "Artisans" },
+          ].map((bt) => (
+            <div
+              key={bt.label}
+              className="flex flex-col items-center gap-2 p-4 rounded-lg border w-28 text-center"
+            >
+              <bt.icon className="h-6 w-6 text-primary" />
+              <span className="text-xs font-medium">{bt.label}</span>
+            </div>
+          ))}
         </div>
       </section>
 
@@ -197,19 +244,37 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Pricing preview */}
+      <section className="container mx-auto px-4 py-12 border-t">
+        <div className="text-center max-w-2xl mx-auto">
+          <CreditCard className="h-8 w-8 text-primary mx-auto mb-3" />
+          <h2 className="text-2xl font-semibold mb-2">
+            Start Free. Upgrade When You Grow.
+          </h2>
+          <p className="text-muted-foreground mb-4">
+            Free plan for small traders. Paid plans from ₦15,000/month for
+            growing businesses. No credit card required to start.
+          </p>
+          <Link href="/pricing">
+            <Button variant="outline" className="gap-1">
+              See Full Pricing <ArrowRight className="h-4 w-4" />
+            </Button>
+          </Link>
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="container mx-auto px-4 py-12 border-t">
         <div className="text-center">
-          <h2 className="text-xl font-semibold mb-2">Ready to get started?</h2>
+          <h2 className="text-xl font-semibold mb-2">Ready to take control?</h2>
           <p className="text-sm text-muted-foreground mb-6">
-            Upload your first invoice and see your business health score in
-            minutes.
+            Set up your business in 5 minutes. See your first insights in 10.
           </p>
           <div className="flex flex-wrap justify-center gap-3">
-            <Link href="/upload">
+            <Link href="/onboarding">
               <Button size="lg" className="gap-2">
-                <Upload className="h-5 w-5" />
-                Upload First Invoice
+                <ArrowRight className="h-5 w-5" />
+                Start Free — No Credit Card
               </Button>
             </Link>
             <Link href="/help">

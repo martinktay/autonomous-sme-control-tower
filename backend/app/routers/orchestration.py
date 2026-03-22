@@ -8,6 +8,8 @@ from app.agents.strategy_agent import StrategyAgent
 from app.agents.action_agent import ActionAgent
 from app.agents.reeval_agent import ReevalAgent
 from app.services.ddb_service import get_ddb_service
+from app.services.transaction_service import get_transaction_service
+from app.services.inventory_service import get_inventory_service
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +42,26 @@ async def run_closed_loop(request: RunLoopRequest) -> Dict[str, Any]:
                 "message": "No signals found. Upload invoices, emails, or financial documents first, then run the analysis."
             }
         
-        nsi_score = risk_agent.calculate_nsi(org_id, signals, {})
+        # Enrich context with transaction and inventory data for better NSI calculation
+        context = {}
+        try:
+            txn_svc = get_transaction_service()
+            summary = txn_svc.get_summary(org_id)
+            if summary:
+                context["transaction_summary"] = summary
+        except Exception:
+            logger.debug("Could not fetch transaction summary for NSI context")
+        
+        try:
+            inv_svc = get_inventory_service()
+            alerts = inv_svc.get_low_stock_alerts(org_id)
+            if alerts:
+                context["stock_alerts"] = alerts[:10]
+                context["stock_alert_count"] = len(alerts)
+        except Exception:
+            logger.debug("Could not fetch inventory alerts for NSI context")
+        
+        nsi_score = risk_agent.calculate_nsi(org_id, signals, context)
         nsi_snapshot_id = f"nsi_{uuid.uuid4().hex[:12]}"
         
         # Store NSI snapshot
@@ -94,7 +115,7 @@ async def run_closed_loop(request: RunLoopRequest) -> Dict[str, Any]:
         
         # Step 4: Re-evaluate - Calculate new NSI
         new_signals = ddb_service.get_signals(org_id)
-        new_nsi_score = risk_agent.calculate_nsi(org_id, new_signals, {})
+        new_nsi_score = risk_agent.calculate_nsi(org_id, new_signals, context)
         
         # Step 5: Evaluate - Assess prediction accuracy
         evaluation = reeval_agent.evaluate_outcome(

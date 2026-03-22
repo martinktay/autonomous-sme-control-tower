@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { Search, Brain, FileText, Inbox } from 'lucide-react'
 import { searchMemory } from '@/lib/api'
 import { useOrg } from '@/lib/org-context'
+import { formatDate } from '@/lib/format-date'
 
 export default function Memory() {
   const [query, setQuery] = useState('')
@@ -109,7 +110,7 @@ export default function Memory() {
                       {result.content?.category && <span>{result.content.category}</span>}
                       {result.content?.sender && <span>From: {result.content.sender}</span>}
                       {result.created_at && (
-                        <span>{new Date(result.created_at).toLocaleDateString()}</span>
+                        <span>{formatDate(result.created_at)}</span>
                       )}
                     </div>
                     {/* Summary or body snippet */}

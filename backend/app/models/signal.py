@@ -33,7 +33,7 @@ class Signal(BaseModel):
     @classmethod
     def validate_signal_type(cls, v: str) -> str:
         """Validate signal type"""
-        valid_types = {'invoice', 'email', 'finance_document'}
+        valid_types = {'invoice', 'email', 'finance_document', 'whatsapp'}
         if v not in valid_types:
             raise ValueError(f'Signal type must be one of: {valid_types}')
         return v
