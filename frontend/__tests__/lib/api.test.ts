@@ -2,6 +2,7 @@
  * Tests for the API client utility functions.
  * These verify the client constructs correct URLs and handles errors.
  */
+export {};
 
 // Mock global fetch
 const mockFetch = jest.fn();

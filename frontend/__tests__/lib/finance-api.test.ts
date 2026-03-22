@@ -2,6 +2,7 @@
  * Tests for Finance API client functions.
  * Verifies upload, analytics, export, and review queue endpoints.
  */
+export {};
 
 const mockFetch = jest.fn();
 global.fetch = mockFetch;

@@ -2,6 +2,7 @@
  * Tests for Email & Task API client functions.
  * Verifies correct endpoint URLs, HTTP methods, and request bodies.
  */
+export {};
 
 const mockFetch = jest.fn();
 global.fetch = mockFetch;

@@ -2,6 +2,7 @@
  * Tests for Voice API client functions.
  * Verifies correct endpoint URLs, HTTP methods, and response handling.
  */
+export {};
 
 const mockFetch = jest.fn();
 global.fetch = mockFetch;
