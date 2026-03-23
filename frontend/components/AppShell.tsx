@@ -10,7 +10,7 @@ import Sidebar from "@/components/Sidebar";
 import Link from "next/link";
 
 /** Routes that use the public (no-sidebar) layout. */
-const PUBLIC_ROUTES = ["/", "/login", "/register", "/pricing", "/help"];
+const PUBLIC_ROUTES = ["/", "/login", "/register", "/pricing", "/help", "/forgot-password"];
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();

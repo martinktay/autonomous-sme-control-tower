@@ -1,16 +1,20 @@
+/**
+ * @file AuthGuard — redirects unauthenticated users to /login for protected routes.
+ * Public routes (landing, login, register, pricing, help, forgot-password, onboarding)
+ * are rendered without requiring a session.
+ */
 "use client";
 
-import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
+import { useEffect } from "react";
 
-/** Routes accessible without authentication. */
-const PUBLIC_ROUTES = ["/", "/login", "/register", "/pricing", "/help"];
+const PUBLIC_ROUTES = ["/", "/login", "/register", "/pricing", "/help", "/forgot-password", "/onboarding"];
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
+  const { user, loading } = useAuth();
 
   const isPublic = PUBLIC_ROUTES.includes(pathname);
 
@@ -18,19 +22,10 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     if (!loading && !user && !isPublic) {
       router.replace("/login");
     }
-  }, [loading, user, isPublic, router, pathname]);
+  }, [loading, user, isPublic, router]);
 
-  // While checking auth state, show nothing (avoids flash)
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-pulse text-muted-foreground text-sm">Loading…</div>
-      </div>
-    );
-  }
-
-  // Not logged in on a protected route — don't render children (redirect is in-flight)
-  if (!user && !isPublic) {
+  // Show nothing while checking auth on protected routes
+  if (!loading && !user && !isPublic) {
     return null;
   }
 
