@@ -1,0 +1,321 @@
+{
+  "role": "Experienced Product Manager",
+  "context": "You are an experienced product manager reviewing the Autonomous SME Control Tower — an AI-powered operations platform targeting small and medium enterprises across Africa (Nigeria primary, expanding to Ghana, Kenya, South Africa, Rwanda, UK). The platform is NOT accounting software. It is positioned as an AI business survival and growth assistant that helps SME owners who may have no accounting knowledge make sense of their business data and take autonomous action.",
+
+  "platform_summary": {
+    "name": "Autonomous SME Control Tower",
+    "tagline": "AI-powered business survival and growth assistant for African SMEs",
+    "stage": "Post-hackathon, pre-commercial launch (Phase 1 targeting Nigeria)",
+    "origin": "Built as a Nova-first agentic system for AWS Bedrock hackathon, now evolving to commercially-ready Nigerian SME platform",
+    "tech_stack": {
+      "backend": "FastAPI + Python, Pydantic models, 30 API routers, 22 AI agents",
+      "frontend": "Next.js 14 + TypeScript + Tailwind CSS, 25+ pages, collapsible tier-aware sidebar",
+      "ai_models": "AWS Bedrock Nova (Lite for text, Embeddings for semantic search, Act for agentic actions, Sonic for voice)",
+      "storage": "DynamoDB (16 tables, all keyed by org_id), S3 (document storage)",
+      "email": "AWS SES (sandbox)",
+      "deployment": "Docker-first local dev, Vercel (frontend), backend TBD"
+    }
+  },
+
+  "target_market": {
+    "primary": "Nigeria and West Africa SMEs",
+    "secondary": "East Africa informal and semi-formal SMEs",
+    "business_types": [
+      "Supermarkets", "Mini Marts", "Kiosks", "Salons", "Food Vendors",
+      "Farms/Agriculture", "Artisans", "Pharmacies", "Restaurants",
+      "Bars/Lounges", "Hotels/Guesthouses", "Logistics", "Fashion/Textile",
+      "Electronics", "Construction", "Education", "Healthcare",
+      "Auto Mechanics", "Laundry/Cleaning", "Professional Services"
+    ],
+    "user_personas": [
+      "SME owner with no accounting knowledge who needs actionable insights",
+      "Multi-branch retail operator needing unified dashboards",
+      "Informal trader using WhatsApp and handwritten receipts",
+      "Growing business transitioning from manual to digital operations"
+    ]
+  },
+
+  "core_loop": {
+    "description": "Continuous autonomous operational cycle",
+    "steps": [
+      {"step": 1, "name": "Ingest", "detail": "Collect business data from invoices (PDF/image), emails, POS exports, receipts, camera captures, WhatsApp messages, CSV/Excel, manual entry"},
+      {"step": 2, "name": "Diagnose", "detail": "Analyse signals, calculate Nova Stability Index (NSI) across liquidity, revenue stability, operational latency, vendor risk"},
+      {"step": 3, "name": "Simulate", "detail": "Generate AI strategy options with predicted NSI improvements, cost estimates, automation eligibility"},
+      {"step": 4, "name": "Execute", "detail": "Take autonomous actions via Nova Act with human-in-the-loop oversight (WhatsApp approval for high-priority)"},
+      {"step": 5, "name": "Evaluate", "detail": "Measure prediction accuracy, compare actual vs predicted NSI changes, refine approach"}
+    ]
+  },
+
+  "pricing_tiers": [
+    {
+      "name": "Starter",
+      "price": "Free",
+      "target": "Kiosks, small traders, new businesses",
+      "limits": {"uploads_per_month": 20, "branches": 1, "alerts_per_week": 5},
+      "key_features": ["Basic dashboard", "Transaction tracking", "Receipt capture", "Simple P&L", "Weekly AI summary", "CSV export", "Tax compliance"]
+    },
+    {
+      "name": "Growth",
+      "price": "₦14,900/mo (~$9.99)",
+      "target": "Active supermarkets, salons, food vendors",
+      "limits": {"uploads_per_month": "Unlimited", "branches": 1, "alerts_per_week": "Unlimited"},
+      "key_features": ["Everything in Starter", "Daily AI alerts", "Cashflow insights", "Expense tracking", "Payment reminders", "Invoice management", "Tax tracking", "Inventory risk detection", "Supplier tracking", "Email ingestion", "WhatsApp summaries"]
+    },
+    {
+      "name": "Business",
+      "price": "₦39,900/mo (~$26.99)",
+      "target": "Multi-branch SMEs, growing businesses",
+      "limits": {"uploads_per_month": "Unlimited", "branches": 10, "alerts_per_week": "Unlimited"},
+      "key_features": ["Everything in Growth", "Multi-branch dashboards", "Marketing & business analytics", "Customer segmentation", "Sales forecasting", "Bank reconciliation", "P&L reports", "Advanced AI forecasting", "Staff analytics", "Desktop sync agent"]
+    },
+    {
+      "name": "Enterprise",
+      "price": "Contact Us",
+      "target": "Large retail chains, franchise operations",
+      "limits": {"uploads_per_month": "Unlimited", "branches": "Unlimited", "alerts_per_week": "Unlimited"},
+      "key_features": ["Everything in Business", "Real-time POS integration", "AI pricing optimisation", "Supplier intelligence network", "Marketing ROI tracking", "Custom reports & API access", "Executive dashboards", "Dedicated onboarding manager"]
+    }
+  ],
+
+  "current_features": {
+    "authentication": {
+      "registration": "Multi-step with email OTP verification (SHA-256 hashed, 10-min expiry)",
+      "login": "JWT (HS256, 8-hour expiry), PBKDF2-SHA256 (600k iterations)",
+      "password_reset": "OTP-based forgot password flow",
+      "rbac": "5-level hierarchy: viewer < member < admin < owner < super_admin",
+      "team_management": "Invite users, assign roles, remove members"
+    },
+    "data_ingestion": {
+      "manual_upload": "CSV/Excel with AI column mapping (confidence scores)",
+      "invoice_upload": "PDF/image upload with AI extraction",
+      "email_ingestion": "Email parsing with task extraction, triggers WhatsApp agent for human-in-the-loop",
+      "whatsapp": "Message extraction, business summaries, action review/approval",
+      "desktop_sync": "POS desktop file sync agent",
+      "pos_connector": "POS system data import",
+      "bank_sync": "Bank statement import and reconciliation"
+    },
+    "ai_agents": [
+      "Signal Intake (invoice/email extraction)",
+      "Risk Diagnosis (NSI calculation)",
+      "Strategy Simulation (corrective strategies)",
+      "Action Execution (Nova Act)",
+      "Re-evaluation (prediction accuracy)",
+      "Memory (semantic search via embeddings)",
+      "Voice (text + speech modes)",
+      "Finance (document classification, extraction, informal receipts)",
+      "Tax (multi-country compliance: NG, GH, KE, ZA, RW, GB)",
+      "Categorisation (transaction auto-categorisation)",
+      "Mapping (AI field mapping for uploads)",
+      "Inventory (stock analysis, reorder alerts)",
+      "Alert (signal-based notifications)",
+      "Insights (actionable business recommendations)",
+      "Email-to-WhatsApp (human-in-the-loop action flow)",
+      "Prediction (demand forecasting)",
+      "Supplier Intelligence (reliability analysis)",
+      "Forecasting (revenue/expense projections)",
+      "Branch Optimisation (cross-branch performance)",
+      "POS (POS data extraction)",
+      "Bank (reconciliation)",
+      "Desktop Sync (POS file extraction)"
+    ],
+    "frontend_pages": [
+      "Landing page (Africa-focused with business type showcase)",
+      "Registration (multi-step with country flag phone input)",
+      "Login / Forgot Password",
+      "Onboarding wizard",
+      "Dashboard (NSI, risks, actions, inventory/supplier overview)",
+      "Transactions (list, filters, summary, overdue payment tracking)",
+      "Finance (document management, P&L, cashflow, analytics, export)",
+      "Inventory (stock management with alert badges)",
+      "Suppliers (balance tracking)",
+      "Alerts (AI-generated notifications)",
+      "Upload (multi-channel document ingestion)",
+      "Emails (ingestion, task extraction)",
+      "WhatsApp (message ingestion, summaries)",
+      "Voice Assistant (text mode + voice mode toggle)",
+      "Tax & FIRS (multi-country compliance reports)",
+      "Analytics (business + marketing)",
+      "Predictions (demand forecast)",
+      "Supplier Intelligence",
+      "Strategy (AI simulation)",
+      "Actions (execution history)",
+      "Memory (semantic search)",
+      "Forecasting (revenue/expense projections)",
+      "Branch Optimisation",
+      "POS Connector / Bank Sync / Desktop Sync",
+      "Team Management (invite, roles)",
+      "Admin Panel (super_admin: platform metrics, user management)",
+      "Pricing (NGN/USD toggle, tier comparison)",
+      "Help & FAQs (18 FAQs, onboarding checklist)"
+    ],
+    "security": [
+      "JWT auth on all /api/ routes (except public endpoints)",
+      "PBKDF2-SHA256 password hashing (600k iterations)",
+      "5-level RBAC with require_role() middleware",
+      "Org isolation middleware (JWT org_id must match request org_id)",
+      "Tiered rate limiting (120 RPM general, 10 RPM auth, 20 RPM uploads)",
+      "Security headers (X-Content-Type-Options, X-Frame-Options, HSTS, etc.)",
+      "CORS restricted to configured origins",
+      "Input validation (org_id regex, file type/size checks)",
+      "Safe error messages (no internal details in production)",
+      "Body org_id validation on all POST endpoints"
+    ],
+    "multi_country_tax": {
+      "supported_countries": ["Nigeria (NG)", "Ghana (GH)", "Kenya (KE)", "South Africa (ZA)", "Rwanda (RW)", "United Kingdom (GB)"],
+      "tax_types": ["CIT (Corporate Income Tax)", "VAT", "WHT (Withholding Tax)", "PAYE"],
+      "nigeria_specifics": "CIT: 0% under ₦25M, 20% ₦25M-₦100M, 30% above. VAT 7.5%. WHT 5%. PAYE threshold ₦800K (Nigeria Tax Act 2025)"
+    }
+  },
+
+  "test_accounts": [
+    {"email": "admin@smecontroltower.com", "role": "super_admin", "tier": "enterprise", "business": "SME Control Tower", "country": "NG"},
+    {"email": "starter@demo.com", "role": "owner", "tier": "starter", "business": "Ade's Trading Co", "country": "NG"},
+    {"email": "growth@demo.com", "role": "owner", "tier": "growth", "business": "GreenField Farms", "country": "NG"},
+    {"email": "business@demo.com", "role": "owner", "tier": "business", "business": "TechBridge Solutions", "country": "NG"},
+    {"email": "ghana@demo.com", "role": "owner", "tier": "growth", "business": "Asante Fresh Market", "country": "GH"},
+    {"email": "kenya@demo.com", "role": "owner", "tier": "business", "business": "Mwangi Auto Garage", "country": "KE"},
+    {"email": "southafrica@demo.com", "role": "owner", "tier": "growth", "business": "Ndlovu Fashion House", "country": "ZA"},
+    {"email": "rwanda@demo.com", "role": "owner", "tier": "starter", "business": "Kigali Pharmacy Plus", "country": "RW"},
+    {"email": "uk@demo.com", "role": "owner", "tier": "business", "business": "Thames Valley Plumbing", "country": "GB"}
+  ],
+
+  "commercial_roadmap": {
+    "phase_1_nigeria_launch": [
+      "Pricing page with flexible onboarding",
+      "Manual ingestion (CSV, Excel, PDF, image, camera)",
+      "Basic AI dashboards and insights",
+      "Supermarket pilot program",
+      "Tax compliance (FIRS)",
+      "Free tier to drive adoption"
+    ],
+    "phase_2_expansion": [
+      "WhatsApp ingestion (business data from chat)",
+      "Desktop sync agent (POS file extraction)",
+      "Supplier intelligence network",
+      "Inventory prediction (demand forecasting)"
+    ],
+    "phase_3_scale": [
+      "POS connectors (real-time integration)",
+      "Bank sync (statement import + reconciliation)",
+      "AI forecasting engine (revenue, expense, cash runway)",
+      "Cross-branch optimisation"
+    ]
+  },
+
+  "success_criteria": [
+    "African SMEs can onboard without accounting knowledge",
+    "Free tier drives adoption — no friction to start",
+    "Supermarkets see actionable insights within 10 minutes of onboarding",
+    "Schema supports multiple SME types without redesign",
+    "Platform feels Africa-native and practical (not a Western SaaS clone)",
+    "Human-in-the-loop for high-stakes autonomous actions"
+  ],
+
+  "known_gaps_and_risks": [
+    "Implementation status doc is outdated (still shows hackathon-era TODOs)",
+    "No payment integration yet (Paystack/Flutterwave for NGN subscriptions)",
+    "No mobile app — web-only, though mobile-first responsive design",
+    "SES still in sandbox mode — email sending limited to verified addresses",
+    "Backend deployment strategy not finalised (Docker on EC2/ECS vs serverless)",
+    "No real POS hardware integration yet — file-based import only",
+    "WhatsApp integration is webhook-based, not yet connected to WhatsApp Business API",
+    "Voice uses browser Web Speech API — no server-side speech processing",
+    "No offline mode for areas with poor connectivity",
+    "No localisation beyond English (Pidgin, Yoruba, Hausa, Swahili could increase adoption)",
+    "Enterprise tier has no self-serve upgrade path — 'Contact Us' only",
+    "Admin dashboard shows metrics but no billing/subscription management",
+    "No A/B testing or feature flag infrastructure",
+    "No analytics/telemetry for user behaviour tracking",
+    "Prediction accuracy feedback loop (reeval agent) not yet validated with real data"
+  ],
+
+  "review_instructions": {
+    "objective": "Review the entire application from a product management perspective. Evaluate product-market fit, feature prioritisation, pricing strategy, UX flow, and go-to-market readiness for Nigerian SME launch.",
+
+    "review_areas": [
+      {
+        "area": "Product-Market Fit",
+        "questions": [
+          "Does the feature set match what Nigerian SMEs actually need day-to-day?",
+          "Are we solving real pain points or building impressive-but-unused AI features?",
+          "Is the core loop (Ingest → Diagnose → Simulate → Execute → Evaluate) too complex for the target user?",
+          "Should we simplify the initial experience to focus on 2-3 killer features?",
+          "Which business types should we prioritise for the Nigeria pilot?"
+        ]
+      },
+      {
+        "area": "Pricing Strategy",
+        "questions": [
+          "Is ₦14,900/mo ($9.99) realistic for Nigerian SMEs? What's the willingness to pay?",
+          "Is the free tier generous enough to drive adoption but limited enough to drive upgrades?",
+          "Should Growth tier include multi-branch (currently Business-only)?",
+          "Is the feature gating between tiers intuitive or confusing?",
+          "Should we offer annual pricing discounts?",
+          "Is 'Contact Us' for Enterprise the right approach or should we show a price?"
+        ]
+      },
+      {
+        "area": "User Experience & Onboarding",
+        "questions": [
+          "Can a kiosk owner with a smartphone complete onboarding in under 5 minutes?",
+          "Is the sidebar navigation with 7 groups and 25+ items overwhelming?",
+          "Should we implement a guided first-use experience (wizard/tour)?",
+          "Is the dashboard information density appropriate for the target user?",
+          "Are lock icons on tier-gated features motivating or frustrating?",
+          "Should the landing page focus more on specific business type stories?"
+        ]
+      },
+      {
+        "area": "Feature Prioritisation",
+        "questions": [
+          "Which Phase 2/3 features should be pulled forward for Nigeria launch?",
+          "Are there features we've built that should be deprioritised or removed?",
+          "Is the AI voice assistant a differentiator or a distraction at this stage?",
+          "Should WhatsApp ingestion be Phase 1 given how central WhatsApp is to Nigerian business?",
+          "Is multi-country tax support premature or a competitive advantage?",
+          "Should we invest in Paystack/Flutterwave integration before anything else?"
+        ]
+      },
+      {
+        "area": "Go-to-Market Readiness",
+        "questions": [
+          "What's missing for a credible Nigeria soft launch?",
+          "Do we need a mobile app or is responsive web sufficient for Phase 1?",
+          "Should we partner with specific supermarket chains for the pilot?",
+          "What's the customer acquisition strategy beyond the free tier?",
+          "Do we need local language support (Pidgin, Yoruba, Hausa) for adoption?",
+          "How do we handle customer support at launch?"
+        ]
+      },
+      {
+        "area": "Competitive Positioning",
+        "questions": [
+          "How do we differentiate from existing Nigerian fintech/accounting tools (Bumpa, Kippa, Prospa)?",
+          "Is 'AI business survival assistant' positioning clear and compelling?",
+          "Should we lean harder into specific verticals (e.g., supermarket-first)?",
+          "Is the Nova Stability Index (NSI) concept understandable to SME owners?"
+        ]
+      },
+      {
+        "area": "Technical & Operational Risks",
+        "questions": [
+          "Is the 22-agent architecture over-engineered for current needs?",
+          "Should we consolidate agents to reduce complexity and maintenance burden?",
+          "Is DynamoDB the right choice or should we consider a relational DB for complex queries?",
+          "What's the cost model for Bedrock API calls at scale?",
+          "How do we handle the transition from hackathon architecture to production?"
+        ]
+      }
+    ],
+
+    "deliverables_requested": [
+      "Priority-ranked list of changes needed before Nigeria soft launch",
+      "Recommended feature cuts or deferrals",
+      "Pricing adjustments with rationale",
+      "UX simplification recommendations",
+      "Go-to-market checklist with timeline estimates",
+      "Risk register with mitigation strategies",
+      "Metrics and KPIs to track post-launch"
+    ]
+  }
+}
