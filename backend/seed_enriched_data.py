@@ -706,6 +706,85 @@ def seed_evaluations(org_id, execution_ids, biz):
         })
 
 
+def seed_finance_documents(org_id, biz):
+    """Seed finance_document signals so the Finance page (cashflow + P&L) lights up.
+
+    The finance service reads signals with signal_type='finance_document' and
+    processing_status in ('approved', 'processed') inside content.
+    Categories: 'revenue'/'payment'/'credit_note' count as revenue in P&L;
+    'invoice'/'receipt'/'expense'/'purchase_order' count as expenses.
+    """
+    currency = biz["currency"]
+    supplier_names = [s[0] for s in biz["suppliers"]]
+    customer_names = [c[0] for c in biz["customers"]]
+    rev_lo, rev_hi = biz["rev_range"]
+    exp_lo, exp_hi = biz["exp_range"]
+
+    revenue_categories = ["revenue", "payment", "credit_note"]
+    expense_categories = ["invoice", "receipt", "expense", "purchase_order"]
+
+    count = 0
+    for day_offset in range(30):
+        dt = now - timedelta(days=day_offset)
+        date_str = dt.strftime("%Y-%m-%dT%H:%M:%S")
+
+        # 1-2 revenue documents per day
+        for _ in range(random.randint(1, 2)):
+            amt = round(random.uniform(rev_lo, rev_hi), 2)
+            vat = round(amt * 0.075, 2)  # 7.5% VAT standard
+            cat = random.choice(revenue_categories)
+            vendor = random.choice(customer_names)
+            signals_table.put_item(Item={
+                "org_id": org_id,
+                "signal_id": _id("signal"),
+                "signal_type": "finance_document",
+                "processing_status": "processed",
+                "content": {
+                    "document_id": _id("document"),
+                    "vendor_name": vendor,
+                    "amount": dec(amt),
+                    "currency": currency,
+                    "vat_amount": dec(vat),
+                    "document_date": date_str,
+                    "category": cat,
+                    "confidence_score": dec(round(random.uniform(0.85, 0.99), 2)),
+                    "processing_status": "processed",
+                    "s3_key": "",
+                },
+                "created_at": date_str,
+            })
+            count += 1
+
+        # 1 expense document per day
+        for _ in range(random.randint(1, 1)):
+            amt = round(random.uniform(exp_lo, exp_hi), 2)
+            vat = round(amt * 0.075, 2)
+            cat = random.choice(expense_categories)
+            vendor = random.choice(supplier_names)
+            signals_table.put_item(Item={
+                "org_id": org_id,
+                "signal_id": _id("signal"),
+                "signal_type": "finance_document",
+                "processing_status": "processed",
+                "content": {
+                    "document_id": _id("document"),
+                    "vendor_name": vendor,
+                    "amount": dec(amt),
+                    "currency": currency,
+                    "vat_amount": dec(vat),
+                    "document_date": date_str,
+                    "category": cat,
+                    "confidence_score": dec(round(random.uniform(0.80, 0.97), 2)),
+                    "processing_status": "processed",
+                    "s3_key": "",
+                },
+                "created_at": date_str,
+            })
+            count += 1
+
+    return count
+
+
 def seed_insights(org_id, biz):
     """Seed AI-generated business insights."""
     currency = biz["currency"]
@@ -774,6 +853,9 @@ def seed_one_business(email, biz):
 
     seed_signals(org_id, biz)
     print(f"    [OK] {len(biz['signals'])} signals (invoices + emails)")
+
+    fin_doc_count = seed_finance_documents(org_id, biz)
+    print(f"    [OK] {fin_doc_count} finance documents (cashflow + P&L)")
 
     seed_nsi_scores(org_id, biz)
     print(f"    [OK] 7 days of NSI scores")
