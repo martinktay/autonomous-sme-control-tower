@@ -54,8 +54,8 @@ class AlertService:
         """List alerts for a business, most recent first."""
         return self.ddb.query_items(
             table_name=self.table,
-            key_condition="business_id = :bid",
-            expression_values={":bid": {"S": business_id}},
+            key_condition="org_id = :bid",
+            expression_values={":bid": business_id},
             limit=limit,
             scan_forward=False,
         )

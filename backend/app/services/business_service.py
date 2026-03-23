@@ -160,8 +160,8 @@ class BusinessService:
         """List all branches for a business."""
         return self.ddb.query_items(
             table_name=self.branches_table,
-            key_condition="business_id = :bid",
-            expression_values={":bid": {"S": business_id}},
+            key_condition="org_id = :bid",
+            expression_values={":bid": business_id},
         )
 
 
