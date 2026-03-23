@@ -26,9 +26,9 @@ export default function AnalyticsPage() {
 
   useEffect(() => {
     if (!orgId || !token) return;
-    const headers: Record<string, string> = { Authorization: `Bearer ${token}` };
+    const headers: Record<string, string> = { Authorization: `Bearer ${token}`, "X-Org-ID": orgId };
     Promise.all([
-      fetch(`${API}/api/transactions/${orgId}/summary`, { headers }).then((r) => r.ok ? r.json() : null),
+      fetch(`${API}/api/transactions/summary`, { headers }).then((r) => r.ok ? r.json() : null),
       fetch(`${API}/api/finance/${orgId}/analytics`, { headers }).then((r) => r.ok ? r.json() : null),
     ])
       .then(([txnSummary, finAnalytics]) => {
