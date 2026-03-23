@@ -146,6 +146,9 @@ class TestStabilityRouter:
         assert data["org_id"] == "org_123"
 
     def test_get_nsi_history(self, client, _patch_aws):
+        mock_ddb, _ = _patch_aws
+        mock_ddb.query_nsi_scores.return_value = []
+
         resp = client.get(
             "/api/stability/org_123/history", headers={**_AUTH_HEADERS}
         )

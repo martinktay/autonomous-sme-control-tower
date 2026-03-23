@@ -152,8 +152,8 @@ async def get_platform_stats(request: Request):
     except Exception as e:
         logger.warning("Could not fetch signal/action metrics: %s", e)
 
-    # Revenue estimate (paid tiers)
-    tier_prices = {"starter": 0, "growth": 14900, "business": 39900, "enterprise": 99900}
+    # Revenue estimate (paid tiers — enterprise is custom/contact-us, excluded from auto-calc)
+    tier_prices = {"starter": 0, "growth": 14900, "business": 39900, "enterprise": 0}
     monthly_revenue = sum(tier_prices.get(u.get("tier", "starter"), 0) for u in users if u.get("is_active") is not False)
 
     return {

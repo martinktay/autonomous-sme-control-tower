@@ -70,7 +70,7 @@ async def import_bank_statement(
 
     except Exception as e:
         logger.error("Bank import failed: %s", e, exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Bank import failed: {str(e)}")
+        raise HTTPException(status_code=500, detail="Bank import failed. Please try again.")
 
 
 @router.get("/supported-banks", response_model=Dict[str, Any])

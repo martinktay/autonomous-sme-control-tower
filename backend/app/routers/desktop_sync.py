@@ -60,7 +60,7 @@ async def upload_sync_file(
 
     except Exception as e:
         logger.error("Desktop sync upload failed: %s", e, exc_info=True)
-        raise HTTPException(status_code=500, detail=f"File processing failed: {str(e)}")
+        raise HTTPException(status_code=500, detail="File processing failed. Please try again.")
 
 
 @router.get("/status", response_model=Dict[str, Any])

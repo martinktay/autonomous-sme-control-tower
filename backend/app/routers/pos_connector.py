@@ -54,7 +54,7 @@ async def import_pos_data(
 
     except Exception as e:
         logger.error("POS import failed: %s", e, exc_info=True)
-        raise HTTPException(status_code=500, detail=f"POS import failed: {str(e)}")
+        raise HTTPException(status_code=500, detail="POS import failed. Please try again.")
 
 
 @router.get("/systems", response_model=Dict[str, Any])

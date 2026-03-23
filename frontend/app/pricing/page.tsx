@@ -85,9 +85,9 @@ const tiers = [
   },
   {
     name: "Enterprise",
-    price: "₦99,900",
-    priceUsd: "$66.99",
-    period: "per month",
+    price: "Custom",
+    priceUsd: "Custom",
+    period: "Contact us for pricing",
     badge: null,
     target: "Large retail chains, franchise operations",
     cta: "Contact Us",

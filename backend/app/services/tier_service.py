@@ -77,7 +77,7 @@ TIER_PRICING_NGN = {
     PricingTier.STARTER: {"price": 0, "label": "Free"},
     PricingTier.GROWTH: {"price": 14900, "label": "₦14,900/mo"},
     PricingTier.BUSINESS: {"price": 39900, "label": "₦39,900/mo"},
-    PricingTier.ENTERPRISE: {"price": 99900, "label": "₦99,900/mo"},
+    PricingTier.ENTERPRISE: {"price": 0, "label": "Contact Us"},
 }
 
 
@@ -132,6 +132,24 @@ class TierService:
         if limit == -1:
             return True
         return current_branches < limit
+
+    def check_feature(self, business_id: str, feature: str) -> bool:
+        """Check if a business's tier includes a specific feature.
+
+        Looks up the business tier from DynamoDB and checks against TIER_LIMITS.
+        Returns True if the feature is allowed or if the lookup fails (fail-open).
+        """
+        try:
+            from app.services.business_service import get_business_service
+            biz_svc = get_business_service()
+            business = biz_svc.get_business(business_id)
+            if not business:
+                return True  # fail-open if business not found
+            tier = business.get("pricing_tier", PricingTier.STARTER)
+            return self.has_feature(tier, feature)
+        except Exception as e:
+            logger.warning("check_feature lookup failed for %s: %s", business_id, e)
+            return True  # fail-open on error
 
 
 def get_tier_service() -> TierService:

@@ -1,5 +1,18 @@
+"""
+Orchestration router — runs the full closed-loop cycle.
+
+Executes the complete Diagnose → Simulate → Execute → Evaluate loop:
+1. Calculate NSI from current signals
+2. Generate AI strategies
+3. Execute the top automatable strategy
+4. Re-evaluate NSI and measure prediction accuracy
+
+Endpoint:
+  POST /api/orchestration/run-loop — run the full closed loop
+"""
+
 import logging
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from typing import Dict, Any
 from pydantic import BaseModel
 from app.agents.risk_agent import RiskAgent
@@ -10,6 +23,7 @@ from app.services.ddb_service import get_ddb_service
 from app.services.transaction_service import get_transaction_service
 from app.services.inventory_service import get_inventory_service
 from app.utils.id_generator import generate_id
+from app.middleware.org_isolation import validate_org_id_from_body
 
 logger = logging.getLogger(__name__)
 
@@ -23,13 +37,14 @@ ddb_service = get_ddb_service()
 
 
 class RunLoopRequest(BaseModel):
+    """Payload for triggering the full closed-loop cycle."""
     org_id: str
 
 
 @router.post("/run-loop")
-async def run_closed_loop(request: RunLoopRequest) -> Dict[str, Any]:
-    """Execute complete closed loop: diagnose -> simulate -> execute -> evaluate"""
-    
+async def run_closed_loop(request: RunLoopRequest, req: Request) -> Dict[str, Any]:
+    """Execute complete closed loop: diagnose → simulate → execute → evaluate."""
+    validate_org_id_from_body(req, request.org_id)
     org_id = request.org_id
     
     try:
