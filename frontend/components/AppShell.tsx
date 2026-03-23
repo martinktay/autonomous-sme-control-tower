@@ -1,5 +1,5 @@
 /**
- * @file AppShell — Layout wrapper that shows sidebar for authenticated pages
+ * @file AppShell - Layout wrapper that shows sidebar for authenticated pages
  * and a clean layout for public pages (landing, login, register, pricing, help).
  */
 "use client";
@@ -25,7 +25,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         <main className="min-h-[calc(100vh-3.5rem)]">{children}</main>
         <footer className="border-t py-6">
           <div className="container mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-muted-foreground">
-            <p>SME Control Tower — AI-powered business operations</p>
+            <p>SME Control Tower - AI-powered business operations</p>
             <div className="flex gap-4">
               <Link href="/help" className="hover:text-foreground transition-colors">
                 Help &amp; FAQs

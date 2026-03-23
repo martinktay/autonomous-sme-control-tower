@@ -1,6 +1,6 @@
 /**
  * @file Root layout for the Next.js app.
- * Wraps every page with AuthProvider → OrgProvider (multi-tenant context),
+ * Wraps every page with AuthProvider -> OrgProvider (multi-tenant context),
  * the top NavBar, sidebar navigation, and a shared footer.
  */
 import type { Metadata } from "next";
@@ -10,12 +10,12 @@ import { AuthProvider } from "@/lib/auth-context";
 import { OrgProvider } from "@/lib/org-context";
 import NavBar from "@/components/NavBar";
 import AuthGuard from "@/components/AuthGuard";
-import AppShell from "@/components/AppShell";
+import AppShell from "../components/AppShell";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "SME Control Tower — Your Business at a Glance",
+  title: "SME Control Tower - Your Business at a Glance",
   description: "AI-powered operations platform for SMEs",
 };
 
