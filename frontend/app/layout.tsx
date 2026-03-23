@@ -8,7 +8,6 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth-context";
 import { OrgProvider } from "@/lib/org-context";
-import NavBar from "@/components/NavBar";
 import AuthGuard from "@/components/AuthGuard";
 import AppShell from "../components/AppShell";
 
@@ -26,7 +25,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <AuthProvider>
           <OrgProvider>
             <AuthGuard>
-              <NavBar />
               <AppShell>
                 {children}
               </AppShell>

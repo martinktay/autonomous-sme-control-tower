@@ -58,6 +58,11 @@ interface NavGroup {
   items: NavItem[];
 }
 
+interface SidebarProps {
+  mobileOpen?: boolean;
+  onClose?: () => void;
+}
+
 const NAV_GROUPS: NavGroup[] = [
   {
     label: "Core",
@@ -141,7 +146,7 @@ const TIER_BADGE: Record<Tier, { label: string; color: string }> = {
   enterprise: { label: "Enterprise", color: "bg-amber-100 text-amber-700" },
 };
 
-export default function Sidebar() {
+export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
   const pathname = usePathname();
   const { user } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
@@ -168,14 +173,15 @@ export default function Sidebar() {
     return href !== "/" && pathname.startsWith(href + "/");
   };
 
-  return (
-    <aside
-      className={`sticky top-14 h-[calc(100vh-3.5rem)] border-r bg-background flex flex-col transition-all duration-200 ${
-        collapsed ? "w-16" : "w-60"
-      }`}
-    >
-      {/* Collapse toggle */}
-      <div className="flex items-center justify-end p-2 border-b">
+  // Close mobile menu on navigation
+  const handleNavClick = () => {
+    if (mobileOpen && onClose) onClose();
+  };
+
+  const sidebarContent = (
+    <>
+      {/* Collapse toggle — desktop only */}
+      <div className="hidden lg:flex items-center justify-end p-2 border-b">
         <button
           onClick={() => setCollapsed(!collapsed)}
           className="p-1.5 rounded-md hover:bg-accent transition-colors text-muted-foreground"
@@ -213,6 +219,7 @@ export default function Sidebar() {
                     <Link
                       key={item.href}
                       href={locked ? "/pricing" : item.href}
+                      onClick={handleNavClick}
                       title={collapsed ? item.label : undefined}
                       className={`flex items-center gap-2.5 px-2.5 py-2 text-sm rounded-md transition-colors group ${
                         active
@@ -265,6 +272,7 @@ export default function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
+              onClick={handleNavClick}
               title={collapsed ? item.label : undefined}
               className={`flex items-center gap-2.5 px-2.5 py-2 text-sm rounded-md transition-colors ${
                 active
@@ -278,6 +286,37 @@ export default function Sidebar() {
           );
         })}
       </div>
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      {/* Mobile overlay */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/40 lg:hidden"
+          onClick={onClose}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Mobile drawer */}
+      <aside
+        className={`fixed top-14 left-0 z-50 h-[calc(100vh-3.5rem)] w-64 border-r bg-background flex flex-col transition-transform duration-200 lg:hidden ${
+          mobileOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        {sidebarContent}
+      </aside>
+
+      {/* Desktop sidebar */}
+      <aside
+        className={`sticky top-14 h-[calc(100vh-3.5rem)] border-r bg-background hidden lg:flex flex-col transition-all duration-200 ${
+          collapsed ? "w-16" : "w-60"
+        }`}
+      >
+        {sidebarContent}
+      </aside>
+    </>
   );
 }

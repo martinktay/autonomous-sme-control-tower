@@ -9,16 +9,19 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Building2, Bell, LogOut, Menu, X } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
-import { useState } from "react";
 
 /** Public routes that don't show the authenticated top bar. */
 const PUBLIC_ROUTES = ["/", "/login", "/register", "/pricing", "/help", "/forgot-password"];
 
-export default function NavBar() {
+interface NavBarProps {
+  mobileMenuOpen?: boolean;
+  onToggleMobileMenu?: () => void;
+}
+
+export default function NavBar({ mobileMenuOpen = false, onToggleMobileMenu }: NavBarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuth();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const isPublic = PUBLIC_ROUTES.includes(pathname);
 
@@ -65,7 +68,7 @@ export default function NavBar() {
         {/* Left: logo + mobile sidebar toggle */}
         <div className="flex items-center gap-3">
           <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            onClick={onToggleMobileMenu}
             className="lg:hidden p-1.5 rounded-md hover:bg-accent transition-colors"
             aria-label="Toggle sidebar"
           >

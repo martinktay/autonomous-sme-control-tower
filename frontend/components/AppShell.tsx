@@ -4,9 +4,11 @@
  */
 "use client";
 
+import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import Sidebar from "@/components/Sidebar";
+import NavBar from "@/components/NavBar";
 import Link from "next/link";
 
 /** Routes that use the public (no-sidebar) layout. */
@@ -15,6 +17,7 @@ const PUBLIC_ROUTES = ["/", "/login", "/register", "/pricing", "/help", "/forgot
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { user } = useAuth();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const isPublic = PUBLIC_ROUTES.includes(pathname);
 
@@ -22,6 +25,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   if (isPublic || !user) {
     return (
       <>
+        <NavBar />
         <main className="min-h-[calc(100vh-3.5rem)]">{children}</main>
         <footer className="border-t py-6">
           <div className="container mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-muted-foreground">
@@ -42,20 +46,26 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   // Authenticated pages: sidebar + content
   return (
-    <div className="flex">
-      <Sidebar />
-      <div className="flex-1 flex flex-col min-h-[calc(100vh-3.5rem)]">
-        <main className="flex-1 overflow-y-auto">{children}</main>
-        <footer className="border-t py-4">
-          <div className="px-6 flex items-center justify-between text-xs text-muted-foreground">
-            <p>SME Control Tower</p>
-            <div className="flex gap-4">
-              <Link href="/help" className="hover:text-foreground transition-colors">Help</Link>
-              <Link href="/pricing" className="hover:text-foreground transition-colors">Plans</Link>
+    <>
+      <NavBar
+        mobileMenuOpen={mobileMenuOpen}
+        onToggleMobileMenu={() => setMobileMenuOpen((prev) => !prev)}
+      />
+      <div className="flex">
+        <Sidebar mobileOpen={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} />
+        <div className="flex-1 flex flex-col min-h-[calc(100vh-3.5rem)]">
+          <main className="flex-1 overflow-y-auto">{children}</main>
+          <footer className="border-t py-4">
+            <div className="px-6 flex items-center justify-between text-xs text-muted-foreground">
+              <p>SME Control Tower</p>
+              <div className="flex gap-4">
+                <Link href="/help" className="hover:text-foreground transition-colors">Help</Link>
+                <Link href="/pricing" className="hover:text-foreground transition-colors">Plans</Link>
+              </div>
             </div>
-          </div>
-        </footer>
+          </footer>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
