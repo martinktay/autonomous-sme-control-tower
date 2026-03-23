@@ -64,3 +64,44 @@
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
+
+/* ── Print styles for invoices and receipts ── */
+@media print {
+  body {
+    background: white !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Hide navigation, sidebar, and action bars */
+  nav, aside, header,
+  .print\\:hidden,
+  [data-sidebar],
+  [data-navbar] {
+    display: none !important;
+  }
+
+  /* Remove shadows and borders for clean print */
+  .print\\:shadow-none {
+    box-shadow: none !important;
+  }
+
+  .print\\:border-0 {
+    border: none !important;
+  }
+
+  .print\\:bg-white {
+    background: white !important;
+  }
+
+  /* Ensure invoice fills the page */
+  main {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  @page {
+    margin: 1cm;
+    size: A4;
+  }
+}

@@ -24,6 +24,9 @@ logger = logging.getLogger(__name__)
 PUBLIC_PREFIXES = [
     "/api/auth/",
     "/api/pricing",
+    "/api/subscriptions/payment-methods",
+    "/api/subscriptions/pricing",
+    "/api/subscriptions/webhook/",
     "/docs",
     "/openapi.json",
     "/redoc",
@@ -75,6 +78,8 @@ class AuthMiddleware(BaseHTTPMiddleware):
         if path in PUBLIC_EXACT:
             return await call_next(request)
         if any(path.startswith(p) for p in PUBLIC_PREFIXES):
+            return await call_next(request)
+        if path.startswith("/api/outbound-invoices/") and path.endswith("/public"):
             return await call_next(request)
         if request.method == "OPTIONS":
             return await call_next(request)

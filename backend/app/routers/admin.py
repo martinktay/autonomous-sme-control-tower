@@ -178,3 +178,124 @@ async def get_platform_stats(request: Request):
 async def get_dial_codes_endpoint():
     """Return supported dial codes for phone input (public endpoint)."""
     return {"dial_codes": get_dial_codes()}
+
+
+# ── Super Admin: Delete User ──────────────────────────────────────────────────
+
+class DeleteUser(BaseModel):
+    email: EmailStr
+
+
+@router.delete("/users")
+async def delete_user(payload: DeleteUser, request: Request):
+    """Permanently delete a user account and all associated data (super_admin only)."""
+    _require_super_admin(request)
+    svc = get_auth_service()
+    user = svc._get_user_by_email(payload.email)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    if user.get("role") == "super_admin":
+        raise HTTPException(status_code=400, detail="Cannot delete a super_admin account")
+    try:
+        svc.users_table.delete_item(Key={"email": payload.email})
+        logger.info("Super admin deleted user: %s", payload.email)
+        return {"message": f"User {payload.email} deleted permanently", "email": payload.email}
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+# ── Super Admin: Reactivate User ─────────────────────────────────────────────
+
+class ReactivateUser(BaseModel):
+    email: EmailStr
+
+
+@router.put("/users/reactivate")
+async def reactivate_user(payload: ReactivateUser, request: Request):
+    """Reactivate a previously deactivated user (super_admin only)."""
+    _require_super_admin(request)
+    svc = get_auth_service()
+    user = svc._get_user_by_email(payload.email)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    try:
+        svc.users_table.update_item(
+            Key={"email": payload.email},
+            UpdateExpression="SET is_active = :a",
+            ExpressionAttributeValues={":a": True},
+        )
+        return {"message": f"User {payload.email} reactivated", "email": payload.email}
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+# ── Super Admin: Subscription Management ─────────────────────────────────────
+
+@router.get("/subscriptions")
+async def list_all_subscriptions(request: Request):
+    """List all subscriptions across the platform (super_admin only)."""
+    _require_super_admin(request)
+    try:
+        from app.services.subscription_service import get_subscription_service
+        svc = get_subscription_service()
+        subs = svc.list_all_subscriptions()
+        return {"subscriptions": subs, "count": len(subs)}
+    except Exception as e:
+        logger.warning("Could not fetch subscriptions: %s", e)
+        return {"subscriptions": [], "count": 0}
+
+
+class AdminSubscriptionUpdate(BaseModel):
+    email: EmailStr
+    tier: Literal["starter", "growth", "business", "enterprise"]
+    payment_method: str = "admin_override"
+
+
+@router.put("/subscriptions/override")
+async def override_subscription(payload: AdminSubscriptionUpdate, request: Request):
+    """Override a user's subscription tier directly (super_admin only).
+    Useful for granting complimentary access or resolving payment issues.
+    """
+    _require_super_admin(request)
+    svc = get_auth_service()
+    try:
+        result = await svc.update_user_tier(payload.email, payload.tier)
+        logger.info("Super admin overrode tier for %s to %s", payload.email, payload.tier)
+        return {**result, "message": f"Tier overridden to {payload.tier} for {payload.email}"}
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
+# ── Super Admin: Platform Configuration ──────────────────────────────────────
+
+@router.get("/config/platform")
+async def get_platform_config(request: Request):
+    """Get current platform configuration (super_admin only)."""
+    _require_super_admin(request)
+    from app.config import get_settings
+    s = get_settings()
+    return {
+        "region": s.aws_region,
+        "debug": s.debug,
+        "cors_origins": s.cors_origins,
+        "rate_limit_rpm": s.rate_limit_rpm,
+        "documents_bucket": s.documents_bucket,
+        "models": {
+            "nova_lite": s.nova_lite_model_id,
+            "nova_embeddings": s.nova_embeddings_model_id,
+            "nova_act": s.nova_act_model_id,
+            "nova_sonic": s.nova_sonic_model_id,
+        },
+        "tables": {
+            "users": s.users_table,
+            "signals": s.signals_table,
+            "strategies": s.strategies_table,
+            "actions": s.actions_table,
+            "transactions": getattr(s, "transactions_table", ""),
+            "inventory": getattr(s, "inventory_table", ""),
+            "subscriptions": getattr(s, "subscriptions_table", ""),
+            "outbound_invoices": getattr(s, "outbound_invoices_table", ""),
+        },
+    }
+
+

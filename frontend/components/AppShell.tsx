@@ -19,7 +19,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const isPublic = PUBLIC_ROUTES.includes(pathname);
+  const isPublic = PUBLIC_ROUTES.includes(pathname) || pathname.startsWith("/invoices/inv-");
 
   // Public pages: no sidebar, just content + footer
   if (isPublic || !user) {

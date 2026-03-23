@@ -19,7 +19,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const { user, loading } = useAuth();
 
-  const isPublic = PUBLIC_ROUTES.includes(pathname);
+  const isPublic = PUBLIC_ROUTES.includes(pathname) || pathname.startsWith("/invoices/inv-");
 
   useEffect(() => {
     if (!loading && !user && !isPublic) {

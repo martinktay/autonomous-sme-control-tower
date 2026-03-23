@@ -294,6 +294,25 @@ Resources:
       KeySchema:
         - { AttributeName: email, KeyType: HASH }
 
+  SubscriptionsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub 'autonomous-sme-subscriptions-${Environment}'
+      BillingMode: PAY_PER_REQUEST
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      SSESpecification:
+        SSEEnabled: true
+      AttributeDefinitions:
+        - { AttributeName: org_id, AttributeType: S }
+        - { AttributeName: subscription_id, AttributeType: S }
+      KeySchema:
+        - { AttributeName: org_id, KeyType: HASH }
+        - { AttributeName: subscription_id, KeyType: RANGE }
+      Tags:
+        - { Key: Project, Value: sme-control-tower }
+        - { Key: Environment, Value: !Ref Environment }
+
   # ─── S3 Bucket ────────────────────────────────────────────────────────────
 
   DocumentsBucket:
@@ -539,6 +558,7 @@ Resources:
             - { Name: INSIGHTS_TABLE, Value: !Ref InsightsTable }
             - { Name: UPLOAD_JOBS_TABLE, Value: !Ref UploadJobsTable }
             - { Name: USERS_TABLE, Value: !Ref UsersTable }
+            - { Name: SUBSCRIPTIONS_TABLE, Value: !Ref SubscriptionsTable }
             - { Name: JWT_SECRET, Value: !Ref JWTSecret }
             - { Name: JWT_ALGORITHM, Value: 'HS256' }
             - { Name: JWT_EXPIRY_HOURS, Value: '24' }

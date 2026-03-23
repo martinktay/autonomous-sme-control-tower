@@ -41,6 +41,7 @@ export default function DashboardPage() {
   const [stockAlerts, setStockAlerts] = useState<any[]>([]);
   const [suppliers, setSuppliers] = useState<any[]>([]);
   const [recentTransactions, setRecentTransactions] = useState<any[]>([]);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
   // Fetch NSI + actions in parallel; show error only if both fail
   const fetchDashboardData = useCallback(async (silent = false) => {
@@ -88,6 +89,7 @@ export default function DashboardPage() {
     } finally {
       setLoading(false);
       setRefreshing(false);
+      setLastUpdated(new Date());
     }
   }, [orgId]);
 
@@ -160,7 +162,12 @@ export default function DashboardPage() {
               upload data or run an analysis.
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
+            {lastUpdated && (
+              <span className="text-xs text-muted-foreground hidden sm:inline">
+                Updated {lastUpdated.toLocaleTimeString()}
+              </span>
+            )}
             <Button
               variant="outline"
               size="sm"
@@ -248,14 +255,18 @@ export default function DashboardPage() {
           <Card>
             <CardContent className="py-10 text-center space-y-3">
               <HelpCircle className="h-10 w-10 mx-auto text-muted-foreground" />
-              <h3 className="font-semibold">No data yet</h3>
+              <h3 className="font-semibold">Welcome to your Control Tower</h3>
               <p className="text-sm text-muted-foreground max-w-md mx-auto">
-                Upload your first invoice to get started. Once you have data,
-                run an analysis to see your business health score.
+                Upload an invoice, receipt, or spreadsheet to get started.
+                The AI will calculate your business health score, spot risks,
+                and suggest improvements — all in plain language.
               </p>
-              <div className="flex justify-center gap-2 pt-2">
+              <div className="flex flex-wrap justify-center gap-2 pt-2">
                 <Link href="/upload">
                   <Button>Upload Invoice</Button>
+                </Link>
+                <Link href="/finance/upload">
+                  <Button variant="outline">Import Spreadsheet</Button>
                 </Link>
                 <Link href="/help">
                   <Button variant="outline">How It Works</Button>

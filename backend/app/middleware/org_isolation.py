@@ -71,6 +71,10 @@ class OrgIsolationMiddleware(BaseHTTPMiddleware):
         "/api/pricing",
         "/api/invoices/upload",
         "/api/finance/upload",
+        "/api/subscriptions/payment-methods",
+        "/api/subscriptions/pricing",
+        "/api/subscriptions/webhook/",
+        "/api/admin/",
     ]
 
     async def dispatch(self, request: Request, call_next: Callable) -> Response:

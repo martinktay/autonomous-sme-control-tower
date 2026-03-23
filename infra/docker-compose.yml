@@ -9,6 +9,11 @@ services:
       - "8000:8000"
     env_file:
       - ../.env
+    environment:
+      - SUBSCRIPTIONS_TABLE=${SUBSCRIPTIONS_TABLE:-autonomous-sme-subscriptions}
+      - PAYSTACK_SECRET_KEY=${PAYSTACK_SECRET_KEY:-}
+      - FLUTTERWAVE_SECRET_HASH=${FLUTTERWAVE_SECRET_HASH:-}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY:-}
     volumes:
       - ../prompts:/app/prompts:ro
     networks:
@@ -26,6 +31,11 @@ services:
       interval: 30s
       timeout: 5s
       retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   frontend:
     build:
@@ -48,6 +58,11 @@ services:
     depends_on:
       backend:
         condition: service_started
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 networks:
   autonomous-sme:

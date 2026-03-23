@@ -46,6 +46,15 @@ class Settings(BaseSettings):
     # --- S3 bucket for uploaded documents ---
     documents_bucket: str = "autonomous-sme-documents"
 
+    # --- Outbound invoices ---
+    outbound_invoices_table: str = "autonomous-sme-outbound-invoices"
+
+    # --- Subscriptions ---
+    subscriptions_table: str = "autonomous-sme-subscriptions"
+    paystack_secret_key: str = ""          # Paystack webhook HMAC secret
+    flutterwave_secret_hash: str = ""      # Flutterwave webhook verification hash
+    stripe_secret_key: str = ""            # Stripe API secret key
+
     # --- SES email sending ---
     ses_sender_email: str = ""         # Verified sender address (required for sending)
     ses_region: str = "us-east-1"

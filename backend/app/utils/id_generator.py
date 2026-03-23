@@ -30,6 +30,7 @@ PREFIXES: Dict[str, str] = {
     "email": "eml",
     "document": "doc",
     "org": "org",
+    "subscription": "sub",
 }
 
 

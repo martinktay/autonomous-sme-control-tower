@@ -5,7 +5,7 @@ from typing import Any, Dict
 
 from app.models.tax_report import AnnualTaxReport
 from app.utils.bedrock_client import get_bedrock_client
-from app.utils.json_guard import safe_parse
+from app.utils.json_guard import safe_json_parse
 from app.utils.prompt_loader import load_prompt
 
 logger = logging.getLogger(__name__)
@@ -37,7 +37,7 @@ class TaxAgent:
             )
 
             response = self.bedrock.invoke_model(prompt)
-            parsed = safe_parse(response)
+            parsed = safe_json_parse(response) or {}
 
             return {
                 "summary": parsed.get("summary", ""),

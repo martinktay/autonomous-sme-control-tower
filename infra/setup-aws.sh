@@ -192,6 +192,19 @@ aws dynamodb create-table \
   --region us-east-1
 
 echo ""
+echo "Creating DynamoDB table: autonomous-sme-outbound-invoices..."
+aws dynamodb create-table \
+  --table-name autonomous-sme-outbound-invoices \
+  --attribute-definitions \
+    AttributeName=org_id,AttributeType=S \
+    AttributeName=invoice_id,AttributeType=S \
+  --key-schema \
+    AttributeName=org_id,KeyType=HASH \
+    AttributeName=invoice_id,KeyType=RANGE \
+  --billing-mode PAY_PER_REQUEST \
+  --region us-east-1
+
+echo ""
 echo "Creating DynamoDB table: autonomous-sme-users..."
 aws dynamodb create-table \
   --table-name autonomous-sme-users \
@@ -252,6 +265,7 @@ echo "  - autonomous-sme-counterparties"
 echo "  - autonomous-sme-alerts"
 echo "  - autonomous-sme-insights"
 echo "  - autonomous-sme-upload-jobs"
+echo "  - autonomous-sme-outbound-invoices"
 echo "  - autonomous-sme-users"
 echo ""
 echo "S3 Buckets:"

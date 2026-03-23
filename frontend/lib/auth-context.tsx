@@ -20,6 +20,7 @@ interface AuthUser {
   business_name: string;
   tier: string;
   email_verified: boolean;
+  country?: string;
 }
 
 interface AuthContextType {
@@ -125,6 +126,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       business_name: data.business_name || "",
       tier: data.tier || "starter",
       email_verified: data.email_verified ?? false,
+      country: data.country || "",
     });
   }, [saveSession]);
 
@@ -148,6 +150,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       business_name: data.business_name || "",
       tier: data.tier || "starter",
       email_verified: data.email_verified ?? false,
+      country: data.country || "",
     });
   }, [saveSession]);
 

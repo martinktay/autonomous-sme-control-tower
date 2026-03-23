@@ -39,6 +39,7 @@ import {
   PanelLeftClose,
   PanelLeft,
   FileText,
+  Receipt,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 
@@ -71,6 +72,7 @@ const NAV_GROUPS: NavGroup[] = [
       { href: "/upload", label: "Upload Data", icon: Upload, minTier: "starter" },
       { href: "/transactions", label: "Transactions", icon: ArrowLeftRight, minTier: "starter" },
       { href: "/finance", label: "Finance", icon: Wallet, minTier: "starter" },
+      { href: "/invoices", label: "Invoices", icon: Receipt, minTier: "starter" },
       { href: "/alerts", label: "Alerts", icon: Bell, minTier: "starter" },
       { href: "/tax", label: "Tax & FIRS", icon: FileText, minTier: "starter" },
     ],
@@ -129,6 +131,7 @@ const NAV_GROUPS: NavGroup[] = [
 const BOTTOM_LINKS: NavItem[] = [
   { href: "/team", label: "Team", icon: Users, minTier: "starter" },
   { href: "/admin", label: "Admin Panel", icon: Shield, minTier: "starter" },
+  { href: "/subscribe", label: "Subscribe", icon: CreditCard, minTier: "starter" },
   { href: "/pricing", label: "Pricing & Plans", icon: CreditCard, minTier: "starter" },
   { href: "/help", label: "Help & FAQs", icon: HelpCircle, minTier: "starter" },
 ];

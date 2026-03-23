@@ -849,6 +849,160 @@ export const removeTeamMember = async (email: string) => {
   return res.json();
 };
 
+// ==================== Outbound Invoices ====================
+
+/** Get available payment methods for subscriptions by country. */
+export const getSubscriptionPaymentMethods = async (countryCode = "NG") => {
+  const res = await apiFetch(`/api/subscriptions/payment-methods?country_code=${countryCode}`);
+  return res.json();
+};
+
+/** Get subscription pricing tiers. */
+export const getSubscriptionPricing = async (currency = "NGN") => {
+  const res = await apiFetch(`/api/subscriptions/pricing?currency=${currency}`);
+  return res.json();
+};
+
+/** Create a new subscription. */
+export const createSubscription = async (data: {
+  tier: string;
+  payment_method: string;
+  billing_cycle?: string;
+  currency?: string;
+}) => {
+  const res = await apiFetch('/api/subscriptions', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+  return res.json();
+};
+
+/** Get current subscription for the authenticated org. */
+export const getCurrentSubscription = async () => {
+  const res = await apiFetch('/api/subscriptions/current');
+  return res.json();
+};
+
+/** Activate a subscription after payment. */
+export const activateSubscription = async (subscriptionId: string, providerRef = "") => {
+  const res = await apiFetch('/api/subscriptions/activate', {
+    method: 'POST',
+    body: JSON.stringify({ subscription_id: subscriptionId, provider_ref: providerRef }),
+  });
+  return res.json();
+};
+
+/** Cancel a subscription. */
+export const cancelSubscription = async (subscriptionId: string) => {
+  const res = await apiFetch('/api/subscriptions/cancel', {
+    method: 'POST',
+    body: JSON.stringify({ subscription_id: subscriptionId }),
+  });
+  return res.json();
+};
+
+/** Admin: delete a user permanently (super_admin only). */
+export const adminDeleteUser = async (email: string) => {
+  const res = await apiFetch('/api/admin/users', {
+    method: 'DELETE',
+    body: JSON.stringify({ email }),
+  });
+  return res.json();
+};
+
+/** Admin: reactivate a deactivated user (super_admin only). */
+export const adminReactivateUser = async (email: string) => {
+  const res = await apiFetch('/api/admin/users/reactivate', {
+    method: 'PUT',
+    body: JSON.stringify({ email }),
+  });
+  return res.json();
+};
+
+/** Admin: list all subscriptions (super_admin only). */
+export const adminListSubscriptions = async () => {
+  const res = await apiFetch('/api/admin/subscriptions');
+  return res.json();
+};
+
+/** Admin: override a user's subscription tier (super_admin only). */
+export const adminOverrideSubscription = async (email: string, tier: string) => {
+  const res = await apiFetch('/api/admin/subscriptions/override', {
+    method: 'PUT',
+    body: JSON.stringify({ email, tier }),
+  });
+  return res.json();
+};
+
+/** Admin: get platform configuration (super_admin only). */
+export const adminGetPlatformConfig = async () => {
+  const res = await apiFetch('/api/admin/config/platform');
+  return res.json();
+};
+
+/** Create a new outbound invoice. */
+export const createOutboundInvoice = async (orgId: string, data: {
+  customer_name: string;
+  customer_email?: string;
+  customer_phone?: string;
+  customer_address?: string;
+  line_items: { description: string; quantity: number; unit_price: number }[];
+  currency?: string;
+  tax_rate?: number;
+  discount?: number;
+  notes?: string;
+  due_days?: number;
+  payment_method?: string;
+}) => {
+  const res = await apiFetch('/api/outbound-invoices', {
+    method: 'POST',
+    headers: { 'X-Org-ID': orgId },
+    body: JSON.stringify(data),
+  });
+  return res.json();
+};
+
+/** List all outbound invoices for the org. */
+export const listOutboundInvoices = async (orgId: string) => {
+  const res = await apiFetch('/api/outbound-invoices', {
+    headers: { 'X-Org-ID': orgId },
+  });
+  return res.json();
+};
+
+/** Get outbound invoice summary stats. */
+export const getInvoiceSummary = async (orgId: string) => {
+  const res = await apiFetch('/api/outbound-invoices/summary', {
+    headers: { 'X-Org-ID': orgId },
+  });
+  return res.json();
+};
+
+/** Get a single outbound invoice. */
+export const getOutboundInvoice = async (orgId: string, invoiceId: string) => {
+  const res = await apiFetch(`/api/outbound-invoices/${invoiceId}`, {
+    headers: { 'X-Org-ID': orgId },
+  });
+  return res.json();
+};
+
+/** Update outbound invoice status. */
+export const updateInvoiceStatus = async (orgId: string, invoiceId: string, status: string, paymentReference?: string) => {
+  const res = await apiFetch(`/api/outbound-invoices/${invoiceId}/status`, {
+    method: 'PUT',
+    headers: { 'X-Org-ID': orgId },
+    body: JSON.stringify({ status, payment_reference: paymentReference }),
+  });
+  return res.json();
+};
+
+/** Get public invoice view (no auth required — for payment links). */
+export const getPublicInvoice = async (invoiceId: string) => {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/outbound-invoices/${invoiceId}/public`);
+  if (!res.ok) throw new Error('Invoice not found');
+  return res.json();
+};
+
 // ==================== Unified Client ====================
 
 /** Object-style export bundling all API functions for convenient dashboard imports. */
@@ -938,4 +1092,21 @@ export const apiClient = {
   inviteTeamMember,
   updateTeamMemberRole,
   removeTeamMember,
+  createOutboundInvoice,
+  listOutboundInvoices,
+  getInvoiceSummary,
+  getOutboundInvoice,
+  updateInvoiceStatus,
+  getPublicInvoice,
+  getSubscriptionPaymentMethods,
+  getSubscriptionPricing,
+  createSubscription,
+  getCurrentSubscription,
+  activateSubscription,
+  cancelSubscription,
+  adminDeleteUser,
+  adminReactivateUser,
+  adminListSubscriptions,
+  adminOverrideSubscription,
+  adminGetPlatformConfig,
 };

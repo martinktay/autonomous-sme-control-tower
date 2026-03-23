@@ -481,6 +481,99 @@ const faqs: FaqItem[] = [
     answer:
       "Yes. Each branch tracks its own transactions, inventory, and performance metrics. The dashboard aggregates everything so you see the full picture, but you can drill down into any individual branch. Branch managers can be given access to only their branch data.",
   },
+  // ── Receipts & Invoicing ──
+  {
+    section: "Receipts & Invoicing",
+    question: "Can I print a receipt or invoice?",
+    answer:
+      "Yes. Open any invoice from the Invoices page and click the 'Print Receipt' button at the top. This opens your browser's print dialog where you can send it to a physical printer for a hard copy. The printout is formatted as a clean A4 receipt with your business details, line items, totals, and payment status.",
+  },
+  {
+    section: "Receipts & Invoicing",
+    question: "Can I save an invoice as a PDF?",
+    answer:
+      "Yes. On the invoice detail page, click 'Save as PDF'. This uses your browser's built-in 'Save as PDF' printer option to generate a downloadable PDF file. You can then share it via email, WhatsApp, or any other channel. The PDF includes all invoice details, tax breakdown, and payment confirmation if the invoice is paid.",
+  },
+  {
+    section: "Receipts & Invoicing",
+    question: "What does the receipt look like when printed?",
+    answer:
+      "The printed receipt is clean and professional — no navigation bars, sidebars, or buttons. It shows your business name, invoice number, date, vendor or customer details, line items with quantities and prices, tax breakdown, total amount, and payment status. For paid invoices, a 'RECEIPT — Payment Confirmed' footer is included automatically.",
+  },
+  {
+    section: "Receipts & Invoicing",
+    question: "Can I share a receipt with my customer?",
+    answer:
+      "Yes. Save the invoice as PDF and share it via WhatsApp, email, or any messaging app. The PDF is a complete record of the transaction that your customer can keep for their own records. You can also print a hard copy and hand it over directly.",
+  },
+  // ── Subscriptions & Payments ──
+  {
+    section: "Subscriptions & Payments",
+    question: "What payment methods are available for subscriptions?",
+    answer:
+      "We support the payment methods most accessible to SMEs in your region. In Nigeria: Paystack, Flutterwave, bank transfer, and USSD. In Ghana, Kenya, South Africa, Rwanda, Tanzania, and Uganda: Flutterwave, mobile money (M-Pesa, MTN MoMo, Airtel Money), and bank transfer. In the UK, US, and other countries: Stripe and bank transfer. You choose the method that works for you during checkout.",
+  },
+  {
+    section: "Subscriptions & Payments",
+    question: "How do I subscribe to a paid plan?",
+    answer:
+      "Go to the Subscribe page from the sidebar. Choose your currency (NGN or USD), select monthly or annual billing (annual saves you about 17%), pick your tier (Growth, Business, or Enterprise), and select your preferred payment method. Click Subscribe and follow the payment provider's instructions. Your plan activates immediately after payment is confirmed.",
+  },
+  {
+    section: "Subscriptions & Payments",
+    question: "Can I pay with mobile money?",
+    answer:
+      "Yes. Mobile money (M-Pesa, MTN Mobile Money, Airtel Money) is available for subscribers in Kenya, Ghana, South Africa, Rwanda, Tanzania, and Uganda. Select 'Mobile Money' as your payment method during checkout and follow the prompts on your phone to complete the payment.",
+  },
+  {
+    section: "Subscriptions & Payments",
+    question: "Can I pay with USSD?",
+    answer:
+      "Yes. USSD payment is available for Nigerian subscribers. Select 'USSD' as your payment method during checkout. You will receive a USSD code to dial on your phone to complete the payment — no internet banking or app needed.",
+  },
+  {
+    section: "Subscriptions & Payments",
+    question: "What is the difference between monthly and annual billing?",
+    answer:
+      "Annual billing gives you approximately 17% off compared to paying monthly. For example, the Growth plan is ₦14,900/month or ₦149,000/year (saving ₦29,800). You can switch between monthly and annual at any time from the Subscribe page.",
+  },
+  {
+    section: "Subscriptions & Payments",
+    question: "How do I cancel my subscription?",
+    answer:
+      "Go to the Subscribe page and click 'Cancel Subscription'. Your access continues until the end of your current billing period. After that, your account reverts to the free Starter plan. Your data is never deleted — you can resubscribe at any time and pick up where you left off.",
+  },
+  {
+    section: "Subscriptions & Payments",
+    question: "Is the Starter plan really free?",
+    answer:
+      "Yes. The Starter plan is completely free with no credit card required. It includes 20 uploads per month, basic dashboard, transaction tracking, receipt capture, and full tax compliance features. Many small businesses run entirely on the free plan.",
+  },
+  // ── Admin & Platform Management ──
+  {
+    section: "Admin & Platform Management",
+    question: "What can a Super Admin do?",
+    answer:
+      "Super Admins have full platform control: view all users and their roles/tiers, change user roles and pricing tiers, delete or reactivate user accounts, view all subscriptions across the platform, override subscription tiers, and view platform configuration including AI models, database tables, rate limits, and CORS settings.",
+  },
+  {
+    section: "Admin & Platform Management",
+    question: "How do I access the Admin Panel?",
+    answer:
+      "The Admin Panel is available only to users with the super_admin role. Click 'Admin' in the sidebar to access it. You will see four tabs: Overview (platform metrics like MRR, total users, active orgs), Users (manage all accounts), Subscriptions (view all platform subscriptions), and Config (platform configuration and settings).",
+  },
+  {
+    section: "Admin & Platform Management",
+    question: "Can I delete a user account?",
+    answer:
+      "Yes. Super Admins can permanently delete user accounts from the Users tab in the Admin Panel. Click the delete button next to any user and confirm the action. Note: super_admin accounts cannot be deleted for safety. Deleted accounts and their data are permanently removed.",
+  },
+  {
+    section: "Admin & Platform Management",
+    question: "Can I reactivate a deactivated user?",
+    answer:
+      "Yes. If a user account has been deactivated, Super Admins can reactivate it from the Users tab. Click the reactivate button next to the inactive user. Their account is restored immediately with all their previous data intact.",
+  },
   // ── Tips & Best Practices ──
   {
     section: "Tips & Best Practices",
@@ -629,9 +722,13 @@ export default function HelpPage() {
             <FeatureCard icon={BarChart3} title="Business Analytics" href="/analytics"
               description="AI-powered revenue analysis, customer segmentation, sales forecasting, and marketing insights." />
             <FeatureCard icon={Receipt} title="Payments & Invoicing" href="/transactions"
-              description="Track payments, manage invoices, monitor overdue balances, and get collection reminders." />
+              description="Track payments, manage invoices, monitor overdue balances, and get collection reminders. Print receipts or save as PDF." />
             <FeatureCard icon={FileText} title="Tax & FIRS" href="/tax"
               description="Generate FIRS-ready annual tax reports. CIT, VAT, WHT, PAYE calculated from your data." />
+            <FeatureCard icon={Wallet} title="Subscribe" href="/subscribe"
+              description="Choose your plan and pay with Paystack, Flutterwave, bank transfer, USSD, mobile money, or Stripe." />
+            <FeatureCard icon={Shield} title="Admin Panel" href="/admin"
+              description="Super Admin controls — manage users, subscriptions, tiers, and platform configuration." />
           </div>
         </div>
 

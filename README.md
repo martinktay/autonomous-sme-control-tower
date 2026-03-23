@@ -53,7 +53,9 @@ The Autonomous SME Control Tower ingests whatever business data an SME has (invo
 | 👨‍👩‍👧‍👦 **Team Management** | Invite users, assign roles, manage team members per organisation |
 | 💳 **Tiered Pricing** | Starter (Free), Growth (₦14,900/mo), Business (₦39,900/mo), Enterprise (Contact Us) |
 | 🏢 **Multi-Tenant** | Complete data isolation per organisation with DynamoDB org-keyed architecture |
-| 🛡️ **Admin Panel** | Platform metrics (MRR, users, orgs), user management, role/tier changes (super_admin only) |
+| 🧾 **Receipt Print & Download** | Print invoices as hard-copy receipts or save as PDF for digital sharing via WhatsApp, email, etc. |
+| 💳 **Subscription Payments** | Region-aware payment methods — Paystack, Flutterwave, bank transfer, USSD, mobile money (M-Pesa, MTN MoMo), Stripe |
+| 🛡️ **Admin Panel** | Platform metrics, user management (delete/reactivate), subscription oversight, tier overrides, platform config viewer |
 | 📱 **Responsive UI** | Mobile-first design — works on phones, tablets, and desktops |
 
 ---
@@ -171,18 +173,36 @@ Request → Security Headers → JWT Auth → Org Isolation → Tier Enforcement
 
 ---
 
+## 💰 Subscription Payment Methods
+
+| Region | Payment Methods |
+|--------|----------------|
+| 🇳🇬 Nigeria | Paystack, Flutterwave, Bank Transfer, USSD |
+| 🇬🇭 Ghana | Flutterwave, Mobile Money (MTN MoMo), Bank Transfer |
+| 🇰🇪 Kenya | Flutterwave, Mobile Money (M-Pesa), Bank Transfer |
+| 🇿🇦 South Africa | Flutterwave, Mobile Money, Bank Transfer |
+| 🇷🇼 Rwanda | Flutterwave, Mobile Money, Bank Transfer |
+| 🇹🇿 Tanzania | Flutterwave, Mobile Money, Bank Transfer |
+| 🇺🇬 Uganda | Flutterwave, Mobile Money (Airtel Money), Bank Transfer |
+| 🇬🇧 UK / 🇺🇸 US | Stripe, Bank Transfer |
+| 🌍 Other | Stripe, Bank Transfer |
+
+Annual billing saves ~17% compared to monthly. The Starter plan is free — no payment required.
+
+---
+
 ## 📁 Project Structure
 
 ```
 autonomous-sme-control-tower/
 ├── backend/
 │   ├── app/
-│   │   ├── main.py              # FastAPI entry point (30 routers)
+│   │   ├── main.py              # FastAPI entry point (31 routers)
 │   │   ├── config.py            # Pydantic settings from .env
 │   │   ├── agents/              # 22 AI agent modules
-│   │   ├── routers/             # 30 API route handlers
-│   │   ├── services/            # DynamoDB, S3, SES, auth, tax, tier, finance
-│   │   ├── models/              # Pydantic data models (20+ entities)
+│   │   ├── routers/             # 31 API route handlers
+│   │   ├── services/            # DynamoDB, S3, SES, auth, tax, tier, finance, subscriptions
+│   │   ├── models/              # Pydantic data models (21+ entities)
 │   │   ├── middleware/          # Auth, org isolation, rate limiting, tier enforcement
 │   │   └── utils/               # Bedrock client, prompt loader, JSON guard, ID generator
 │   ├── tests/                   # pytest test suite
@@ -190,7 +210,7 @@ autonomous-sme-control-tower/
 │   ├── seed_realistic_data.py   # Seed Nigerian SME transaction data
 │   └── seed_multi_country_data.py # Seed multi-country demo data
 ├── frontend/
-│   ├── app/                     # Next.js 14 app directory (25+ pages)
+│   ├── app/                     # Next.js 14 app directory (27+ pages)
 │   ├── components/              # 25+ reusable React components
 │   ├── lib/                     # API client, auth context, org context
 │   ├── __tests__/               # Jest unit tests (45 tests)
@@ -336,6 +356,23 @@ python seed_multi_country_data.py
 | `/api/admin/users` | GET | List all users |
 | `/api/admin/users/{email}/role` | PUT | Change user role |
 | `/api/admin/users/{email}/tier` | PUT | Change pricing tier |
+| `/api/admin/users` | DELETE | Permanently delete a user account |
+| `/api/admin/users/reactivate` | PUT | Reactivate a deactivated user |
+| `/api/admin/subscriptions` | GET | List all platform subscriptions |
+| `/api/admin/subscriptions/override` | PUT | Override a user's subscription tier |
+| `/api/admin/config/platform` | GET | View platform configuration |
+
+### Subscriptions
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/subscriptions/payment-methods` | GET | Region-aware payment methods |
+| `/api/subscriptions/pricing` | GET | Pricing tiers with currency support |
+| `/api/subscriptions/create` | POST | Create a new subscription |
+| `/api/subscriptions/current` | GET | Get current subscription |
+| `/api/subscriptions/activate` | POST | Activate after payment confirmation |
+| `/api/subscriptions/cancel` | POST | Cancel active subscription |
+| `/api/subscriptions/webhook/paystack` | POST | Paystack payment webhook |
+| `/api/subscriptions/webhook/flutterwave` | POST | Flutterwave payment webhook |
 
 ---
 
@@ -424,7 +461,7 @@ Tax compliance is available on all tiers, including the free Starter plan.
 | **Phase 1** | Nigeria launch — pricing, onboarding, manual ingestion, AI dashboards, tax compliance | ✅ Built |
 | **Phase 2** | WhatsApp ingestion, desktop sync, supplier intelligence, inventory prediction | ✅ Built |
 | **Phase 3** | POS connectors, bank sync, AI forecasting, cross-branch optimisation | ✅ Built |
-| **Phase 4** | Payment integration (Paystack/Flutterwave), mobile app, local language support | 🚧 Planned |
+| **Phase 4** | Payment integration (Paystack/Flutterwave/Stripe), receipt printing, subscription management, expanded admin | ✅ Built |
 
 ---
 

@@ -9,11 +9,16 @@ import {
   adminUpdateTier,
   adminDeactivateUser,
   adminGetStats,
+  adminDeleteUser,
+  adminReactivateUser,
+  adminListSubscriptions,
+  adminOverrideSubscription,
+  adminGetPlatformConfig,
 } from "@/lib/api";
 import {
   Shield, Users, Crown, Ban, RefreshCw, Activity,
   Mail, MessageSquare, Zap, Globe, BarChart3, CheckCircle2,
-  TrendingUp,
+  TrendingUp, Trash2, RotateCcw, CreditCard, Settings,
 } from "lucide-react";
 
 interface AdminUser {
@@ -86,7 +91,10 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [actionMsg, setActionMsg] = useState("");
-  const [activeTab, setActiveTab] = useState<"overview" | "users">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "users" | "subscriptions" | "config">("overview");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [subscriptions, setSubscriptions] = useState<any[]>([]);
+  const [platformConfig, setPlatformConfig] = useState<any>(null);
 
   const isSuperAdmin = user?.role === "super_admin";
 
@@ -138,6 +146,46 @@ export default function AdminPage() {
     } catch (err: any) { setActionMsg(`Error: ${err.message}`); }
   }
 
+  async function handleDelete(email: string) {
+    if (!confirm(`Permanently delete ${email}? This cannot be undone.`)) return;
+    if (!confirm(`Are you absolutely sure? All data for ${email} will be lost.`)) return;
+    try {
+      await adminDeleteUser(email);
+      setActionMsg(`Deleted ${email}`);
+      loadData();
+    } catch (err: any) { setActionMsg(`Error: ${err.message}`); }
+  }
+
+  async function handleReactivate(email: string) {
+    try {
+      await adminReactivateUser(email);
+      setActionMsg(`Reactivated ${email}`);
+      loadData();
+    } catch (err: any) { setActionMsg(`Error: ${err.message}`); }
+  }
+
+  async function loadSubscriptions() {
+    try {
+      const data = await adminListSubscriptions();
+      setSubscriptions(data.subscriptions || []);
+    } catch (err: any) { setActionMsg(`Error: ${err.message}`); }
+  }
+
+  async function loadConfig() {
+    try {
+      const data = await adminGetPlatformConfig();
+      setPlatformConfig(data);
+    } catch (err: any) { setActionMsg(`Error: ${err.message}`); }
+  }
+
+  const filteredUsers = searchQuery
+    ? users.filter((u) =>
+        u.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (u.full_name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (u.business_name || "").toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : users;
+
   if (!isSuperAdmin) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -166,6 +214,18 @@ export default function AdminPage() {
               className={`px-3 py-1.5 text-sm ${activeTab === "users" ? "bg-primary text-primary-foreground" : "hover:bg-accent"}`}
             >
               Users
+            </button>
+            <button
+              onClick={() => { setActiveTab("subscriptions"); loadSubscriptions(); }}
+              className={`px-3 py-1.5 text-sm ${activeTab === "subscriptions" ? "bg-primary text-primary-foreground" : "hover:bg-accent"}`}
+            >
+              Subscriptions
+            </button>
+            <button
+              onClick={() => { setActiveTab("config"); loadConfig(); }}
+              className={`px-3 py-1.5 text-sm ${activeTab === "config" ? "bg-primary text-primary-foreground" : "hover:bg-accent"}`}
+            >
+              Config
             </button>
           </div>
           <button onClick={loadData} className="flex items-center gap-2 px-3 py-2 text-sm rounded-md border hover:bg-accent transition-colors">
@@ -281,6 +341,16 @@ export default function AdminPage() {
 
       {activeTab === "users" && (
         <>
+          <div className="flex items-center gap-3">
+            <input
+              type="text"
+              placeholder="Search by name, email, or business..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="flex-1 px-3 py-2 text-sm border rounded-md bg-background"
+            />
+            <span className="text-xs text-muted-foreground whitespace-nowrap">{filteredUsers.length} of {users.length}</span>
+          </div>
           {loading ? (
             <div className="text-center py-12 text-muted-foreground">Loading users...</div>
           ) : (
@@ -298,7 +368,7 @@ export default function AdminPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y">
-                  {users.map((u) => (
+                  {filteredUsers.map((u) => (
                     <tr key={u.email} className="hover:bg-muted/30">
                       <td className="px-4 py-3">
                         <p className="font-medium">{u.full_name || u.email}</p>
@@ -346,13 +416,29 @@ export default function AdminPage() {
                           <span className="text-xs px-2 py-0.5 rounded-full bg-red-100 text-red-700">Inactive</span>
                         )}
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-3 space-y-1">
                         {u.is_active !== false && u.role !== "super_admin" && (
                           <button
                             onClick={() => handleDeactivate(u.email)}
                             className="text-xs text-red-600 hover:text-red-800 flex items-center gap-1"
                           >
                             <Ban className="h-3 w-3" /> Deactivate
+                          </button>
+                        )}
+                        {u.is_active === false && (
+                          <button
+                            onClick={() => handleReactivate(u.email)}
+                            className="text-xs text-green-600 hover:text-green-800 flex items-center gap-1"
+                          >
+                            <RotateCcw className="h-3 w-3" /> Reactivate
+                          </button>
+                        )}
+                        {u.role !== "super_admin" && (
+                          <button
+                            onClick={() => handleDelete(u.email)}
+                            className="text-xs text-red-400 hover:text-red-700 flex items-center gap-1"
+                          >
+                            <Trash2 className="h-3 w-3" /> Delete
                           </button>
                         )}
                       </td>
@@ -363,6 +449,87 @@ export default function AdminPage() {
             </div>
           )}
         </>
+      )}
+
+      {activeTab === "subscriptions" && (
+        <div className="border rounded-lg overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-muted/50">
+              <tr>
+                <th className="text-left px-4 py-3 font-medium">Org ID</th>
+                <th className="text-left px-4 py-3 font-medium">Tier</th>
+                <th className="text-left px-4 py-3 font-medium">Method</th>
+                <th className="text-left px-4 py-3 font-medium">Status</th>
+                <th className="text-left px-4 py-3 font-medium">Amount</th>
+                <th className="text-left px-4 py-3 font-medium">Cycle</th>
+                <th className="text-left px-4 py-3 font-medium">Period End</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y">
+              {subscriptions.length === 0 ? (
+                <tr><td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">No subscriptions yet</td></tr>
+              ) : subscriptions.map((s: any) => (
+                <tr key={s.subscription_id} className="hover:bg-muted/30">
+                  <td className="px-4 py-3 font-mono text-xs">{s.org_id?.slice(0, 12)}...</td>
+                  <td className="px-4 py-3">
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${TIER_COLORS[s.tier] || "bg-gray-100"}`}>{s.tier}</span>
+                  </td>
+                  <td className="px-4 py-3 text-xs capitalize">{(s.payment_method || "").replace(/_/g, " ")}</td>
+                  <td className="px-4 py-3">
+                    <span className={`text-xs px-2 py-0.5 rounded-full ${s.status === "active" ? "bg-green-100 text-green-700" : s.status === "cancelled" ? "bg-red-100 text-red-700" : "bg-yellow-100 text-yellow-700"}`}>
+                      {s.status}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-xs">{s.currency === "NGN" ? "\u20A6" : "$"}{Number(s.amount || 0).toLocaleString()}</td>
+                  <td className="px-4 py-3 text-xs capitalize">{s.billing_cycle}</td>
+                  <td className="px-4 py-3 text-xs">{s.current_period_end ? new Date(s.current_period_end).toLocaleDateString() : "\u2014"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {activeTab === "config" && (
+        <div className="space-y-4">
+          {!platformConfig ? (
+            <div className="text-center py-12 text-muted-foreground">Loading configuration...</div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="border rounded-lg p-4">
+                <h3 className="text-sm font-medium mb-3 flex items-center gap-2"><Settings className="h-4 w-4" /> General</h3>
+                <dl className="space-y-2 text-sm">
+                  <div className="flex justify-between"><dt className="text-muted-foreground">Region</dt><dd className="font-mono">{platformConfig.region}</dd></div>
+                  <div className="flex justify-between"><dt className="text-muted-foreground">Debug</dt><dd>{platformConfig.debug ? "On" : "Off"}</dd></div>
+                  <div className="flex justify-between"><dt className="text-muted-foreground">CORS</dt><dd className="font-mono text-xs truncate max-w-[200px]">{platformConfig.cors_origins}</dd></div>
+                  <div className="flex justify-between"><dt className="text-muted-foreground">Rate Limit</dt><dd>{platformConfig.rate_limit_rpm} RPM</dd></div>
+                </dl>
+              </div>
+              <div className="border rounded-lg p-4">
+                <h3 className="text-sm font-medium mb-3 flex items-center gap-2"><Zap className="h-4 w-4" /> AI Models</h3>
+                <dl className="space-y-2 text-sm">
+                  {Object.entries(platformConfig.models || {}).map(([k, v]) => (
+                    <div key={k} className="flex justify-between">
+                      <dt className="text-muted-foreground capitalize">{k.replace(/_/g, " ")}</dt>
+                      <dd className="font-mono text-xs">{String(v)}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
+              <div className="border rounded-lg p-4 md:col-span-2">
+                <h3 className="text-sm font-medium mb-3 flex items-center gap-2"><CreditCard className="h-4 w-4" /> DynamoDB Tables</h3>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs">
+                  {Object.entries(platformConfig.tables || {}).map(([k, v]) => (
+                    <div key={k} className="flex flex-col">
+                      <span className="text-muted-foreground capitalize">{k.replace(/_/g, " ")}</span>
+                      <span className="font-mono truncate">{String(v)}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       )}
     </div>
   );
