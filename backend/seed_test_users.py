@@ -69,15 +69,18 @@ async def main():
     for u in TEST_USERS:
         existing = svc._get_user_by_email(u["email"])
         if existing:
-            # Update role, tier, and mark verified
+            # Re-hash password + update role, tier, verified
+            from app.services.auth_service import _hash_password
+            pw_hash, pw_salt = _hash_password(u["password"])
             svc.users_table.update_item(
                 Key={"email": u["email"]},
-                UpdateExpression="SET #r = :r, tier = :t, email_verified = :v, phone = :p, business_type = :bt, country = :c",
+                UpdateExpression="SET #r = :r, tier = :t, email_verified = :v, phone = :p, business_type = :bt, country = :c, pw_hash = :h, pw_salt = :s",
                 ExpressionAttributeNames={"#r": "role"},
                 ExpressionAttributeValues={
                     ":r": u["role"], ":t": u["tier"], ":v": True,
                     ":p": u.get("phone", ""), ":bt": u.get("business_type", "other"),
                     ":c": u.get("country", "NG"),
+                    ":h": pw_hash, ":s": pw_salt,
                 },
             )
             print(f"  Updated: {u['email']} -> {u['role']} / {u['tier']}")
