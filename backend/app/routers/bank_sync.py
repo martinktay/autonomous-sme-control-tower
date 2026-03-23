@@ -6,6 +6,7 @@ from typing import Any, Dict, List
 from fastapi import APIRouter, HTTPException, Header, UploadFile, File, Query
 from app.agents.bank_agent import get_bank_agent
 from app.services.transaction_service import get_transaction_service
+from app.utils.upload_validator import validate_upload_file, FINANCE_CONTENT_TYPES, FINANCE_EXTENSIONS
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/bank-sync", tags=["bank-sync"])
@@ -19,8 +20,27 @@ async def import_bank_statement(
 ):
     """Import a bank statement and reconcile against existing transactions."""
     try:
-        content = await file.read()
-        text_content = content.decode("utf-8", errors="replace")
+        content, safe_name, ext = await validate_upload_file(
+            file, FINANCE_CONTENT_TYPES, FINANCE_EXTENSIONS,
+        )
+
+        # Handle binary Excel files vs text-based formats
+        if ext in (".xls", ".xlsx"):
+            import io, csv
+            try:
+                import openpyxl
+                wb = openpyxl.load_workbook(io.BytesIO(content), read_only=True, data_only=True)
+                ws = wb.active
+                buf = io.StringIO()
+                writer = csv.writer(buf)
+                for row in ws.iter_rows(values_only=True):
+                    writer.writerow(row)
+                text_content = buf.getvalue()
+                wb.close()
+            except ImportError:
+                raise HTTPException(400, "XLSX support requires openpyxl. Please upload a CSV instead.")
+        else:
+            text_content = content.decode("utf-8", errors="replace")
 
         # Parse bank entries from CSV/text
         lines = text_content.strip().split("\n")
