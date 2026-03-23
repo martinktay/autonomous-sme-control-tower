@@ -24,6 +24,7 @@ from app.models.user import (
 )
 from app.services.auth_service import get_auth_service
 from app.services.otp_service import get_otp_service
+from app.services.notification_service import send_welcome_email
 
 logger = logging.getLogger(__name__)
 
@@ -49,6 +50,16 @@ async def register(payload: UserCreate):
             await otp_svc.send_verification_otp(payload.email)
         except Exception as exc:
             logger.warning("OTP send failed during registration for %s: %s", payload.email, exc)
+
+        # Send welcome email (non-blocking)
+        try:
+            send_welcome_email(
+                email=payload.email,
+                full_name=payload.full_name,
+                business_name=payload.business_name or "",
+            )
+        except Exception as exc:
+            logger.warning("Welcome email failed for %s: %s", payload.email, exc)
 
         return result
     except ValueError as exc:

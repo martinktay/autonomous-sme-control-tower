@@ -3,38 +3,24 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { getPublicInvoice } from "@/lib/api";
-import { Building2, FileText, CheckCircle, Printer, Download } from "lucide-react";
+import { Building2, FileText, CheckCircle, Printer, Download, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-interface LineItem {
-  description: string;
-  quantity: number;
-  unit_price: number;
-  amount: number;
-}
-
+interface LineItem { description: string; quantity: number; unit_price: number; amount: number; }
+interface PaymentRecord { amount: string; recorded_at: string; payment_method: string; }
 interface PublicInvoice {
-  invoice_id: string;
-  invoice_number: string;
-  business_name: string;
-  business_email: string;
-  business_phone: string;
-  customer_name: string;
-  line_items: LineItem[];
-  subtotal: string | number;
-  tax_rate: string | number;
-  tax_amount: string | number;
-  discount: string | number;
-  total: string | number;
-  currency: string;
-  status: string;
-  due_date: string;
-  issued_date: string;
-  notes: string;
+  invoice_id: string; invoice_number: string; business_name: string;
+  business_email: string; business_phone: string; customer_name: string;
+  line_items: LineItem[]; subtotal: string | number; tax_rate: string | number;
+  tax_amount: string | number; discount: string | number; total: string | number;
+  amount_paid: string | number; balance_due: string | number;
+  currency: string; status: string; due_date: string; issued_date: string;
+  notes: string; payments: PaymentRecord[];
 }
 
 function fmt(amount: number | string, currency = "NGN") {
   const num = typeof amount === "string" ? parseFloat(amount) : amount;
+  if (isNaN(num)) return `${currency} 0.00`;
   if (currency === "NGN") return `\u20A6${num.toLocaleString("en-NG", { minimumFractionDigits: 2 })}`;
   return `${currency} ${num.toLocaleString("en-US", { minimumFractionDigits: 2 })}`;
 }
@@ -54,39 +40,81 @@ export default function PublicInvoicePage() {
       .finally(() => setLoading(false));
   }, [invoiceId]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-muted-foreground">Loading invoice...</p>
-      </div>
-    );
-  }
+  if (loading) return (
+    <div className="min-h-screen flex items-center justify-center">
+      <p className="text-muted-foreground">Loading invoice...</p>
+    </div>
+  );
 
-  if (error || !invoice) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center space-y-2">
-          <FileText className="h-12 w-12 mx-auto text-muted-foreground/30" />
-          <p className="text-muted-foreground">Invoice not found or has been removed.</p>
-        </div>
+  if (error || !invoice) return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="text-center space-y-2">
+        <FileText className="h-12 w-12 mx-auto text-muted-foreground/30" />
+        <p className="text-muted-foreground">Invoice not found or has been removed.</p>
       </div>
-    );
-  }
+    </div>
+  );
 
   const isPaid = invoice.status === "paid";
+  const balanceDue = parseFloat(String(invoice.balance_due || invoice.total || 0));
+  const amountPaid = parseFloat(String(invoice.amount_paid || 0));
+  const hasPartialPayment = amountPaid > 0 && !isPaid;
 
-  function handlePrint() {
-    window.print();
+  function handlePrint() { window.print(); }
+  function handleDownloadPdf() { window.print(); }
+
+  function handlePayWithPaystack() {
+    // Paystack inline popup — loads their JS SDK
+    const paystackKey = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY;
+    if (!paystackKey) {
+      alert("Online payment is not configured yet. Please contact the business directly to arrange payment.");
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = "https://js.paystack.co/v1/inline.js";
+    script.onload = () => {
+      const handler = (window as any).PaystackPop.setup({
+        key: paystackKey,
+        email: invoice?.business_email || "customer@example.com",
+        amount: Math.round(balanceDue * 100), // Paystack uses kobo
+        currency: invoice?.currency || "NGN",
+        ref: `INV-${invoiceId}-${Date.now()}`,
+        metadata: { invoice_id: invoiceId, invoice_number: invoice?.invoice_number },
+        callback: () => { alert("Payment successful! The business will be notified."); window.location.reload(); },
+        onClose: () => {},
+      });
+      handler.openIframe();
+    };
+    document.body.appendChild(script);
   }
 
-  function handleDownloadPdf() {
-    // Use the browser print dialog with "Save as PDF" destination
-    window.print();
+  function handlePayWithFlutterwave() {
+    const flwKey = process.env.NEXT_PUBLIC_FLUTTERWAVE_PUBLIC_KEY;
+    if (!flwKey) {
+      alert("Online payment is not configured yet. Please contact the business directly to arrange payment.");
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = "https://checkout.flutterwave.com/v3.js";
+    script.onload = () => {
+      (window as any).FlutterwaveCheckout({
+        public_key: flwKey,
+        tx_ref: `INV-${invoiceId}-${Date.now()}`,
+        amount: balanceDue,
+        currency: invoice?.currency || "NGN",
+        payment_options: "card,banktransfer,ussd,mobilemoney",
+        customer: { email: invoice?.business_email || "customer@example.com", name: invoice?.customer_name },
+        customizations: { title: `Invoice ${invoice?.invoice_number}`, description: `Payment for invoice ${invoice?.invoice_number}` },
+        callback: () => { alert("Payment successful! The business will be notified."); window.location.reload(); },
+        onclose: () => {},
+      });
+    };
+    document.body.appendChild(script);
   }
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
-      {/* Action bar — hidden when printing */}
+      {/* Action bar */}
       <div className="max-w-3xl mx-auto mb-4 flex justify-end gap-2 print:hidden">
         <Button variant="outline" size="sm" onClick={handlePrint} className="gap-1.5">
           <Printer className="h-4 w-4" /> Print Receipt
@@ -113,8 +141,7 @@ export default function PublicInvoicePage() {
               <p className="text-sm text-muted-foreground">{invoice.invoice_number}</p>
               {isPaid && (
                 <div className="mt-2 flex items-center gap-1 justify-end text-green-600">
-                  <CheckCircle className="h-4 w-4" />
-                  <span className="text-sm font-medium">PAID</span>
+                  <CheckCircle className="h-4 w-4" /><span className="text-sm font-medium">PAID</span>
                 </div>
               )}
             </div>
@@ -128,14 +155,8 @@ export default function PublicInvoicePage() {
             <p className="font-medium">{invoice.customer_name}</p>
           </div>
           <div className="text-right space-y-1">
-            <div>
-              <span className="text-xs text-muted-foreground">Issued: </span>
-              <span className="text-sm">{invoice.issued_date}</span>
-            </div>
-            <div>
-              <span className="text-xs text-muted-foreground">Due: </span>
-              <span className="text-sm font-medium">{invoice.due_date}</span>
-            </div>
+            <div><span className="text-xs text-muted-foreground">Issued: </span><span className="text-sm">{invoice.issued_date}</span></div>
+            <div><span className="text-xs text-muted-foreground">Due: </span><span className="text-sm font-medium">{invoice.due_date}</span></div>
           </div>
         </div>
 
@@ -185,15 +206,66 @@ export default function PublicInvoicePage() {
                 <span>Total</span>
                 <span>{fmt(invoice.total, invoice.currency)}</span>
               </div>
+              {hasPartialPayment && (
+                <>
+                  <div className="flex justify-between text-sm text-green-600">
+                    <span>Amount Paid</span>
+                    <span>-{fmt(amountPaid, invoice.currency)}</span>
+                  </div>
+                  <div className="flex justify-between text-base font-semibold text-primary">
+                    <span>Balance Due</span>
+                    <span>{fmt(balanceDue, invoice.currency)}</span>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>
+
+        {/* Payment History */}
+        {invoice.payments && invoice.payments.length > 0 && (
+          <div className="px-8 pb-4">
+            <p className="text-xs font-medium text-muted-foreground uppercase mb-2">Payment History</p>
+            <div className="space-y-1">
+              {invoice.payments.map((p, idx) => (
+                <div key={idx} className="flex justify-between text-sm bg-green-50 rounded px-3 py-1.5">
+                  <span className="text-green-700">{fmt(p.amount, invoice.currency)} — {p.payment_method || "Payment"}</span>
+                  <span className="text-muted-foreground text-xs">{p.recorded_at?.slice(0, 10)}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Notes */}
         {invoice.notes && (
           <div className="px-8 pb-8">
             <p className="text-xs font-medium text-muted-foreground uppercase mb-1">Notes</p>
             <p className="text-sm text-muted-foreground whitespace-pre-wrap">{invoice.notes}</p>
+          </div>
+        )}
+
+        {/* Pay Now Section — only shown if not paid */}
+        {!isPaid && (
+          <div className="p-8 border-t bg-blue-50/50 print:hidden">
+            <div className="text-center space-y-4">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Amount Due</p>
+                <p className="text-3xl font-bold text-primary">{fmt(balanceDue, invoice.currency)}</p>
+                {hasPartialPayment && <p className="text-xs text-muted-foreground">Partial payment of {fmt(amountPaid, invoice.currency)} received</p>}
+              </div>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <Button onClick={handlePayWithPaystack} className="gap-2 bg-green-600 hover:bg-green-700">
+                  <CreditCard className="h-4 w-4" /> Pay with Paystack
+                </Button>
+                <Button onClick={handlePayWithFlutterwave} variant="outline" className="gap-2 border-orange-300 text-orange-600 hover:bg-orange-50">
+                  <CreditCard className="h-4 w-4" /> Pay with Flutterwave
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Supports card, bank transfer, USSD, and mobile money
+              </p>
+            </div>
           </div>
         )}
 

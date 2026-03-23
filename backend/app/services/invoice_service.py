@@ -74,6 +74,9 @@ class InvoiceService:
             "tax_amount": str(tax_amount),
             "discount": str(discount),
             "total": str(total),
+            "amount_paid": "0",
+            "balance_due": str(total),
+            "payments": [],
             "currency": data.get("currency", "NGN"),
             "status": "draft",
             "due_date": due_date,
@@ -83,6 +86,10 @@ class InvoiceService:
             "business_name": biz.get("business_name", ""),
             "business_email": biz.get("email", ""),
             "business_phone": biz.get("phone", ""),
+            "is_recurring": data.get("is_recurring", False),
+            "recurrence_interval": data.get("recurrence_interval", ""),
+            "recurrence_end_date": data.get("recurrence_end_date", ""),
+            "parent_invoice_id": data.get("parent_invoice_id", ""),
             "created_at": now,
             "updated_at": now,
         }
@@ -162,12 +169,14 @@ class InvoiceService:
         total_paid = sum(float(inv.get("total", 0)) for inv in invoices if inv.get("status") == "paid")
         total_outstanding = sum(float(inv.get("total", 0)) for inv in invoices if inv.get("status") in ("draft", "sent", "viewed"))
         total_overdue = sum(float(inv.get("total", 0)) for inv in invoices if inv.get("status") == "overdue")
+        # Include partial payments in outstanding calculation
+        partial_paid = sum(float(inv.get("amount_paid", 0)) for inv in invoices if inv.get("status") in ("draft", "sent", "viewed", "overdue"))
 
         return {
             "total_invoices": len(invoices),
             "total_invoiced": total_invoiced,
             "total_paid": total_paid,
-            "total_outstanding": total_outstanding,
+            "total_outstanding": total_outstanding - partial_paid,
             "total_overdue": total_overdue,
             "currency": invoices[0].get("currency", "NGN") if invoices else "NGN",
             "by_status": {
@@ -175,6 +184,63 @@ class InvoiceService:
                 for s in ("draft", "sent", "viewed", "paid", "overdue", "cancelled")
             },
         }
+
+    def record_payment(self, org_id: str, invoice_id: str, amount: float,
+                       payment_ref: str = None, payment_method: str = None,
+                       notes: str = None) -> Optional[Dict[str, Any]]:
+        """Record a partial or full payment against an invoice."""
+        invoice = self.get_invoice(org_id, invoice_id)
+        if not invoice:
+            return None
+
+        total = float(invoice.get("total", 0))
+        existing_paid = float(invoice.get("amount_paid", 0))
+        new_paid = round(existing_paid + amount, 2)
+        balance_due = round(total - new_paid, 2)
+
+        # Build payment record
+        now = datetime.now(timezone.utc).isoformat()
+        payment_record = {
+            "payment_id": generate_id("pay"),
+            "amount": str(round(amount, 2)),
+            "payment_reference": payment_ref or "",
+            "payment_method": payment_method or "",
+            "notes": notes or "",
+            "recorded_at": now,
+        }
+
+        # Get existing payments list
+        payments = invoice.get("payments", [])
+        if not isinstance(payments, list):
+            payments = []
+        payments.append(payment_record)
+
+        # Determine new status
+        new_status = invoice.get("status", "sent")
+        if balance_due <= 0:
+            new_status = "paid"
+            new_paid = total  # Cap at total
+            balance_due = 0
+
+        try:
+            resp = self.table.update_item(
+                Key={"org_id": org_id, "invoice_id": invoice_id},
+                UpdateExpression="SET amount_paid = :ap, balance_due = :bd, payments = :pays, #s = :status, updated_at = :now, paid_date = :pd",
+                ExpressionAttributeValues={
+                    ":ap": str(new_paid),
+                    ":bd": str(balance_due),
+                    ":pays": payments,
+                    ":status": new_status,
+                    ":now": now,
+                    ":pd": now[:10] if new_status == "paid" else invoice.get("paid_date", ""),
+                },
+                ExpressionAttributeNames={"#s": "status"},
+                ReturnValues="ALL_NEW",
+            )
+            return resp.get("Attributes")
+        except Exception as e:
+            logger.error("Failed to record payment for %s: %s", invoice_id, e)
+            return None
 
 
 @lru_cache()

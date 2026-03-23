@@ -995,6 +995,34 @@ export const getPublicInvoice = async (invoiceId: string) => {
   return res.json();
 };
 
+/** Record a partial or full payment against an invoice. */
+export const recordInvoicePayment = async (_orgId: string, invoiceId: string, data: {
+  amount: number;
+  payment_reference?: string;
+  payment_method?: string;
+  notes?: string;
+}) => {
+  const res = await apiFetch(`/api/outbound-invoices/${invoiceId}/payments`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+  return res.json();
+};
+
+/** Get payment history for an invoice. */
+export const getInvoicePayments = async (_orgId: string, invoiceId: string) => {
+  const res = await apiFetch(`/api/outbound-invoices/${invoiceId}/payments`);
+  return res.json();
+};
+
+/** Send a payment reminder email to the customer. */
+export const sendInvoiceReminder = async (_orgId: string, invoiceId: string) => {
+  const res = await apiFetch(`/api/outbound-invoices/${invoiceId}/remind`, {
+    method: 'POST',
+  });
+  return res.json();
+};
+
 // ==================== Unified Client ====================
 
 /** Object-style export bundling all API functions for convenient dashboard imports. */
@@ -1090,6 +1118,9 @@ export const apiClient = {
   getOutboundInvoice,
   updateInvoiceStatus,
   getPublicInvoice,
+  recordInvoicePayment,
+  getInvoicePayments,
+  sendInvoiceReminder,
   getSubscriptionPaymentMethods,
   getSubscriptionPricing,
   createSubscription,
