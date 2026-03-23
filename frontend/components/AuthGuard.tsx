@@ -11,6 +11,9 @@ import { useEffect } from "react";
 
 const PUBLIC_ROUTES = ["/", "/login", "/register", "/pricing", "/help", "/forgot-password", "/onboarding"];
 
+/** Routes that super_admin is allowed to access (not SME business pages). */
+const SUPER_ADMIN_ROUTES = ["/admin", "/pricing", "/help"];
+
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -22,7 +25,11 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     if (!loading && !user && !isPublic) {
       router.replace("/login");
     }
-  }, [loading, user, isPublic, router]);
+    // Redirect super_admin away from SME business pages to admin panel
+    if (!loading && user?.role === "super_admin" && !isPublic && !SUPER_ADMIN_ROUTES.includes(pathname)) {
+      router.replace("/admin");
+    }
+  }, [loading, user, isPublic, pathname, router]);
 
   // Show nothing while checking auth on protected routes
   if (!loading && !user && !isPublic) {

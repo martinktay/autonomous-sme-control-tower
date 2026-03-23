@@ -162,6 +162,7 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
 
   // Default to starter if no user/tier info
   const userTier: Tier = ((user as any)?.tier as Tier) || "starter";
+  const isSuperAdmin = user?.role === "super_admin";
 
   const toggleGroup = (label: string) => {
     setOpenGroups((prev) => ({ ...prev, [label]: !prev[label] }));
@@ -178,7 +179,59 @@ export default function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
     if (mobileOpen && onClose) onClose();
   };
 
-  const sidebarContent = (
+  const sidebarContent = isSuperAdmin ? (
+    <>
+      {/* Collapse toggle — desktop only */}
+      <div className="hidden lg:flex items-center justify-end p-2 border-b">
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          className="p-1.5 rounded-md hover:bg-accent transition-colors text-muted-foreground"
+          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          {collapsed ? <PanelLeft className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
+        </button>
+      </div>
+
+      {/* Admin-only navigation */}
+      <nav className="flex-1 overflow-y-auto py-2 px-2 space-y-0.5">
+        {[
+          { href: "/admin", label: "Admin Panel", icon: Shield },
+          { href: "/pricing", label: "Pricing & Plans", icon: CreditCard },
+          { href: "/help", label: "Help & FAQs", icon: HelpCircle },
+        ].map((item) => {
+          const Icon = item.icon;
+          const active = isActive(item.href);
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              onClick={handleNavClick}
+              title={collapsed ? item.label : undefined}
+              className={`flex items-center gap-2.5 px-2.5 py-2 text-sm rounded-md transition-colors ${
+                active
+                  ? "bg-primary/10 text-primary font-medium"
+                  : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+              }`}
+            >
+              <Icon className="h-4 w-4 flex-shrink-0" />
+              {!collapsed && <span className="truncate">{item.label}</span>}
+            </Link>
+          );
+        })}
+      </nav>
+
+      {/* Super admin badge */}
+      {!collapsed && (
+        <div className="border-t px-2 py-2">
+          <div className="px-2.5 py-1.5">
+            <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-red-100 text-red-700">
+              Super Admin
+            </span>
+          </div>
+        </div>
+      )}
+    </>
+  ) : (
     <>
       {/* Collapse toggle — desktop only */}
       <div className="hidden lg:flex items-center justify-end p-2 border-b">

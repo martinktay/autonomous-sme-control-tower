@@ -20,7 +20,10 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await login(email, password);
-      router.push("/dashboard");
+      // Read the saved user to check role for redirect
+      const savedUser = localStorage.getItem("sme_user");
+      const parsed = savedUser ? JSON.parse(savedUser) : null;
+      router.push(parsed?.role === "super_admin" ? "/admin" : "/dashboard");
     } catch (err: any) {
       setError(err.message || "Login failed");
     } finally {

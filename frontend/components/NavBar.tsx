@@ -74,7 +74,7 @@ export default function NavBar({ mobileMenuOpen = false, onToggleMobileMenu }: N
           >
             {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
-          <Link href="/dashboard" className="flex items-center gap-2 font-semibold tracking-tight hover:opacity-80 transition-opacity">
+          <Link href={user?.role === "super_admin" ? "/admin" : "/dashboard"} className="flex items-center gap-2 font-semibold tracking-tight hover:opacity-80 transition-opacity">
             <Building2 className="h-5 w-5 text-primary" />
             <span className="hidden sm:inline text-base">SME Control Tower</span>
           </Link>
