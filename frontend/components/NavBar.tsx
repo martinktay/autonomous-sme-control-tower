@@ -12,7 +12,7 @@ import { useAuth } from "@/lib/auth-context";
 import { useState } from "react";
 
 /** Public routes that don't show the authenticated top bar. */
-const PUBLIC_ROUTES = ["/", "/login", "/register"];
+const PUBLIC_ROUTES = ["/", "/login", "/register", "/pricing", "/help", "/forgot-password"];
 
 export default function NavBar() {
   const pathname = usePathname();
