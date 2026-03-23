@@ -40,10 +40,10 @@ class TierEnforcementMiddleware(BaseHTTPMiddleware):
         if required_feature is None:
             return await call_next(request)
 
-        # Extract business_id from header or query
-        business_id = request.headers.get("X-Org-ID", "")
+        # Use authenticated org_id from JWT (set by AuthMiddleware)
+        business_id = getattr(request.state, "org_id", "")
         if not business_id:
-            business_id = request.query_params.get("business_id", "")
+            business_id = request.headers.get("X-Org-ID", "")
 
         if not business_id:
             # No business context — let the request through (org isolation will catch it)
