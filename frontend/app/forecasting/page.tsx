@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useOrg } from "@/lib/org-context";
 import { getCashRunway, getFinanceForecast } from "@/lib/api";
-import { TrendingUp, AlertTriangle, Loader2, Brain, DollarSign } from "lucide-react";
+import { TrendingUp, AlertTriangle, Loader2, Brain, Banknote } from "lucide-react";
 
 export default function ForecastingPage() {
   const { orgId } = useOrg();
@@ -75,8 +75,8 @@ export default function ForecastingPage() {
           <div className="border rounded-lg p-4 bg-card">
             <div className="text-sm text-muted-foreground">Cash Balance</div>
             <div className="text-xl font-semibold flex items-center gap-1">
-              <DollarSign className="h-4 w-4" />
-              {runway.current_balance?.toLocaleString()}
+              <Banknote className="h-4 w-4" />
+              ₦{runway.current_balance?.toLocaleString()}
             </div>
           </div>
           <div className="border rounded-lg p-4 bg-card">

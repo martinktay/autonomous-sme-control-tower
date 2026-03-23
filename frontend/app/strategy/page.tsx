@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
-import { Sparkles, TrendingUp, Zap, DollarSign } from 'lucide-react'
+import { Sparkles, TrendingUp, Zap } from 'lucide-react'
 import { simulateStrategies } from '@/lib/api'
 import { useOrg } from '@/lib/org-context'
 
@@ -103,7 +103,7 @@ export default function Strategy() {
                     </div>
                     <div>
                       <div className="flex items-center gap-2 mb-2">
-                        <DollarSign className="h-4 w-4 text-blue-600" />
+                        <TrendingUp className="h-4 w-4 text-blue-600" />
                         <span className="text-sm font-medium">Confidence</span>
                       </div>
                       <p className="text-2xl font-bold">

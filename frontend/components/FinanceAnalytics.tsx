@@ -15,7 +15,7 @@ import {
   Loader2,
   TrendingUp,
   TrendingDown,
-  DollarSign,
+  Banknote,
   Receipt,
   Minus,
 } from "lucide-react";
@@ -117,7 +117,7 @@ export default function FinanceAnalytics({ refreshKey }: FinanceAnalyticsProps) 
         <Card>
           <CardContent className="flex items-center gap-3 py-4">
             <div className={`rounded-full p-2 ${totals.net_profit >= 0 ? "bg-green-100 dark:bg-green-900/30" : "bg-red-100 dark:bg-red-900/30"}`}>
-              <DollarSign className={`h-5 w-5 ${totals.net_profit >= 0 ? "text-green-600" : "text-red-600"}`} />
+              <Banknote className={`h-5 w-5 ${totals.net_profit >= 0 ? "text-green-600" : "text-red-600"}`} />
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Net Profit</p>

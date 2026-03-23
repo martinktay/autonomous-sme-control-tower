@@ -8,7 +8,7 @@ import {
   TrendingUp,
   Users,
   ShoppingCart,
-  DollarSign,
+  Banknote,
   Package,
   Loader2,
 } from "lucide-react";
@@ -63,7 +63,7 @@ export default function AnalyticsPage() {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <KpiCard icon={DollarSign} label="Total Revenue" value={fmt(txn?.total_revenue)} color="text-green-600" />
+        <KpiCard icon={Banknote} label="Total Revenue" value={fmt(txn?.total_revenue)} color="text-green-600" />
         <KpiCard icon={ShoppingCart} label="Total Expenses" value={fmt(txn?.total_expenses)} color="text-red-500" />
         <KpiCard icon={TrendingUp} label="Net Profit" value={fmt(txn?.net_profit)} color={txn?.net_profit >= 0 ? "text-green-600" : "text-red-500"} />
         <KpiCard icon={Package} label="Transactions" value={txn?.transaction_count?.toLocaleString() || "0"} color="text-blue-600" />
@@ -118,7 +118,7 @@ export default function AnalyticsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
-              <DollarSign className="h-4 w-4" /> Tax Summary
+              <Banknote className="h-4 w-4" /> Tax Summary
             </CardTitle>
           </CardHeader>
           <CardContent>
