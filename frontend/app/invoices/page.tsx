@@ -79,6 +79,7 @@ export default function InvoicesPage() {
 
   async function loadData() {
     setLoading(true);
+    setError("");
     try {
       const [invRes, sumRes] = await Promise.all([
         listOutboundInvoices(orgId),
@@ -87,7 +88,12 @@ export default function InvoicesPage() {
       setInvoices(invRes.invoices || []);
       if (sumRes) setSummary(sumRes);
     } catch (err: any) {
-      setError(err.message);
+      const msg = err?.message || "";
+      if (msg.includes("Failed to fetch") || msg.includes("timed out")) {
+        setError("Could not reach the server. Please check that the backend is running and try again.");
+      } else {
+        setError(msg || "Something went wrong loading invoices.");
+      }
     } finally {
       setLoading(false);
     }

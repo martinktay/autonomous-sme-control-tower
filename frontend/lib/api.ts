@@ -941,7 +941,7 @@ export const adminGetPlatformConfig = async () => {
 };
 
 /** Create a new outbound invoice. */
-export const createOutboundInvoice = async (orgId: string, data: {
+export const createOutboundInvoice = async (_orgId: string, data: {
   customer_name: string;
   customer_email?: string;
   customer_phone?: string;
@@ -956,41 +956,33 @@ export const createOutboundInvoice = async (orgId: string, data: {
 }) => {
   const res = await apiFetch('/api/outbound-invoices', {
     method: 'POST',
-    headers: { 'X-Org-ID': orgId },
     body: JSON.stringify(data),
   });
   return res.json();
 };
 
 /** List all outbound invoices for the org. */
-export const listOutboundInvoices = async (orgId: string) => {
-  const res = await apiFetch('/api/outbound-invoices', {
-    headers: { 'X-Org-ID': orgId },
-  });
+export const listOutboundInvoices = async (_orgId: string) => {
+  const res = await apiFetch('/api/outbound-invoices');
   return res.json();
 };
 
 /** Get outbound invoice summary stats. */
-export const getInvoiceSummary = async (orgId: string) => {
-  const res = await apiFetch('/api/outbound-invoices/summary', {
-    headers: { 'X-Org-ID': orgId },
-  });
+export const getInvoiceSummary = async (_orgId: string) => {
+  const res = await apiFetch('/api/outbound-invoices/summary');
   return res.json();
 };
 
 /** Get a single outbound invoice. */
-export const getOutboundInvoice = async (orgId: string, invoiceId: string) => {
-  const res = await apiFetch(`/api/outbound-invoices/${invoiceId}`, {
-    headers: { 'X-Org-ID': orgId },
-  });
+export const getOutboundInvoice = async (_orgId: string, invoiceId: string) => {
+  const res = await apiFetch(`/api/outbound-invoices/${invoiceId}`);
   return res.json();
 };
 
 /** Update outbound invoice status. */
-export const updateInvoiceStatus = async (orgId: string, invoiceId: string, status: string, paymentReference?: string) => {
+export const updateInvoiceStatus = async (_orgId: string, invoiceId: string, status: string, paymentReference?: string) => {
   const res = await apiFetch(`/api/outbound-invoices/${invoiceId}/status`, {
     method: 'PUT',
-    headers: { 'X-Org-ID': orgId },
     body: JSON.stringify({ status, payment_reference: paymentReference }),
   });
   return res.json();
