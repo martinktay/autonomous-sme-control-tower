@@ -45,6 +45,7 @@ evaluations_table = ddb.Table(settings.evaluations_table)
 insights_table = ddb.Table(settings.insights_table)
 businesses_table = ddb.Table(settings.businesses_table)
 users_table = ddb.Table(settings.users_table)
+tasks_table = ddb.Table(settings.tasks_table)
 
 now = datetime.now(timezone.utc)
 
@@ -122,9 +123,9 @@ BUSINESSES = {
             ("invoice", {"vendor_name": "Dangote Industries", "invoice_id": "INV-2026-0101", "amount": 684000.00, "currency": "NGN", "due_date": 5, "description": "Sugar and cement supplies — March batch"}),
             ("invoice", {"vendor_name": "Nigerian Breweries", "invoice_id": "INV-2026-0102", "amount": 312000.00, "currency": "NGN", "due_date": -3, "description": "Beverages restock — Coca-Cola, Malt, Star"}),
             ("invoice", {"vendor_name": "PZ Cussons", "invoice_id": "INV-2026-0103", "amount": 156000.00, "currency": "NGN", "due_date": 10, "description": "Toiletries and soap cartons"}),
-            ("email", {"sender": "accounts@dangote.com.ng", "subject": "Payment Reminder: INV-2026-0101", "classification": "payment_reminder", "body": "Dear Ade's Trading, your invoice INV-2026-0101 for NGN 684,000 is due in 5 days."}),
-            ("email", {"sender": "procurement@ikejaminimart.ng", "subject": "Bulk Order Request — 50 Cartons Indomie", "classification": "customer_inquiry", "body": "We need 50 cartons of Indomie for next week delivery. Please confirm stock and pricing."}),
-            ("email", {"sender": "ops@adestrading.ng", "subject": "Generator Fuel Cost Rising", "classification": "operational_message", "body": "Diesel price increased to ₦1,200/litre. Monthly generator cost now ₦85,000 vs ₦62,000 last month."}),
+            ("email", {"sender": "accounts@dangote.com.ng", "subject": "Payment Reminder: INV-2026-0101", "classification": {"category": "payment_reminder", "priority": "high", "summary": "Dangote Industries requesting payment for INV-2026-0101 (NGN 684,000) due in 5 days", "action_required": True}, "body": "Dear Ade's Trading, your invoice INV-2026-0101 for NGN 684,000 is due in 5 days."}),
+            ("email", {"sender": "procurement@ikejaminimart.ng", "subject": "Bulk Order Request -- 50 Cartons Indomie", "classification": {"category": "customer_inquiry", "priority": "medium", "summary": "Ikeja Mini Mart requesting 50 cartons of Indomie for next week delivery", "action_required": True}, "body": "We need 50 cartons of Indomie for next week delivery. Please confirm stock and pricing."}),
+            ("email", {"sender": "ops@adestrading.ng", "subject": "Generator Fuel Cost Rising", "classification": {"category": "operational_message", "priority": "low", "summary": "Diesel price increased to NGN 1,200/litre, monthly generator cost now NGN 85,000", "action_required": False}, "body": "Diesel price increased to NGN 1,200/litre. Monthly generator cost now NGN 85,000 vs NGN 62,000 last month."}),
         ],
     },
     "growth@demo.com": {
@@ -170,9 +171,9 @@ BUSINESSES = {
             ("invoice", {"vendor_name": "Agro-Allied Chemicals", "invoice_id": "INV-2026-1001", "amount": 525000.00, "currency": "NGN", "due_date": 10, "description": "NPK fertilizer — 35 bags for planting season"}),
             ("invoice", {"vendor_name": "Tractor Hire Services", "invoice_id": "INV-2026-1002", "amount": 750000.00, "currency": "NGN", "due_date": -3, "description": "Tractor hire for land preparation — 15 hectares"}),
             ("invoice", {"vendor_name": "Seed Nigeria Ltd", "invoice_id": "INV-2026-1003", "amount": 280000.00, "currency": "NGN", "due_date": 20, "description": "Hybrid maize seeds — 100 bags"}),
-            ("email", {"sender": "buyer@foodco.ng", "subject": "Bulk Cassava Purchase — 20 Tonnes", "classification": "customer_inquiry", "body": "We need 20 tonnes of cassava for our processing plant. Delivery within 2 weeks. Please quote."}),
-            ("email", {"sender": "weather@farmadvisory.ng", "subject": "Rainfall Alert: Below Average Expected", "classification": "operational_message", "body": "March rainfall projected 30% below average in your region. Activate irrigation early."}),
-            ("email", {"sender": "finance@oguntractors.ng", "subject": "Overdue Payment: INV-2026-1002", "classification": "payment_reminder", "body": "Your invoice for NGN 750,000 is 3 days overdue. Please remit payment."}),
+            ("email", {"sender": "buyer@foodco.ng", "subject": "Bulk Cassava Purchase -- 20 Tonnes", "classification": {"category": "customer_inquiry", "priority": "high", "summary": "FoodCo needs 20 tonnes of cassava for processing plant, delivery within 2 weeks", "action_required": True}, "body": "We need 20 tonnes of cassava for our processing plant. Delivery within 2 weeks. Please quote."}),
+            ("email", {"sender": "weather@farmadvisory.ng", "subject": "Rainfall Alert: Below Average Expected", "classification": {"category": "operational_message", "priority": "medium", "summary": "March rainfall projected 30% below average, activate irrigation early", "action_required": True}, "body": "March rainfall projected 30% below average in your region. Activate irrigation early."}),
+            ("email", {"sender": "finance@oguntractors.ng", "subject": "Overdue Payment: INV-2026-1002", "classification": {"category": "payment_reminder", "priority": "high", "summary": "Tractor hire invoice NGN 750,000 is 3 days overdue", "action_required": True}, "body": "Your invoice for NGN 750,000 is 3 days overdue. Please remit payment."}),
         ],
     },
     "business@demo.com": {
@@ -228,11 +229,11 @@ BUSINESSES = {
             ("invoice", {"vendor_name": "MainOne Data Centre", "invoice_id": "INV-2026-2003", "amount": 420000.00, "currency": "NGN", "due_date": 15, "description": "Colocation and bandwidth — Q1 2026"}),
             ("invoice", {"vendor_name": "Google Workspace Reseller", "invoice_id": "INV-2026-2004", "amount": 165000.00, "currency": "NGN", "due_date": 3, "description": "Google Workspace Business Plus — 25 seats"}),
             ("invoice", {"vendor_name": "Interswitch Payment Gateway", "invoice_id": "INV-2026-2005", "amount": 285000.00, "currency": "NGN", "due_date": -2, "description": "Payment processing fees — February"}),
-            ("email", {"sender": "cto@fintechstartup.ng", "subject": "RFP: Mobile Banking App Development", "classification": "customer_inquiry", "body": "Looking for a dev partner to build our mobile banking platform. Budget is NGN 25M."}),
-            ("email", {"sender": "billing@andela.com", "subject": "Urgent: Invoice INV-2026-2002 Past Due", "classification": "payment_reminder", "body": "Invoice for NGN 3,500,000 is now 7 days overdue. Please arrange payment."}),
-            ("email", {"sender": "hr@techbridge.ng", "subject": "Staff Attrition Alert: 2 Resignations", "classification": "operational_message", "body": "Two mid-level developers resigned. Team capacity at 70%. Recommend urgent hiring."}),
-            ("email", {"sender": "procurement@dangote.com", "subject": "IT Infrastructure Upgrade RFP", "classification": "customer_inquiry", "body": "Dangote Group is seeking proposals for enterprise IT infrastructure modernisation. Budget: NGN 15M."}),
-            ("email", {"sender": "cfo@gtbank.com", "subject": "Q2 Support Contract Renewal", "classification": "customer_inquiry", "body": "We would like to renew our IT support contract for Q2. Please send updated pricing."}),
+            ("email", {"sender": "cto@fintechstartup.ng", "subject": "RFP: Mobile Banking App Development", "classification": {"category": "customer_inquiry", "priority": "high", "summary": "Fintech startup looking for dev partner for mobile banking platform, budget NGN 25M", "action_required": True}, "body": "Looking for a dev partner to build our mobile banking platform. Budget is NGN 25M."}),
+            ("email", {"sender": "billing@andela.com", "subject": "Urgent: Invoice INV-2026-2002 Past Due", "classification": {"category": "payment_reminder", "priority": "high", "summary": "Andela invoice for NGN 3,500,000 is 7 days overdue", "action_required": True}, "body": "Invoice for NGN 3,500,000 is now 7 days overdue. Please arrange payment."}),
+            ("email", {"sender": "hr@techbridge.ng", "subject": "Staff Attrition Alert: 2 Resignations", "classification": {"category": "operational_message", "priority": "high", "summary": "Two mid-level developers resigned, team capacity at 70%", "action_required": True}, "body": "Two mid-level developers resigned. Team capacity at 70%. Recommend urgent hiring."}),
+            ("email", {"sender": "procurement@dangote.com", "subject": "IT Infrastructure Upgrade RFP", "classification": {"category": "customer_inquiry", "priority": "high", "summary": "Dangote Group seeking proposals for enterprise IT infrastructure modernisation, budget NGN 15M", "action_required": True}, "body": "Dangote Group is seeking proposals for enterprise IT infrastructure modernisation. Budget: NGN 15M."}),
+            ("email", {"sender": "cfo@gtbank.com", "subject": "Q2 Support Contract Renewal", "classification": {"category": "customer_inquiry", "priority": "medium", "summary": "GTBank wants to renew IT support contract for Q2", "action_required": True}, "body": "We would like to renew our IT support contract for Q2. Please send updated pricing."}),
         ],
     },
     "ghana@demo.com": {
@@ -274,8 +275,8 @@ BUSINESSES = {
         "signals": [
             ("invoice", {"vendor_name": "Accra Wholesale Depot", "invoice_id": "INV-GH-0001", "amount": 12500.00, "currency": "GHS", "due_date": 7, "description": "Weekly produce restock — grains and oil"}),
             ("invoice", {"vendor_name": "Tema Fishing Co", "invoice_id": "INV-GH-0002", "amount": 4200.00, "currency": "GHS", "due_date": -2, "description": "Fresh tilapia — 120kg delivery"}),
-            ("email", {"sender": "orders@labadi-catering.gh", "subject": "Bulk Order: 200 Kenkey + Tilapia", "classification": "customer_inquiry", "body": "We need 200 wrapped kenkey and 50kg tilapia for a weekend event. Please confirm."}),
-            ("email", {"sender": "accounts@accrawholesale.gh", "subject": "Payment Due: INV-GH-0001", "classification": "payment_reminder", "body": "Your invoice for GHS 12,500 is due in 7 days."}),
+            ("email", {"sender": "orders@labadi-catering.gh", "subject": "Bulk Order: 200 Kenkey + Tilapia", "classification": {"category": "customer_inquiry", "priority": "medium", "summary": "Labadi Catering needs 200 kenkey and 50kg tilapia for weekend event", "action_required": True}, "body": "We need 200 wrapped kenkey and 50kg tilapia for a weekend event. Please confirm."}),
+            ("email", {"sender": "accounts@accrawholesale.gh", "subject": "Payment Due: INV-GH-0001", "classification": {"category": "payment_reminder", "priority": "medium", "summary": "Accra Wholesale invoice for GHS 12,500 due in 7 days", "action_required": True}, "body": "Your invoice for GHS 12,500 is due in 7 days."}),
         ],
     },
     "kenya@demo.com": {
@@ -317,8 +318,8 @@ BUSINESSES = {
         "signals": [
             ("invoice", {"vendor_name": "Nairobi Auto Parts", "invoice_id": "INV-KE-0001", "amount": 185000.00, "currency": "KES", "due_date": 10, "description": "Brake pads, filters, and batteries — monthly restock"}),
             ("invoice", {"vendor_name": "Shell Lubricants", "invoice_id": "INV-KE-0002", "amount": 75000.00, "currency": "KES", "due_date": -5, "description": "Engine oil and transmission fluid"}),
-            ("email", {"sender": "fleet@safaritours.ke", "subject": "Service 8 Vehicles Next Week", "classification": "customer_inquiry", "body": "We need full service for 8 Land Cruisers. Please schedule and quote."}),
-            ("email", {"sender": "accounts@nairobiparts.ke", "subject": "Overdue: INV-KE-0002", "classification": "payment_reminder", "body": "Your invoice for KES 75,000 is 5 days overdue."}),
+            ("email", {"sender": "fleet@safaritours.ke", "subject": "Service 8 Vehicles Next Week", "classification": {"category": "customer_inquiry", "priority": "high", "summary": "Safari Tours needs full service for 8 Land Cruisers next week", "action_required": True}, "body": "We need full service for 8 Land Cruisers. Please schedule and quote."}),
+            ("email", {"sender": "accounts@nairobiparts.ke", "subject": "Overdue: INV-KE-0002", "classification": {"category": "payment_reminder", "priority": "high", "summary": "Shell Lubricants invoice KES 75,000 is 5 days overdue", "action_required": True}, "body": "Your invoice for KES 75,000 is 5 days overdue."}),
         ],
     },
     "southafrica@demo.com": {
@@ -359,8 +360,8 @@ BUSINESSES = {
         "signals": [
             ("invoice", {"vendor_name": "Cape Town Fabrics", "invoice_id": "INV-ZA-0001", "amount": 28500.00, "currency": "ZAR", "due_date": 14, "description": "Ankara and lace fabric — bulk order"}),
             ("invoice", {"vendor_name": "Durban Thread Co", "invoice_id": "INV-ZA-0002", "amount": 4200.00, "currency": "ZAR", "due_date": 7, "description": "Thread, needles, and sewing supplies"}),
-            ("email", {"sender": "events@sowetofashion.za", "subject": "Fashion Week Vendor Registration", "classification": "customer_inquiry", "body": "Register as a vendor for Soweto Fashion Week 2026. Booth fee R5,000. Expected footfall: 15,000."}),
-            ("email", {"sender": "orders@sandtoncity.za", "subject": "Restock Request: 20 Dresses", "classification": "customer_inquiry", "body": "Your dresses are selling well. Please deliver 20 more units by Friday."}),
+            ("email", {"sender": "events@sowetofashion.za", "subject": "Fashion Week Vendor Registration", "classification": {"category": "customer_inquiry", "priority": "medium", "summary": "Soweto Fashion Week vendor registration open, booth fee R5,000", "action_required": True}, "body": "Register as a vendor for Soweto Fashion Week 2026. Booth fee R5,000. Expected footfall: 15,000."}),
+            ("email", {"sender": "orders@sandtoncity.za", "subject": "Restock Request: 20 Dresses", "classification": {"category": "customer_inquiry", "priority": "medium", "summary": "Sandton City Boutique requesting 20 more dress units by Friday", "action_required": True}, "body": "Your dresses are selling well. Please deliver 20 more units by Friday."}),
         ],
     },
     "rwanda@demo.com": {
@@ -399,7 +400,7 @@ BUSINESSES = {
         "signals": [
             ("invoice", {"vendor_name": "Rwanda Pharma Distributors", "invoice_id": "INV-RW-0001", "amount": 850000.00, "currency": "RWF", "due_date": 14, "description": "Monthly medicine restock — antibiotics and pain relief"}),
             ("invoice", {"vendor_name": "Kigali Medical Supplies", "invoice_id": "INV-RW-0002", "amount": 360000.00, "currency": "RWF", "due_date": 7, "description": "Diagnostic kits and hygiene products"}),
-            ("email", {"sender": "procurement@nyarugenge.rw", "subject": "Monthly Supply Request", "classification": "customer_inquiry", "body": "We need 50 boxes paracetamol and 20 boxes amoxicillin for the health centre."}),
+            ("email", {"sender": "procurement@nyarugenge.rw", "subject": "Monthly Supply Request", "classification": {"category": "customer_inquiry", "priority": "medium", "summary": "Nyarugenge Health Centre needs 50 boxes paracetamol and 20 boxes amoxicillin", "action_required": True}, "body": "We need 50 boxes paracetamol and 20 boxes amoxicillin for the health centre."}),
         ],
     },
     "uk@demo.com": {
@@ -441,9 +442,55 @@ BUSINESSES = {
         "signals": [
             ("invoice", {"vendor_name": "Screwfix Trade Account", "invoice_id": "INV-UK-0001", "amount": 1340.00, "currency": "GBP", "due_date": 10, "description": "Copper pipe, fittings, and sealant — monthly stock"}),
             ("invoice", {"vendor_name": "Vaillant Boilers UK", "invoice_id": "INV-UK-0002", "amount": 4200.00, "currency": "GBP", "due_date": -6, "description": "3x combi boiler units for customer installs"}),
-            ("email", {"sender": "lettings@oxfordproperty.co.uk", "subject": "Ongoing Contract: 12 Properties", "classification": "customer_inquiry", "body": "We manage 12 rental properties and need a reliable plumber on retainer. 12-month contract."}),
-            ("email", {"sender": "trade@vaillant.co.uk", "subject": "Overdue: INV-UK-0002", "classification": "payment_reminder", "body": "Invoice for GBP 4,200 is 6 days past due. Late payment may affect trade discount."}),
-            ("email", {"sender": "council@reading.gov.uk", "subject": "New Tender: Social Housing Plumbing", "classification": "customer_inquiry", "body": "Tender for plumbing maintenance across 45 council properties. Deadline: April 15."}),
+            ("email", {"sender": "lettings@oxfordproperty.co.uk", "subject": "Ongoing Contract: 12 Properties", "classification": {"category": "customer_inquiry", "priority": "high", "summary": "Oxford Property Lettings wants a plumber on retainer for 12 rental properties", "action_required": True}, "body": "We manage 12 rental properties and need a reliable plumber on retainer. 12-month contract."}),
+            ("email", {"sender": "trade@vaillant.co.uk", "subject": "Overdue: INV-UK-0002", "classification": {"category": "payment_reminder", "priority": "high", "summary": "Vaillant invoice GBP 4,200 is 6 days past due, may affect trade discount", "action_required": True}, "body": "Invoice for GBP 4,200 is 6 days past due. Late payment may affect trade discount."}),
+            ("email", {"sender": "council@reading.gov.uk", "subject": "New Tender: Social Housing Plumbing", "classification": {"category": "customer_inquiry", "priority": "medium", "summary": "Reading Borough Council tender for plumbing maintenance across 45 properties", "action_required": True}, "body": "Tender for plumbing maintenance across 45 council properties. Deadline: April 15."}),
+        ],
+    },
+    "admin@smecontroltower.com": {
+        "name": "SME Control Tower",
+        "type": "saas_platform",
+        "country": "NG",
+        "currency": "NGN",
+        "tier": "enterprise",
+        "suppliers": [
+            ("AWS Cloud Services", "+2348301111111"),
+            ("Vercel Hosting", "+2348302222222"),
+            ("Google Workspace", "+2348303333333"),
+        ],
+        "customers": [
+            ("Ade's Trading Co", "+2348304444444"),
+            ("GreenField Farms", "+2348305555555"),
+            ("TechBridge Solutions", "+2348306666666"),
+            ("Asante Fresh Market", "+2348307777777"),
+            ("Mwangi Auto Garage", "+2348308888888"),
+        ],
+        "products": [
+            ("Starter Plan (Free)", "Subscription", 50, 0, 0, 0),
+            ("Growth Plan Monthly", "Subscription", 12, 0, 14900, 0),
+            ("Business Plan Monthly", "Subscription", 8, 0, 39900, 0),
+            ("Enterprise Custom", "Subscription", 2, 0, 150000, 0),
+            ("Onboarding Service", "Services", 5, 25000, 75000, 0),
+        ],
+        "rev_categories": ["Subscription Revenue", "Onboarding Fees", "Support Contracts", "API Usage"],
+        "exp_categories": ["Cloud Infrastructure", "Staff Salary", "Marketing", "Office Rent", "Software Licenses", "Legal"],
+        "rev_range": (50000, 500000),
+        "exp_range": (30000, 250000),
+        "daily_rev_count": (2, 5),
+        "daily_exp_count": (1, 3),
+        "nsi_base": 78,
+        "alerts": [
+            ("platform_health", "info", "Platform Uptime: 99.8% This Month", "All services running normally. Minor latency spike on Tuesday resolved.", "Continue monitoring"),
+            ("revenue_milestone", "info", "MRR Crossed NGN 500K", "Monthly recurring revenue reached NGN 512,000 with 20 paid subscribers.", "Focus on converting free tier users"),
+            ("user_growth", "info", "5 New Signups This Week", "3 from Nigeria, 1 from Ghana, 1 from Kenya. All completed onboarding.", "Send welcome emails and schedule demos"),
+            ("churn_risk", "warning", "2 Growth Users Inactive 14+ Days", "Two growth-tier users have not logged in for 2 weeks.", "Send re-engagement emails and offer support call"),
+        ],
+        "signals": [
+            ("invoice", {"vendor_name": "AWS Cloud Services", "invoice_id": "INV-ADMIN-0001", "amount": 285000.00, "currency": "NGN", "due_date": 10, "description": "AWS infrastructure costs -- March 2026"}),
+            ("invoice", {"vendor_name": "Vercel Hosting", "invoice_id": "INV-ADMIN-0002", "amount": 45000.00, "currency": "NGN", "due_date": 15, "description": "Frontend hosting and CDN -- March 2026"}),
+            ("email", {"sender": "billing@aws.amazon.com", "subject": "AWS Invoice: March 2026", "classification": {"category": "payment_reminder", "priority": "medium", "summary": "AWS monthly invoice for cloud infrastructure services", "action_required": True}, "body": "Your AWS invoice for March 2026 is ready. Total: NGN 285,000. Due in 10 days."}),
+            ("email", {"sender": "support@growthclient.ng", "subject": "Feature Request: WhatsApp Integration", "classification": {"category": "customer_inquiry", "priority": "medium", "summary": "Growth tier client requesting WhatsApp integration for their business", "action_required": True}, "body": "We love the platform but really need WhatsApp integration for our customers. When is this coming?"}),
+            ("email", {"sender": "ceo@enterpriseclient.ng", "subject": "Enterprise Onboarding Schedule", "classification": {"category": "customer_inquiry", "priority": "high", "summary": "Enterprise client wants to schedule onboarding for 50 users", "action_required": True}, "body": "We are ready to onboard our team of 50. Please schedule the enterprise setup session."}),
         ],
     },
 }
@@ -568,6 +615,7 @@ def seed_alerts(org_id, biz):
 
 def seed_signals(org_id, biz):
     """Seed invoice and email signals."""
+    signal_ids = []
     for i, (sig_type, content) in enumerate(biz["signals"]):
         sig_content = {}
         for k, v in content.items():
@@ -577,13 +625,51 @@ def seed_signals(org_id, biz):
                 sig_content[k] = iso(now + timedelta(days=v))
             else:
                 sig_content[k] = v
+        sid = _id("signal")
         signals_table.put_item(Item={
-            "org_id": org_id, "signal_id": _id("signal"),
+            "org_id": org_id, "signal_id": sid,
             "signal_type": sig_type,
             "processing_status": "processed",
             "content": sig_content,
             "created_at": iso(now - timedelta(days=random.randint(1, 14))),
         })
+        if sig_type == "email":
+            signal_ids.append((sid, sig_content))
+    return signal_ids
+
+
+def seed_tasks(org_id, email_signal_ids):
+    """Seed task records extracted from email signals."""
+    task_titles = {
+        "payment_reminder": ["Process payment", "Schedule bank transfer", "Confirm payment sent"],
+        "customer_inquiry": ["Prepare quote", "Schedule meeting", "Send product catalogue", "Follow up with client"],
+        "operational_message": ["Review operations report", "Update team on changes", "Adjust budget forecast"],
+    }
+    count = 0
+    for sid, content in email_signal_ids:
+        cls = content.get("classification", {})
+        category = cls.get("category", "other") if isinstance(cls, dict) else "other"
+        priority = cls.get("priority", "medium") if isinstance(cls, dict) else "medium"
+        subject = content.get("subject", "Email task")
+        titles = task_titles.get(category, ["Review and respond"])
+        title = random.choice(titles)
+        task_id = _id("task")
+        now_str = iso(now - timedelta(hours=random.randint(1, 48)))
+        tasks_table.put_item(Item={
+            "org_id": org_id,
+            "task_id": task_id,
+            "title": title,
+            "description": f"From email: {subject}",
+            "task_type": category,
+            "priority": priority,
+            "status": random.choice(["pending", "pending", "in_progress", "completed"]),
+            "source_type": "email",
+            "source_id": sid,
+            "created_at": now_str,
+            "updated_at": now_str,
+        })
+        count += 1
+    return count
 
 
 def seed_nsi_scores(org_id, biz):
@@ -851,8 +937,11 @@ def seed_one_business(email, biz):
     seed_alerts(org_id, biz)
     print(f"    [OK] {len(biz['alerts'])} alerts")
 
-    seed_signals(org_id, biz)
+    email_sids = seed_signals(org_id, biz)
     print(f"    [OK] {len(biz['signals'])} signals (invoices + emails)")
+
+    task_count = seed_tasks(org_id, email_sids)
+    print(f"    [OK] {task_count} tasks from emails")
 
     fin_doc_count = seed_finance_documents(org_id, biz)
     print(f"    [OK] {fin_doc_count} finance documents (cashflow + P&L)")
@@ -891,5 +980,5 @@ if __name__ == "__main__":
     print(f"{'Email':<30} {'Password':<15} {'Tier':<12} {'Country':<5} {'Business'}")
     print("-" * 100)
     for email, biz in BUSINESSES.items():
-        print(f"{email:<30} {'Demo@2025!':<15} {biz['tier']:<12} {biz['country']:<5} {biz['name']}")
-    print(f"{'admin@smecontroltower.com':<30} {'Admin@2025!':<15} {'enterprise':<12} {'NG':<5} SME Control Tower")
+        pwd = "Admin@2025!" if email == "admin@smecontroltower.com" else "Demo@2025!"
+        print(f"{email:<30} {pwd:<15} {biz['tier']:<12} {biz['country']:<5} {biz['name']}")
