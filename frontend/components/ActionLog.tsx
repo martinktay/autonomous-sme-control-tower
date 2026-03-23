@@ -88,14 +88,14 @@ export default function ActionLog({ actions, loading }: ActionLogProps) {
                   {getStatusIcon(action.execution_status)}
                 </div>
                 <div className="flex-1 space-y-1">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
                     <div className="flex items-center gap-2">
                       <Badge variant={getStatusVariant(action.execution_status)} className="text-xs">
                         {action.execution_status}
                       </Badge>
                       <span className="text-sm font-medium">{action.action_type}</span>
                     </div>
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-xs text-muted-foreground whitespace-nowrap">
                       {formatTimestamp(action.timestamp)}
                     </span>
                   </div>
