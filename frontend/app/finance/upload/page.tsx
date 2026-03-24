@@ -1,3 +1,7 @@
+/**
+ * @file Finance Upload page (/finance/upload) — Upload financial documents and spreadsheets.
+ * Supports PDF, images, CSV, and Excel with AI extraction and anomaly detection.
+ */
 "use client";
 
 import { useState } from "react";

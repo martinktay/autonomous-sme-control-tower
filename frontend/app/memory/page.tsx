@@ -1,3 +1,7 @@
+/**
+ * @file Memory page (/memory) — Semantic search across stored business data.
+ * Uses Nova embeddings to find similar content from past signals and documents.
+ */
 'use client'
 
 import { useState } from 'react'

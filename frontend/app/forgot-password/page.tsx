@@ -1,3 +1,7 @@
+/**
+ * @file Forgot Password page (/forgot-password) — OTP-based password reset flow.
+ * Sends a reset code via email and allows setting a new password.
+ */
 "use client";
 
 import { useState } from "react";

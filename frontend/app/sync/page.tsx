@@ -1,3 +1,7 @@
+/**
+ * @file Desktop Sync page (/sync) — Upload POS export files for AI extraction.
+ * Companion to the desktop sync agent that watches local folders for new files.
+ */
 "use client";
 
 import { useState } from "react";

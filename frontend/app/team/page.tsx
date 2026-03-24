@@ -1,3 +1,7 @@
+/**
+ * @file Team page (/team) — Invite members, manage roles, and remove team members.
+ * Requires owner or admin role for write operations.
+ */
 "use client";
 
 import { useEffect, useState } from "react";

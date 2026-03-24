@@ -1,3 +1,7 @@
+/**
+ * @file Strategy page (/strategy) — AI strategy simulation and execution.
+ * Generates improvement strategies from the current NSI score and allows one-click execution.
+ */
 'use client'
 
 import { useState } from 'react'

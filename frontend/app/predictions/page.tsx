@@ -1,3 +1,7 @@
+/**
+ * @file Predictions page (/predictions) — AI demand forecasting and reorder suggestions.
+ * Shows inventory reorder urgency and AI-generated demand predictions.
+ */
 "use client";
 
 import { useState, useEffect } from "react";

@@ -1,3 +1,7 @@
+/**
+ * @file Finance Export page (/finance/export) — Export financial data as CSV or XLSX.
+ * Supports date range and category filters for targeted exports.
+ */
 "use client";
 
 import { useState } from "react";

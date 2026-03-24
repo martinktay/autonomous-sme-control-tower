@@ -1,3 +1,7 @@
+/**
+ * @file Admin page (/admin) — Super admin dashboard for platform management.
+ * User management, tier overrides, subscription control, and platform stats.
+ */
 "use client";
 
 import { useEffect, useState } from "react";

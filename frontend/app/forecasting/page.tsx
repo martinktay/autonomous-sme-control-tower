@@ -1,3 +1,7 @@
+/**
+ * @file Forecasting page (/forecasting) — AI revenue, expense, and cash runway projections.
+ * Shows cash runway risk level and detailed AI-generated financial forecasts.
+ */
 "use client";
 
 import { useState, useEffect } from "react";

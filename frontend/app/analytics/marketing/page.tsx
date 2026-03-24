@@ -1,3 +1,7 @@
+/**
+ * @file Marketing Analytics page (/analytics/marketing) — Marketing insights and customer metrics.
+ * Placeholder for future marketing intelligence features.
+ */
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

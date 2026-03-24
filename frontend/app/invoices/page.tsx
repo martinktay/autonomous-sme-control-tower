@@ -1,3 +1,7 @@
+/**
+ * @file Invoices page (/invoices) — QuickBooks-style invoice management.
+ * Create, list, send, record payments, and manage outbound invoices with email notifications.
+ */
 "use client";
 
 import { useState, useEffect } from "react";

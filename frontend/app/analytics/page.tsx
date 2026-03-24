@@ -1,3 +1,7 @@
+/**
+ * @file Analytics page (/analytics) — Business analytics dashboard with charts.
+ * Shows expense by vendor, revenue by source, category breakdown, tax breakdown, and monthly trends.
+ */
 "use client";
 
 import { useEffect, useState } from "react";

@@ -1,3 +1,10 @@
+"""
+Business Insights router — AI-generated plain-language business analysis.
+
+Endpoints:
+  GET /api/insights/{org_id} — generate AI insights from NSI, actions, and strategies
+"""
+
 from fastapi import APIRouter, HTTPException
 from typing import Dict, Any
 import logging

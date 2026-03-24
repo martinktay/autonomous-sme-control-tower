@@ -1,3 +1,8 @@
+/**
+ * @file Portal page (/portal) — Full closed-loop analysis runner.
+ * Walks the user through the 5-step cycle (Ingest → Diagnose → Simulate → Execute → Evaluate)
+ * with animated progress and displays before/after NSI scores.
+ */
 "use client";
 
 import { useState } from "react";

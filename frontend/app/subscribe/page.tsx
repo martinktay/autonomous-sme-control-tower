@@ -1,3 +1,7 @@
+/**
+ * @file Subscribe page (/subscribe) — Subscription management with African payment methods.
+ * Supports Paystack, Flutterwave, bank transfer, USSD, mobile money, and Stripe.
+ */
 "use client";
 
 import { useState, useEffect } from "react";

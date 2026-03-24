@@ -1,3 +1,7 @@
+/**
+ * @file Finance page (/finance) — Financial dashboard with P&L, cashflow, analytics, and document management.
+ * Includes review queue, CSV/XLSX export, and AI-powered financial insights.
+ */
 "use client";
 
 import { useState, useEffect, useCallback } from "react";

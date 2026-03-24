@@ -1,3 +1,7 @@
+/**
+ * @file Help page (/help) — FAQs, getting started guide, and support information.
+ * Covers onboarding, features, pricing, and troubleshooting for African SME users.
+ */
 "use client";
 
 import {

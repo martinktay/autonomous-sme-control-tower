@@ -1,3 +1,7 @@
+/**
+ * @file POS Connector page (/pos) — Import POS system exports and view supported systems.
+ * Parses CSV/Excel POS data via AI and auto-creates revenue transactions.
+ */
 "use client";
 
 import { useState, useEffect } from "react";

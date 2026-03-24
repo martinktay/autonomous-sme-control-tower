@@ -20,8 +20,8 @@ from app.models import Signal
 from app.utils.upload_validator import (
     validate_org_id,
     validate_upload_file,
-    INVOICE_CONTENT_TYPES,
-    INVOICE_EXTENSIONS,
+    FINANCE_CONTENT_TYPES,
+    FINANCE_EXTENSIONS,
 )
 from app.utils.id_generator import generate_id
 
@@ -45,7 +45,7 @@ async def upload_invoice(
 
     # Validate file type, size, filename
     file_content, safe_filename, ext = await validate_upload_file(
-        file, INVOICE_CONTENT_TYPES, INVOICE_EXTENSIONS
+        file, FINANCE_CONTENT_TYPES, FINANCE_EXTENSIONS
     )
 
     signal_id = generate_id("signal")

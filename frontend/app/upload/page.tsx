@@ -1,3 +1,7 @@
+/**
+ * @file Upload page (/upload) — Invoice and document upload with drag-and-drop.
+ * Accepts PDF, images, CSV, and Excel files. Shows AI extraction results on success.
+ */
 "use client";
 
 import { useState } from "react";
@@ -29,7 +33,11 @@ export default function UploadPage() {
   const [error, setError] = useState<string | null>(null);
 
   const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
-  const ALLOWED_TYPES = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
+  const ALLOWED_TYPES = [
+    'application/pdf', 'image/jpeg', 'image/png', 'image/jpg',
+    'text/csv', 'application/csv', 'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  ];
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0] || null;
@@ -45,8 +53,8 @@ export default function UploadPage() {
         setFile(null);
         return;
       }
-      if (!ALLOWED_TYPES.includes(selected.type) && !selected.name.match(/\.(pdf|jpe?g|png)$/i)) {
-        setError('Unsupported file type. Please upload a PDF, JPG, or PNG file.');
+      if (!ALLOWED_TYPES.includes(selected.type) && !selected.name.match(/\.(pdf|jpe?g|png|csv|xlsx?|xls)$/i)) {
+        setError('Unsupported file type. Please upload a PDF, image, CSV, or Excel file.');
         setFile(null);
         return;
       }
@@ -76,8 +84,8 @@ export default function UploadPage() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Upload Invoice</h1>
         <p className="text-muted-foreground">
-          Upload a PDF or image of your invoice. The AI will read it and add
-          the information to your business data automatically.
+          Upload a PDF, image, or spreadsheet (CSV/Excel) of your invoice. You can also snap a photo
+          of a receipt on mobile. The AI will read it and add the information to your business data automatically.
         </p>
       </div>
 
@@ -85,7 +93,7 @@ export default function UploadPage() {
         <CardHeader>
           <CardTitle>Select Your Invoice</CardTitle>
           <CardDescription>
-            Accepted formats: PDF, JPG, PNG. Maximum one file at a time.
+            Accepted formats: PDF, JPG, PNG, CSV, XLS, XLSX. You can snap a photo on mobile.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -117,7 +125,7 @@ export default function UploadPage() {
             )}
             <input
               type="file"
-              accept=".pdf,image/*"
+              accept=".pdf,.csv,.xls,.xlsx,image/*"
               onChange={handleFileSelect}
               className="hidden"
               id="file-upload"

@@ -1,3 +1,7 @@
+/**
+ * @file Login page (/login) — Email and password authentication.
+ * Redirects super_admin users to /admin, others to /dashboard.
+ */
 "use client";
 
 import { useState } from "react";

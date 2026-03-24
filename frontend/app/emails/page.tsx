@@ -1,3 +1,7 @@
+/**
+ * @file Emails page (/emails) — Email ingestion, AI classification, task extraction, and reply drafting.
+ * Supports SES-based sending and WhatsApp notification flow for high-priority emails.
+ */
 "use client";
 
 import { useState } from "react";

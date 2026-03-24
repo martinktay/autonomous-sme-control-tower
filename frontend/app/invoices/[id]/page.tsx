@@ -1,3 +1,7 @@
+/**
+ * @file Invoice detail page (/invoices/[id]) — Public invoice view with print and PDF download.
+ * Shareable payment link for customers, no auth required.
+ */
 "use client";
 
 import { useEffect, useState } from "react";

@@ -1,3 +1,7 @@
+/**
+ * @file Bank Sync page (/bank-sync) — Import bank statements and reconcile against transactions.
+ * Supports CSV/Excel uploads with AI-powered matching and auto-transaction creation.
+ */
 "use client";
 
 import { useState, useEffect } from "react";

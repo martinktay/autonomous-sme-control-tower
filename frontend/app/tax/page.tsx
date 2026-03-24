@@ -1,3 +1,7 @@
+/**
+ * @file Tax page (/tax) — FIRS annual tax report generation and AI guidance.
+ * Supports multi-country tax configs (NG, GH, KE, ZA, RW, GB, US) with VAT summaries.
+ */
 "use client";
 
 import { useState } from "react";

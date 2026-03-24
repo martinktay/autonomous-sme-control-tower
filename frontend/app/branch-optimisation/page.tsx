@@ -1,3 +1,7 @@
+/**
+ * @file Branch Optimisation page (/branch-optimisation) — Multi-branch intelligence.
+ * Shows branch benchmarks and AI-generated cross-branch optimisation recommendations.
+ */
 "use client";
 
 import { useState, useEffect } from "react";

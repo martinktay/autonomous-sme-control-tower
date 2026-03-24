@@ -1,3 +1,7 @@
+/**
+ * StrategyList — Displays AI-generated strategy recommendations with
+ * predicted NSI improvement, confidence scores, and execute buttons.
+ */
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

@@ -1,3 +1,7 @@
+/**
+ * @file Supplier Intelligence page (/supplier-intelligence) — AI supplier scoring and risk analysis.
+ * Shows reliability scores, single-source dependencies, and full AI intelligence reports.
+ */
 "use client";
 
 import { useState, useEffect } from "react";

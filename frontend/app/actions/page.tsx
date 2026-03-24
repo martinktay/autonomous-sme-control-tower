@@ -1,3 +1,7 @@
+/**
+ * @file Actions page (/actions) — Autonomous action history and execution log.
+ * Shows all AI-executed actions with status, timestamps, and error details.
+ */
 'use client'
 
 import { useEffect, useState } from 'react'
