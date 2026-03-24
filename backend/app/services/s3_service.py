@@ -1,3 +1,11 @@
+"""
+S3 document storage service — upload, download, delete, and presigned URL generation.
+
+All operations use exponential-backoff retry for transient AWS errors.
+Uploads enforce server-side AES-256 encryption and Content-Disposition: attachment.
+Presigned URLs are capped at 15 minutes for security.
+"""
+
 import boto3
 import time
 import threading

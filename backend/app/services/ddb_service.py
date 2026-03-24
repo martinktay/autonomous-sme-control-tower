@@ -1,3 +1,12 @@
+"""
+DynamoDB persistence service — all table operations for the SME Control Tower.
+
+Provides CRUD + query methods for signals, NSI scores, strategies, actions,
+evaluations, and generic table access. Every write enforces org_id presence
+and format. Reads/writes use exponential-backoff retry for throttling resilience.
+Float ↔ Decimal and datetime ↔ ISO-string conversions are handled transparently.
+"""
+
 import boto3
 import time
 import logging
