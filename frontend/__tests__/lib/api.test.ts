@@ -15,15 +15,15 @@ beforeEach(() => {
 });
 
 describe("API Client", () => {
-  it("getNSI calls correct endpoint with org_id", async () => {
+  it("getBSI calls correct endpoint with org_id", async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
       json: async () => ({ bsi: { bsi_score: 72 } }),
       text: async () => "",
     });
 
-    const { getNSI } = require("@/lib/api");
-    const result = await getNSI("org-123");
+    const { getBSI } = require("@/lib/api");
+    const result = await getBSI("org-123");
 
     expect(mockFetch).toHaveBeenCalledWith(
       expect.stringContaining("/api/stability/org-123"),
@@ -57,8 +57,8 @@ describe("API Client", () => {
       text: async () => "server error",
     });
 
-    const { getNSI } = require("@/lib/api");
-    await expect(getNSI("org-123")).rejects.toThrow(/API error 500/);
+    const { getBSI } = require("@/lib/api");
+    await expect(getBSI("org-123")).rejects.toThrow(/API error 500/);
   });
 
   it("uploadInvoice sends FormData", async () => {

@@ -51,7 +51,7 @@ export default function DashboardPage() {
       setError(null);
 
       const [bsiResponse, actionsResponse] = await Promise.allSettled([
-        apiClient.getNSI(orgId),
+        apiClient.getBSI(orgId),
         apiClient.getActions(orgId),
       ]);
 

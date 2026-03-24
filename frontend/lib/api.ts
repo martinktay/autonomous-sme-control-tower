@@ -59,7 +59,7 @@ async function apiFetch(path: string, options: RequestInit = {}, timeoutMs = 800
 // ==================== BSI & Stability API ====================
 
 /** Fetch the Business Stability Index and sub-indices for an org. */
-export const getNSI = async (orgId: string) => {
+export const getBSI = async (orgId: string) => {
   const res = await apiFetch(`/api/stability/${orgId}`);
   return res.json();
 };
@@ -1027,7 +1027,7 @@ export const sendInvoiceReminder = async (_orgId: string, invoiceId: string) => 
 
 /** Object-style export bundling all API functions for convenient dashboard imports. */
 export const apiClient = {
-  getNSI,
+  getBSI,
   getRisks,
   getActions,
   runClosedLoop,
