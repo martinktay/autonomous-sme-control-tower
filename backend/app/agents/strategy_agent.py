@@ -17,8 +17,8 @@ class StrategyAgent:
     def simulate_strategies(
         self,
         org_id: str,
-        nsi_snapshot_id: str,
-        current_nsi: float,
+        bsi_snapshot_id: str,
+        current_bsi: float,
         top_risks: List[dict],
         context: dict
     ) -> List[Strategy]:
@@ -28,7 +28,7 @@ class StrategyAgent:
         
         risks_text = "\n".join([f"- {risk.get('description', risk)}" for risk in top_risks])
         context_text = f"""
-Current NSI: {current_nsi}
+Current BSI: {current_bsi}
 Top Risks:
 {risks_text}
 
@@ -52,8 +52,8 @@ Context: {json.dumps(context, indent=2)}
                 )
                 predicted_improvement = float(
                     strategy_data.get("predicted_improvement")
-                    or strategy_data.get("predicted_nsi_improvement")
-                    or strategy_data.get("nsi_improvement")
+                    or strategy_data.get("predicted_bsi_improvement")
+                    or strategy_data.get("bsi_improvement")
                     or 5.0
                 )
                 confidence_score = float(
@@ -77,9 +77,9 @@ Context: {json.dumps(context, indent=2)}
                 strategy = Strategy(
                     strategy_id=generate_id("strategy"),
                     org_id=org_id,
-                    nsi_snapshot_id=nsi_snapshot_id,
+                    bsi_snapshot_id=bsi_snapshot_id,
                     description=description,
-                    predicted_nsi_improvement=predicted_improvement,
+                    predicted_bsi_improvement=predicted_improvement,
                     confidence_score=confidence_score,
                     automation_eligibility=automatable,
                     reasoning=str(reasoning),

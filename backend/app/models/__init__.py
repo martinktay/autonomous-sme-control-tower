@@ -1,7 +1,7 @@
 from .invoice import Invoice
 from .email import Email
 from .signal import Signal
-from .nsi import NSISnapshot, NSIScore, SubIndices
+from .bsi import BSISnapshot, BSIScore, SubIndices
 from .strategy import Strategy
 from .action import ActionExecution
 from .evaluation import Evaluation
@@ -23,8 +23,8 @@ __all__ = [
     "Invoice",
     "Email",
     "Signal",
-    "NSISnapshot",
-    "NSIScore",
+    "BSISnapshot",
+    "BSIScore",
     "SubIndices",
     "Strategy",
     "ActionExecution",

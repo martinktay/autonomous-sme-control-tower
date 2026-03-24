@@ -26,7 +26,7 @@ class Settings(BaseSettings):
 
     # --- DynamoDB table names (existing) ---
     signals_table: str = "autonomous-sme-signals"
-    nsi_scores_table: str = "autonomous-sme-nsi-scores"
+    bsi_scores_table: str = "autonomous-sme-bsi-scores"
     strategies_table: str = "autonomous-sme-strategies"
     actions_table: str = "autonomous-sme-actions"
     evaluations_table: str = "autonomous-sme-evaluations"

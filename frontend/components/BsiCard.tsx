@@ -1,5 +1,5 @@
 /**
- * NSICard — Displays the Nova Stability Index score with health badge,
+ * BSICard — Displays the Business Stability Index score with health badge,
  * trend indicator, progress bar, and confidence/timestamp metadata.
  * Handles loading and empty-data states gracefully.
  */
@@ -10,21 +10,21 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, TrendingDown, Minus, Loader2 } from "lucide-react";
 
-interface NsiCardProps {
-  nsi: number | null;
+interface BsiCardProps {
+  bsi: number | null;
   confidence?: string;
   trend?: number;
   timestamp?: string;
   loading?: boolean;
 }
 
-export default function NSICard({ 
-  nsi, 
+export default function BSICard({ 
+  bsi, 
   confidence = "medium", 
   trend, 
   timestamp, 
   loading 
-}: NsiCardProps) {
+}: BsiCardProps) {
   const getHealthColor = (score: number) => {
     if (score >= 70) return "text-green-600";
     if (score >= 40) return "text-yellow-600";
@@ -47,7 +47,7 @@ export default function NSICard({
     return (
       <Card className="w-full">
         <CardHeader>
-          <CardTitle>Nova Stability Index</CardTitle>
+          <CardTitle>Business Stability Index</CardTitle>
           <CardDescription>Overall operational health score</CardDescription>
         </CardHeader>
         <CardContent className="flex items-center justify-center h-40">
@@ -57,11 +57,11 @@ export default function NSICard({
     );
   }
 
-  if (nsi === null) {
+  if (bsi === null) {
     return (
       <Card className="w-full">
         <CardHeader>
-          <CardTitle>Nova Stability Index</CardTitle>
+          <CardTitle>Business Stability Index</CardTitle>
           <CardDescription>Overall operational health score</CardDescription>
         </CardHeader>
         <CardContent>
@@ -75,9 +75,9 @@ export default function NSICard({
     <Card className="w-full">
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle>Nova Stability Index</CardTitle>
-          <Badge variant={nsi >= 70 ? "default" : nsi >= 40 ? "secondary" : "destructive"}>
-            {getHealthLabel(nsi)}
+          <CardTitle>Business Stability Index</CardTitle>
+          <Badge variant={bsi >= 70 ? "default" : bsi >= 40 ? "secondary" : "destructive"}>
+            {getHealthLabel(bsi)}
           </Badge>
         </div>
         <CardDescription>
@@ -86,8 +86,8 @@ export default function NSICard({
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex items-baseline justify-between">
-          <div className={`text-6xl font-bold ${getHealthColor(nsi)}`}>
-            {nsi.toFixed(1)}
+          <div className={`text-6xl font-bold ${getHealthColor(bsi)}`}>
+            {bsi.toFixed(1)}
           </div>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             {getTrendIcon()}
@@ -98,7 +98,7 @@ export default function NSICard({
         </div>
 
         <Progress 
-          value={nsi} 
+          value={bsi} 
           className="h-3"
         />
 

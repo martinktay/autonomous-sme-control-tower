@@ -38,7 +38,7 @@ autonomous-sme-upload-jobs       PK: business_id, SK: job_id
 
 ```
 autonomous-sme-signals           (invoice/email signals — still used by agent pipeline)
-autonomous-sme-nsi-scores        (NSI snapshots)
+autonomous-sme-bsi-scores        (BSI snapshots)
 autonomous-sme-strategies        (strategy proposals)
 autonomous-sme-actions           (action execution logs)
 autonomous-sme-evaluations       (reeval results)
@@ -434,7 +434,7 @@ When `business_type == "supermarket"`, the dashboard adds:
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│  NSI Score  │  Revenue Today  │  Expenses Today         │
+│  BSI Score  │  Revenue Today  │  Expenses Today         │
 │  [72/100]   │  ₦485,000       │  ₦312,000               │
 ├─────────────┼─────────────────┼─────────────────────────┤
 │  ALERTS                                                 │
@@ -605,7 +605,7 @@ frontend/components/
 ## Backward Compatibility
 
 - Existing `org_id` field maps to `business_id` — add alias support
-- Existing signal/NSI/strategy/action/evaluation pipeline unchanged
+- Existing signal/BSI/strategy/action/evaluation pipeline unchanged
 - Existing frontend pages continue to work
 - New entities are additive, not replacing existing ones
 - Migration path: existing demo orgs get `business_type: "other"` and `pricing_tier: "starter"`

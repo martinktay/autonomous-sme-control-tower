@@ -56,9 +56,9 @@ async function apiFetch(path: string, options: RequestInit = {}, timeoutMs = 800
   }
 }
 
-// ==================== NSI & Stability API ====================
+// ==================== BSI & Stability API ====================
 
-/** Fetch the Nova Stability Index and sub-indices for an org. */
+/** Fetch the Business Stability Index and sub-indices for an org. */
 export const getNSI = async (orgId: string) => {
   const res = await apiFetch(`/api/stability/${orgId}`);
   return res.json();
@@ -68,7 +68,7 @@ export const getNSI = async (orgId: string) => {
 export const getRisks = async (orgId: string) => {
   const res = await apiFetch(`/api/stability/${orgId}`);
   const data = await res.json();
-  return { risks: data.nsi?.top_risks || [] };
+  return { risks: data.bsi?.top_risks || [] };
 };
 
 // ==================== Actions & Orchestration API ====================

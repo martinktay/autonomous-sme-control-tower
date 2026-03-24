@@ -37,9 +37,9 @@ The Autonomous SME Control Tower follows a multi-agent architecture with clear s
 - **Models**: Nova Multimodal Embeddings
 
 ### 6. Risk Diagnosis Agent (`risk_agent.py`)
-- **Purpose**: Analyze signals and calculate NSI
+- **Purpose**: Analyze signals and calculate BSI
 - **Inputs**: Structured signals, historical data
-- **Outputs**: Risk assessment, NSI score, sub-indices
+- **Outputs**: Risk assessment, BSI score, sub-indices
 - **Models**: Nova 2 Lite for analysis
 
 ### 7. Strategy Simulation Agent (`strategy_agent.py`)
@@ -57,7 +57,7 @@ The Autonomous SME Control Tower follows a multi-agent architecture with clear s
 ### 9. Re-evaluation Agent (`reeval_agent.py`)
 - **Purpose**: Measure outcomes and refine approach
 - **Inputs**: Action results, original predictions
-- **Outputs**: Accuracy metrics, updated NSI weights
+- **Outputs**: Accuracy metrics, updated BSI weights
 - **Models**: Nova 2 Lite for analysis
 
 ### 10. Voice Brief Agent (`voice_agent.py`)
@@ -90,15 +90,15 @@ The Autonomous SME Control Tower follows a multi-agent architecture with clear s
 ## Data Flow
 
 ```
-Upload → Extract → Store (S3) → Classify → Score (NSI) → 
-Simulate → Execute → Log → Re-evaluate → Update NSI
+Upload → Extract → Store (S3) → Classify → Score (BSI) → 
+Simulate → Execute → Log → Re-evaluate → Update BSI
 ```
 
 ## Storage Architecture
 
 - **DynamoDB Tables**:
   - signals (org_id, timestamp)
-  - nsi_scores (org_id, timestamp)
+  - bsi_scores (org_id, timestamp)
   - strategies (org_id, strategy_id)
   - actions (org_id, action_id)
   - evaluations (org_id, eval_id)
@@ -114,7 +114,7 @@ RESTful endpoints organized by domain:
 - `/api/invoices` – Invoice upload and extraction
 - `/api/signals` – Signal management
 - `/api/memory` – Embeddings and retrieval
-- `/api/stability` – NSI calculations
+- `/api/stability` – BSI calculations
 - `/api/strategy` – Strategy simulation
 - `/api/actions` – Action execution
 - `/api/voice` – Voice briefings

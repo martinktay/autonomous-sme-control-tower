@@ -21,7 +21,7 @@ class TestClosedLoopWorkflow:
     @patch("app.agents.reeval_agent.load_prompt", return_value="Evaluate outcome")
     @patch("app.agents.strategy_agent.load_prompt", return_value="Generate strategies")
     @patch("app.agents.strategy_agent.get_bedrock_client")
-    @patch("app.agents.risk_agent.load_prompt", return_value="Calculate NSI")
+    @patch("app.agents.risk_agent.load_prompt", return_value="Calculate BSI")
     @patch("app.agents.risk_agent.get_bedrock_client")
     @patch("app.agents.signal_agent.load_prompt", return_value="Extract invoice")
     @patch("app.agents.signal_agent.get_bedrock_client")
@@ -52,10 +52,10 @@ class TestClosedLoopWorkflow:
         invoice_data = signal_agent.extract_invoice("Invoice from Acme $5000")
         assert invoice_data["vendor_name"] == "Acme"
 
-        # Step 2: DIAGNOSE - calculate NSI
+        # Step 2: DIAGNOSE - calculate BSI
         mock_risk = Mock()
         mock_risk.invoke_nova_lite.return_value = (
-            '{"nova_stability_index":65,"liquidity_index":60,'
+            '{"business_stability_index":65,"liquidity_index":60,'
             '"revenue_stability_index":70,"operational_latency_index":65,'
             '"vendor_risk_index":65,"confidence":"medium",'
             '"top_risks":[{"description":"Cash flow risk"}]}'
@@ -63,9 +63,9 @@ class TestClosedLoopWorkflow:
         mock_risk_bedrock.return_value = mock_risk
 
         risk_agent = RiskAgent()
-        nsi = risk_agent.calculate_nsi(org_id, [invoice_data], {})
-        assert nsi.nova_stability_index == 65.0
-        assert nsi.confidence == "medium"
+        bsi = risk_agent.calculate_bsi(org_id, [invoice_data], {})
+        assert bsi.business_stability_index == 65.0
+        assert bsi.confidence == "medium"
 
         # Step 3: SIMULATE - generate strategies
         mock_strat = Mock()
@@ -78,9 +78,9 @@ class TestClosedLoopWorkflow:
         strategy_agent = StrategyAgent()
         strategies = strategy_agent.simulate_strategies(
             org_id=org_id,
-            nsi_snapshot_id="nsi_001",
-            current_nsi=nsi.nova_stability_index,
-            top_risks=nsi.top_risks,
+            bsi_snapshot_id="bsi_001",
+            current_bsi=bsi.business_stability_index,
+            top_risks=bsi.top_risks,
             context={},
         )
         assert len(strategies) > 0
@@ -109,12 +109,12 @@ class TestClosedLoopWorkflow:
             org_id=org_id,
             execution_id=action.execution_id,
             predicted_improvement=8.0,
-            actual_nsi_before=65.0,
-            actual_nsi_after=72.0,
+            actual_bsi_before=65.0,
+            actual_bsi_after=72.0,
             strategy_description=strategies[0].description,
             execution_log={"status": "success"},
         )
-        assert evaluation.new_nsi > evaluation.old_nsi
+        assert evaluation.new_bsi > evaluation.old_bsi
         assert evaluation.prediction_accuracy > 0.8
 
 
@@ -182,7 +182,7 @@ class TestDataConsistency:
         org_id = "org_consistency_test"
         data = [
             {"org_id": org_id, "signal_id": "s1"},
-            {"org_id": org_id, "nsi_id": "n1"},
+            {"org_id": org_id, "bsi_id": "n1"},
             {"org_id": org_id, "strategy_id": "st1"},
             {"org_id": org_id, "execution_id": "e1"},
             {"org_id": org_id, "evaluation_id": "ev1"},

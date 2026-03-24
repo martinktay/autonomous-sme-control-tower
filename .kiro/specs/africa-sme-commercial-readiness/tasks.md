@@ -45,7 +45,7 @@
 - [x] Create `backend/app/agents/categorisation_agent.py` — AI transaction categorisation
 - [x] Create `prompts/v1/transaction-categorisation.md` — Categorisation prompt
 - [x] Add DynamoDB table config for `autonomous-sme-transactions`
-- [x] Wire transaction data into existing NSI calculation (risk_agent)
+- [x] Wire transaction data into existing BSI calculation (risk_agent)
 
 ### Task 6: Inventory Management (Supermarket Focus)
 - [x] Create `backend/app/services/inventory_service.py` — Inventory CRUD, stock alerts, analytics
@@ -53,7 +53,7 @@
 - [x] Create `backend/app/agents/inventory_agent.py` — Stock analysis, reorder alerts, expiry warnings
 - [x] Create `prompts/v1/inventory-analysis.md` — Inventory risk analysis prompt
 - [x] Add DynamoDB table config for `autonomous-sme-inventory`
-- [x] Wire inventory signals into NSI calculation
+- [x] Wire inventory signals into BSI calculation
 
 ### Task 7: Counterparty (Supplier/Customer) Management
 - [x] Create `backend/app/services/counterparty_service.py` — Counterparty CRUD, balance tracking

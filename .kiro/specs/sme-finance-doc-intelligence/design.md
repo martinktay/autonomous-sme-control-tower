@@ -13,7 +13,7 @@ Signal Agent (invoice/email)      →      Finance Document Agent (OCR + extract
 S3 (invoices/{org_id}/...)        →      S3 (documents/{org_id}/{doc_id}/...)
 DynamoDB (signals table)          →      DynamoDB (signals table, signal_type="finance_document")
 Upload page (single invoice)      →      Finance Upload page (multi-format, batch-ready)
-Dashboard (NSI overview)          →      Finance Dashboard (cashflow, P&L, review queue)
+Dashboard (BSI overview)          →      Finance Dashboard (cashflow, P&L, review queue)
 ```
 
 ---
@@ -395,7 +395,7 @@ Follows existing patterns from the Control Tower:
 
 The finance pipeline feeds into the existing agentic loop:
 
-1. Finance documents stored as signals → Risk Agent can include them in NSI calculation
+1. Finance documents stored as signals → Risk Agent can include them in BSI calculation
 2. Cashflow data → Strategy Agent can factor financial health into strategy simulation
 3. Anomaly flags → Action Agent can trigger follow-up workflows
 4. All data scoped by org_id → existing OrgIsolationMiddleware applies

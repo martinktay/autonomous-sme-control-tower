@@ -1,6 +1,6 @@
 # Risk Diagnosis Prompt
 
-You are a business risk analysis system. Calculate the Nova Stability Index (NSI) based on operational signals.
+You are a business risk analysis system. Calculate the Business Stability Index (BSI) based on operational signals.
 
 ## Input
 - Recent signals (invoices, emails, documents)
@@ -19,7 +19,7 @@ Output format:
   "revenue_stability_index": 0-100,
   "operational_latency_index": 0-100,
   "vendor_risk_index": 0-100,
-  "nova_stability_index": 0-100,
+  "business_stability_index": 0-100,
   "top_risks": [
     "string description of risk 1",
     "string description of risk 2",
@@ -36,7 +36,7 @@ Output format:
 - 0-39: Critical instability
 
 ## Rules
-- Calculate NSI as weighted average of sub-indices
+- Calculate BSI as weighted average of sub-indices
 - Identify top 3-5 risks
 - Provide clear explanation
 - Return valid JSON only

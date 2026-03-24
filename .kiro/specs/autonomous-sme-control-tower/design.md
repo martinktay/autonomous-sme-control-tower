@@ -21,7 +21,7 @@ The Autonomous SME Control Tower follows a multi-agent architecture coordinated 
 
 ### Main Pages
 
-- **dashboard** - NSI overview, risks, and action history
+- **dashboard** - BSI overview, risks, and action history
 - **upload** - Invoice and email submission interface
 - **memory** - Semantic search across operational signals
 - **strategy** - Strategy simulation and selection
@@ -31,7 +31,7 @@ The Autonomous SME Control Tower follows a multi-agent architecture coordinated 
 
 ### Key Components
 
-- **NSI Card** - Displays current NSI score with color-coded health indicator
+- **BSI Card** - Displays current BSI score with color-coded health indicator
 - **Risk Panel** - Lists top operational risks ranked by severity
 - **Strategy List** - Shows generated strategies with predicted impact
 - **Action Log** - Displays action execution history with timestamps
@@ -126,15 +126,15 @@ The system leverages AWS Bedrock Nova models for all AI capabilities.
 
 **Responsibilities**:
 - Analyze signals
-- Compute NSI (Nova Stability Index)
+- Compute BSI (Business Stability Index)
 - Identify operational risks
 
 **Prompt Templates**:
 - `/prompts/v1/risk_diagnosis.md`
 
-**NSI Calculation**:
+**BSI Calculation**:
 ```
-NSI = (liquidity_index × 0.30) + 
+BSI = (liquidity_index × 0.30) + 
       (revenue_stability_index × 0.25) + 
       (operational_latency_index × 0.25) + 
       (vendor_risk_index × 0.20)
@@ -146,7 +146,7 @@ NSI = (liquidity_index × 0.30) +
 
 **Responsibilities**:
 - Generate corrective strategies
-- Estimate NSI improvement
+- Estimate BSI improvement
 - Provide confidence scores
 
 **Prompt Templates**:
@@ -170,7 +170,7 @@ NSI = (liquidity_index × 0.30) +
 ### Re-evaluation Agent
 
 **Responsibilities**:
-- Recompute NSI after action execution
+- Recompute BSI after action execution
 - Compare predicted vs actual improvement
 - Compute prediction accuracy
 
@@ -179,7 +179,7 @@ NSI = (liquidity_index × 0.30) +
 
 **Accuracy Calculation**:
 ```python
-actual_improvement = new_nsi - old_nsi
+actual_improvement = new_bsi - old_bsi
 prediction_accuracy = 1 - abs(predicted_improvement - actual_improvement) / predicted_improvement
 ```
 
@@ -208,7 +208,7 @@ prediction_accuracy = 1 - abs(predicted_improvement - actual_improvement) / pred
 All tables use `org_id` as partition key for multi-tenancy.
 
 - **autonomous-sme-signals** - Signal records (invoices, emails)
-- **autonomous-sme-nsi-scores** - NSI snapshots with timestamps
+- **autonomous-sme-bsi-scores** - BSI snapshots with timestamps
 - **autonomous-sme-strategies** - Generated strategies
 - **autonomous-sme-actions** - Action execution logs
 - **autonomous-sme-evaluations** - Prediction accuracy records
@@ -235,16 +235,16 @@ The system follows a closed-loop operational cycle:
 User uploads invoice or email → Signal Agent extracts data → Store in DynamoDB → Generate embeddings → Store in Memory Agent
 
 ### 2. DIAGNOSE
-Retrieve signals for org_id → Risk Agent calculates NSI → Compute sub-indices → Identify operational risks → Store NSI snapshot
+Retrieve signals for org_id → Risk Agent calculates BSI → Compute sub-indices → Identify operational risks → Store BSI snapshot
 
 ### 3. SIMULATE
-Strategy Agent proposes corrective actions → Estimate NSI improvement → Provide confidence scores → Store strategies
+Strategy Agent proposes corrective actions → Estimate BSI improvement → Provide confidence scores → Store strategies
 
 ### 4. EXECUTE
 User selects strategy → Nova Act executes workflow → Action Agent logs execution → Update system state
 
 ### 5. EVALUATE
-Re-evaluation Agent recalculates NSI → Compare predicted vs actual → Compute prediction accuracy → Dashboard displays updated state
+Re-evaluation Agent recalculates BSI → Compare predicted vs actual → Compute prediction accuracy → Dashboard displays updated state
 
 ---
 
@@ -265,8 +265,8 @@ Re-evaluation Agent recalculates NSI → Compare predicted vs actual → Compute
 - `GET /api/memory/embeddings/{signal_id}` - Retrieve embedding
 
 ### Stability Router (`/api/stability`)
-- `POST /api/stability/calculate` - Calculate current NSI
-- `GET /api/stability/history` - Retrieve NSI trend
+- `POST /api/stability/calculate` - Calculate current BSI
+- `GET /api/stability/history` - Retrieve BSI trend
 - `GET /api/stability/risks` - Get current risk assessment
 
 ### Strategy Router (`/api/strategy`)
@@ -331,12 +331,12 @@ class Signal(BaseModel):
     processing_status: str = "processed"
 ```
 
-#### NSI Snapshot Model
+#### BSI Snapshot Model
 ```python
-class NSISnapshot(BaseModel):
-    nsi_id: str
+class BSISnapshot(BaseModel):
+    bsi_id: str
     org_id: str
-    nsi_score: float  # 0-100
+    bsi_score: float  # 0-100
     liquidity_index: float
     revenue_stability_index: float
     operational_latency_index: float
@@ -351,9 +351,9 @@ class NSISnapshot(BaseModel):
 class Strategy(BaseModel):
     strategy_id: str
     org_id: str
-    nsi_snapshot_id: str
+    bsi_snapshot_id: str
     description: str
-    predicted_nsi_improvement: float
+    predicted_bsi_improvement: float
     confidence_score: float  # 0-1
     automation_eligibility: bool
     reasoning: str
@@ -379,8 +379,8 @@ class Evaluation(BaseModel):
     evaluation_id: str
     org_id: str
     execution_id: str
-    old_nsi: float
-    new_nsi: float
+    old_bsi: float
+    new_bsi: float
     predicted_improvement: float
     actual_improvement: float
     prediction_accuracy: float
@@ -435,7 +435,7 @@ All errors logged as structured JSON with:
 
 **Focus Areas**:
 - Specific examples from requirements
-- Edge cases (e.g., NSI = 50 when insufficient data)
+- Edge cases (e.g., BSI = 50 when insufficient data)
 - Integration points between components
 - Error conditions
 
@@ -476,7 +476,7 @@ All errors logged as structured JSON with:
 - Invoice processing: < 5 seconds
 - Email processing: < 3 seconds
 - Dashboard data refresh: Every 30 seconds
-- NSI calculation: On-demand or triggered by new signals
+- BSI calculation: On-demand or triggered by new signals
 
 ---
 

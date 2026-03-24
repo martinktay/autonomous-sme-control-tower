@@ -24,7 +24,7 @@ It is intended for creating or updating:
 - Introducing a new prompt file in prompts/v1
 - Refactoring existing agent logic
 - Wiring an agent into the closed-loop system
-- Adding logging, prediction accuracy, or NSI-related fields
+- Adding logging, prediction accuracy, or BSI-related fields
 - Connecting an agent to DynamoDB, S3, Bedrock, or Nova Act
 - Adding or updating middleware (org isolation, rate limiting)
 - Working with utility modules (json_guard, prompt_loader, upload_validator)
@@ -64,7 +64,7 @@ Current agents in `backend/app/agents/`:
 - `finance_agent.py` – Finance document processing
 - `insights_agent.py` – Business intelligence generation
 - `memory_agent.py` – Embedding and semantic memory
-- `risk_agent.py` – Risk diagnosis and NSI calculation
+- `risk_agent.py` – Risk diagnosis and BSI calculation
 - `strategy_agent.py` – Strategy simulation
 - `action_agent.py` – Action execution
 - `reeval_agent.py` – Outcome re-evaluation
@@ -77,7 +77,7 @@ Current routers in `backend/app/routers/`:
 - `invoices.py` – Invoice upload and retrieval
 - `signals.py` – Signal management
 - `memory.py` – Embedding and retrieval
-- `stability.py` – NSI calculations
+- `stability.py` – BSI calculations
 - `strategy.py` – Strategy simulation
 - `actions.py` – Action execution
 - `voice.py` – Voice briefings
@@ -119,7 +119,7 @@ Current Pydantic models in `backend/app/models/`:
 
 - `signal.py` – Signal records
 - `invoice.py` – Invoice data
-- `nsi.py` – NSI scores and sub-indices
+- `bsi.py` – BSI scores and sub-indices
 - `strategy.py` – Strategy proposals
 - `action.py` – Executed actions
 - `evaluation.py` – Re-evaluation results
@@ -133,7 +133,7 @@ Current prompts in `prompts/v1/`:
 
 - `signal-invoice.md` – Invoice data extraction
 - `signal-email.md` – Email classification
-- `risk-diagnosis.md` – Risk analysis and NSI
+- `risk-diagnosis.md` – Risk analysis and BSI
 - `strategy-planning.md` – Strategy generation
 - `reeval.md` – Outcome re-evaluation
 - `voice.md` – Voice briefing script
@@ -169,7 +169,7 @@ Use:
 All new agents must fit into or support this system loop:
 
 ```
-upload → extract → classify/store → compute NSI → simulate → execute → re-evaluate
+upload → extract → classify/store → compute BSI → simulate → execute → re-evaluate
 ```
 
 ## Africa SME Commercial Context

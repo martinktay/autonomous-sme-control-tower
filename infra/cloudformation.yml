@@ -58,10 +58,10 @@ Resources:
         - { Key: Project, Value: sme-control-tower }
         - { Key: Environment, Value: !Ref Environment }
 
-  NsiScoresTable:
+  BsiScoresTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: !Sub 'autonomous-sme-nsi-scores-${Environment}'
+      TableName: !Sub 'autonomous-sme-bsi-scores-${Environment}'
       BillingMode: PAY_PER_REQUEST
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
@@ -69,10 +69,10 @@ Resources:
         SSEEnabled: true
       AttributeDefinitions:
         - { AttributeName: org_id, AttributeType: S }
-        - { AttributeName: nsi_id, AttributeType: S }
+        - { AttributeName: bsi_id, AttributeType: S }
       KeySchema:
         - { AttributeName: org_id, KeyType: HASH }
-        - { AttributeName: nsi_id, KeyType: RANGE }
+        - { AttributeName: bsi_id, KeyType: RANGE }
 
   StrategiesTable:
     Type: AWS::DynamoDB::Table
@@ -543,7 +543,7 @@ Resources:
             - { Name: AWS_REGION, Value: !Ref 'AWS::Region' }
             - { Name: DOCUMENTS_BUCKET, Value: !Ref DocumentsBucket }
             - { Name: SIGNALS_TABLE, Value: !Ref SignalsTable }
-            - { Name: NSI_SCORES_TABLE, Value: !Ref NsiScoresTable }
+            - { Name: BSI_SCORES_TABLE, Value: !Ref BsiScoresTable }
             - { Name: STRATEGIES_TABLE, Value: !Ref StrategiesTable }
             - { Name: ACTIONS_TABLE, Value: !Ref ActionsTable }
             - { Name: EVALUATIONS_TABLE, Value: !Ref EvaluationsTable }

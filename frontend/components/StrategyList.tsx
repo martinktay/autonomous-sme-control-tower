@@ -1,6 +1,6 @@
 /**
  * StrategyList — Displays AI-generated strategy recommendations with
- * predicted NSI improvement, confidence scores, and execute buttons.
+ * predicted BSI improvement, confidence scores, and execute buttons.
  */
 "use client";
 
@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 interface Strategy {
   strategy_id: string;
   description: string;
-  predicted_nsi_improvement: number;
+  predicted_bsi_improvement: number;
   confidence_score: number;
   automation_eligibility: boolean;
   reasoning?: string;
@@ -80,7 +80,7 @@ export function StrategyList({ strategies, onExecute }: StrategyListProps) {
               <div className="flex items-center gap-2">
                 <span className="text-muted-foreground">Predicted Impact:</span>
                 <span className="font-semibold text-green-600">
-                  +{strategy.predicted_nsi_improvement.toFixed(1)} NSI
+                  +{strategy.predicted_bsi_improvement.toFixed(1)} BSI
                 </span>
               </div>
 

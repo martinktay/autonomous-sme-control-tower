@@ -125,9 +125,9 @@ const faqs: FaqItem[] = [
   // ── Health Score ──
   {
     section: "Health Score",
-    question: "What is the Business Health Score (NSI)?",
+    question: "What is the Business Health Score (BSI)?",
     answer:
-      "The Nova Stability Index (NSI) is a number from 0 to 100 that shows how healthy your business is right now. It is calculated from four factors: cash flow (can you pay your bills on time?), revenue stability (is your income consistent?), operations speed (how quickly do things get done?), and vendor reliability (are your suppliers dependable?). Above 70 is healthy, 40 to 69 needs attention, and below 40 means you should act quickly.",
+      "The Business Stability Index (BSI) is a number from 0 to 100 that shows how healthy your business is right now. It is calculated from four factors: cash flow (can you pay your bills on time?), revenue stability (is your income consistent?), operations speed (how quickly do things get done?), and vendor reliability (are your suppliers dependable?). Above 70 is healthy, 40 to 69 needs attention, and below 40 means you should act quickly.",
   },
   {
     section: "Health Score",
@@ -749,7 +749,7 @@ export default function HelpPage() {
               description='Go to "Upload" for single invoices (PDF, JPG, PNG) or "Finance > Upload" for spreadsheets (CSV, Excel). Single documents are read by AI and fields are extracted automatically. Spreadsheets are parsed row by row — include tax columns (vat_amount, wht_amount, cit_amount, paye_amount, customs_levy) for full tax tracking.'
               link="/upload" linkLabel="Go to Upload" />
             <GuideStep number={2} icon={LayoutDashboard} title="Check Your Business Health"
-              description='Visit "My Business" to see your health score (NSI) out of 100, risk alerts, and recent actions. Click "Generate Insights" for an AI-written summary of your current situation.'
+              description='Visit "My Business" to see your health score (BSI) out of 100, risk alerts, and recent actions. Click "Generate Insights" for an AI-written summary of your current situation.'
               link="/dashboard" linkLabel="Go to Dashboard" />
             <GuideStep number={3} icon={Zap} title="Run a Full Analysis"
               description='Click "Run Analysis" on the Analyse page. The AI does a complete check-up: calculates your score, finds risks, suggests improvements, and takes automated actions where possible.'

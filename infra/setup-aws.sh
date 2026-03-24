@@ -23,15 +23,15 @@ aws dynamodb create-table \
   --billing-mode PAY_PER_REQUEST \
   --region us-east-1
 
-echo "Creating DynamoDB table: autonomous-sme-nsi-scores..."
+echo "Creating DynamoDB table: autonomous-sme-bsi-scores..."
 aws dynamodb create-table \
-  --table-name autonomous-sme-nsi-scores \
+  --table-name autonomous-sme-bsi-scores \
   --attribute-definitions \
     AttributeName=org_id,AttributeType=S \
-    AttributeName=nsi_id,AttributeType=S \
+    AttributeName=bsi_id,AttributeType=S \
   --key-schema \
     AttributeName=org_id,KeyType=HASH \
-    AttributeName=nsi_id,KeyType=RANGE \
+    AttributeName=bsi_id,KeyType=RANGE \
   --billing-mode PAY_PER_REQUEST \
   --region us-east-1
 
@@ -249,7 +249,7 @@ echo "✅ AWS resources created successfully!"
 echo ""
 echo "DynamoDB Tables (Core):"
 echo "  - autonomous-sme-signals"
-echo "  - autonomous-sme-nsi-scores"
+echo "  - autonomous-sme-bsi-scores"
 echo "  - autonomous-sme-strategies"
 echo "  - autonomous-sme-actions"
 echo "  - autonomous-sme-evaluations"

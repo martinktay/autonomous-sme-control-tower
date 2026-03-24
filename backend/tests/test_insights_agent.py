@@ -9,7 +9,7 @@ class TestGenerateInsightsFallback:
     """Tests for the rule-based fallback path (no Bedrock)."""
 
     @patch("app.agents.insights_agent.get_bedrock_client")
-    def test_fallback_no_nsi_data(self, mock_bedrock):
+    def test_fallback_no_bsi_data(self, mock_bedrock):
         mock_bedrock.return_value = Mock()
         agent = InsightsAgent()
         # Force fallback by making _generate_with_bedrock raise
@@ -26,9 +26,9 @@ class TestGenerateInsightsFallback:
         agent = InsightsAgent()
         agent._generate_with_bedrock = Mock(side_effect=Exception("no bedrock"))
 
-        nsi = {"nsi_score": 75, "liquidity_index": 80, "revenue_stability_index": 72,
+        bsi = {"bsi_score": 75, "liquidity_index": 80, "revenue_stability_index": 72,
                "operational_latency_index": 65, "vendor_risk_index": 60}
-        result = agent.generate_insights("org-1", nsi, [], [], [])
+        result = agent.generate_insights("org-1", bsi, [], [], [])
 
         assert "healthy" in result["summary"].lower()
         assert result["confidence"] == "medium"
@@ -39,9 +39,9 @@ class TestGenerateInsightsFallback:
         agent = InsightsAgent()
         agent._generate_with_bedrock = Mock(side_effect=Exception("no bedrock"))
 
-        nsi = {"nsi_score": 30, "liquidity_index": 25, "revenue_stability_index": 35,
+        bsi = {"bsi_score": 30, "liquidity_index": 25, "revenue_stability_index": 35,
                "operational_latency_index": 40, "vendor_risk_index": 30}
-        result = agent.generate_insights("org-1", nsi, [], [], [])
+        result = agent.generate_insights("org-1", bsi, [], [], [])
 
         assert "at-risk" in result["summary"].lower()
 
@@ -51,10 +51,10 @@ class TestGenerateInsightsFallback:
         agent = InsightsAgent()
         agent._generate_with_bedrock = Mock(side_effect=Exception("no bedrock"))
 
-        nsi = {"nsi_score": 50, "liquidity_index": 50, "revenue_stability_index": 50,
+        bsi = {"bsi_score": 50, "liquidity_index": 50, "revenue_stability_index": 50,
                "operational_latency_index": 50, "vendor_risk_index": 50}
         risks = [{"description": "Late supplier payments", "severity": "high"}]
-        result = agent.generate_insights("org-1", nsi, risks, [], [])
+        result = agent.generate_insights("org-1", bsi, risks, [], [])
 
         risk_highlights = [h for h in result["highlights"] if h["title"] == "Top risk identified"]
         assert len(risk_highlights) == 1
@@ -65,10 +65,10 @@ class TestGenerateInsightsFallback:
         agent = InsightsAgent()
         agent._generate_with_bedrock = Mock(side_effect=Exception("no bedrock"))
 
-        nsi = {"nsi_score": 60, "liquidity_index": 60, "revenue_stability_index": 60,
+        bsi = {"bsi_score": 60, "liquidity_index": 60, "revenue_stability_index": 60,
                "operational_latency_index": 60, "vendor_risk_index": 60}
         actions = [{"execution_status": "success"}, {"execution_status": "success"}]
-        result = agent.generate_insights("org-1", nsi, [], actions, [])
+        result = agent.generate_insights("org-1", bsi, [], actions, [])
 
         action_highlights = [h for h in result["highlights"] if "completed" in h["title"].lower()]
         assert len(action_highlights) == 1
@@ -85,9 +85,9 @@ class TestGenerateInsightsBedrock:
         mock_bedrock.return_value = mock_client
 
         agent = InsightsAgent()
-        nsi = {"nsi_score": 80, "liquidity_index": 75, "revenue_stability_index": 70,
+        bsi = {"bsi_score": 80, "liquidity_index": 75, "revenue_stability_index": 70,
                "operational_latency_index": 65, "vendor_risk_index": 60, "confidence": 0.9}
-        result = agent.generate_insights("org-1", nsi, [], [], [])
+        result = agent.generate_insights("org-1", bsi, [], [], [])
 
         assert result["summary"] == "Business is healthy"
         assert result["confidence"] == "high"

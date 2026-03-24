@@ -3,7 +3,7 @@ Unit tests for Pydantic data models
 
 Tests Requirements 1.2, 2.2, 5.5:
 - Field validation and type constraints
-- Edge cases for numeric ranges (NSI 0-100, confidence 0-1)
+- Edge cases for numeric ranges (BSI 0-100, confidence 0-1)
 - Datetime serialization and deserialization
 """
 
@@ -14,7 +14,7 @@ from pydantic import ValidationError
 from app.models.invoice import Invoice
 from app.models.email import Email
 from app.models.signal import Signal
-from app.models.nsi import NSISnapshot
+from app.models.bsi import BSISnapshot
 from app.models.strategy import Strategy
 from app.models.action import ActionExecution
 from app.models.evaluation import Evaluation
@@ -53,7 +53,7 @@ class TestInvoiceModel:
                 due_date=datetime(2024, 12, 31),
                 description="Test"
             )
-    
+
     def test_invoice_negative_amount(self):
         """Test that negative amounts are rejected"""
         with pytest.raises(ValidationError):
@@ -127,15 +127,15 @@ class TestEmailModel:
             assert email.classification == classification
 
 
-class TestNSISnapshotModel:
-    """Test suite for NSISnapshot model"""
+class TestBSISnapshotModel:
+    """Test suite for BSISnapshot model"""
     
-    def test_valid_nsi_snapshot(self):
-        """Test creating a valid NSI snapshot"""
-        nsi = NSISnapshot(
-            nsi_id="nsi_001",
+    def test_valid_bsi_snapshot(self):
+        """Test creating a valid BSI snapshot"""
+        bsi = BSISnapshot(
+            bsi_id="bsi_001",
             org_id="org_123",
-            nsi_score=75.5,
+            bsi_score=75.5,
             liquidity_index=80.0,
             revenue_stability_index=70.0,
             operational_latency_index=75.0,
@@ -145,16 +145,16 @@ class TestNSISnapshotModel:
             timestamp=datetime.now(timezone.utc)
         )
         
-        assert nsi.nsi_score == 75.5
-        assert nsi.confidence == "high"
+        assert bsi.bsi_score == 75.5
+        assert bsi.confidence == "high"
     
-    def test_nsi_score_bounds(self):
-        """Test NSI score must be between 0 and 100"""
+    def test_bsi_score_bounds(self):
+        """Test BSI score must be between 0 and 100"""
         # Valid edge cases
-        nsi_min = NSISnapshot(
-            nsi_id="nsi_001",
+        bsi_min = BSISnapshot(
+            bsi_id="bsi_001",
             org_id="org_123",
-            nsi_score=0.0,  # Minimum valid
+            bsi_score=0.0,  # Minimum valid
             liquidity_index=0.0,
             revenue_stability_index=0.0,
             operational_latency_index=0.0,
@@ -163,12 +163,12 @@ class TestNSISnapshotModel:
             reasoning={},
             timestamp=datetime.now(timezone.utc)
         )
-        assert nsi_min.nsi_score == 0.0
+        assert bsi_min.bsi_score == 0.0
         
-        nsi_max = NSISnapshot(
-            nsi_id="nsi_002",
+        bsi_max = BSISnapshot(
+            bsi_id="bsi_002",
             org_id="org_123",
-            nsi_score=100.0,  # Maximum valid
+            bsi_score=100.0,  # Maximum valid
             liquidity_index=100.0,
             revenue_stability_index=100.0,
             operational_latency_index=100.0,
@@ -177,14 +177,14 @@ class TestNSISnapshotModel:
             reasoning={},
             timestamp=datetime.now(timezone.utc)
         )
-        assert nsi_max.nsi_score == 100.0
+        assert bsi_max.bsi_score == 100.0
         
         # Invalid: below 0
         with pytest.raises(ValidationError):
-            NSISnapshot(
-                nsi_id="nsi_003",
+            BSISnapshot(
+                bsi_id="bsi_003",
                 org_id="org_123",
-                nsi_score=-1.0,  # Invalid
+                bsi_score=-1.0,  # Invalid
                 liquidity_index=50.0,
                 revenue_stability_index=50.0,
                 operational_latency_index=50.0,
@@ -196,10 +196,10 @@ class TestNSISnapshotModel:
         
         # Invalid: above 100
         with pytest.raises(ValidationError):
-            NSISnapshot(
-                nsi_id="nsi_004",
+            BSISnapshot(
+                bsi_id="bsi_004",
                 org_id="org_123",
-                nsi_score=101.0,  # Invalid
+                bsi_score=101.0,  # Invalid
                 liquidity_index=50.0,
                 revenue_stability_index=50.0,
                 operational_latency_index=50.0,
@@ -218,9 +218,9 @@ class TestStrategyModel:
         strategy = Strategy(
             strategy_id="strat_001",
             org_id="org_123",
-            nsi_snapshot_id="nsi_001",
+            bsi_snapshot_id="bsi_001",
             description="Accelerate invoice collections",
-            predicted_nsi_improvement=5.5,
+            predicted_bsi_improvement=5.5,
             confidence_score=0.85,
             automation_eligibility=True,
             reasoning="High confidence based on historical data",
@@ -236,9 +236,9 @@ class TestStrategyModel:
         strategy_min = Strategy(
             strategy_id="strat_001",
             org_id="org_123",
-            nsi_snapshot_id="nsi_001",
+            bsi_snapshot_id="bsi_001",
             description="Test",
-            predicted_nsi_improvement=5.0,
+            predicted_bsi_improvement=5.0,
             confidence_score=0.0,  # Minimum valid
             automation_eligibility=False,
             reasoning="Test",
@@ -249,9 +249,9 @@ class TestStrategyModel:
         strategy_max = Strategy(
             strategy_id="strat_002",
             org_id="org_123",
-            nsi_snapshot_id="nsi_001",
+            bsi_snapshot_id="bsi_001",
             description="Test",
-            predicted_nsi_improvement=5.0,
+            predicted_bsi_improvement=5.0,
             confidence_score=1.0,  # Maximum valid
             automation_eligibility=True,
             reasoning="Test",
@@ -264,9 +264,9 @@ class TestStrategyModel:
             Strategy(
                 strategy_id="strat_003",
                 org_id="org_123",
-                nsi_snapshot_id="nsi_001",
+                bsi_snapshot_id="bsi_001",
                 description="Test",
-                predicted_nsi_improvement=5.0,
+                predicted_bsi_improvement=5.0,
                 confidence_score=-0.1,  # Invalid
                 automation_eligibility=False,
                 reasoning="Test",
@@ -278,9 +278,9 @@ class TestStrategyModel:
             Strategy(
                 strategy_id="strat_004",
                 org_id="org_123",
-                nsi_snapshot_id="nsi_001",
+                bsi_snapshot_id="bsi_001",
                 description="Test",
-                predicted_nsi_improvement=5.0,
+                predicted_bsi_improvement=5.0,
                 confidence_score=1.5,  # Invalid
                 automation_eligibility=False,
                 reasoning="Test",
@@ -332,8 +332,8 @@ class TestEvaluationModel:
             evaluation_id="eval_001",
             org_id="org_123",
             execution_id="exec_001",
-            old_nsi=65.0,
-            new_nsi=70.5,
+            old_bsi=65.0,
+            new_bsi=70.5,
             predicted_improvement=5.0,
             actual_improvement=5.5,
             prediction_accuracy=0.90,
@@ -345,17 +345,17 @@ class TestEvaluationModel:
     
     def test_evaluation_calculation(self):
         """Test evaluation with calculated improvements"""
-        old_nsi = 60.0
-        new_nsi = 68.0
+        old_bsi = 60.0
+        new_bsi = 68.0
         predicted_improvement = 10.0
-        actual_improvement = new_nsi - old_nsi  # 8.0
+        actual_improvement = new_bsi - old_bsi  # 8.0
         
         evaluation = Evaluation(
             evaluation_id="eval_002",
             org_id="org_123",
             execution_id="exec_001",
-            old_nsi=old_nsi,
-            new_nsi=new_nsi,
+            old_bsi=old_bsi,
+            new_bsi=new_bsi,
             predicted_improvement=predicted_improvement,
             actual_improvement=actual_improvement,
             prediction_accuracy=0.80,
@@ -363,7 +363,7 @@ class TestEvaluationModel:
         )
         
         assert evaluation.actual_improvement == 8.0
-        assert evaluation.old_nsi < evaluation.new_nsi
+        assert evaluation.old_bsi < evaluation.new_bsi
 
 
 class TestSignalModel:

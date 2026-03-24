@@ -163,7 +163,7 @@ async def generate_summary(request: SummaryRequest) -> Dict[str, Any]:
     org_id = validate_org_id(request.org_id)
 
     # Gather context
-    nsi_score = None
+    bsi_score = None
     top_risks = []
     txn_summary = None
     stock_alerts = None
@@ -171,15 +171,15 @@ async def generate_summary(request: SummaryRequest) -> Dict[str, Any]:
     try:
         from app.services.ddb_service import get_ddb_service
         ddb = get_ddb_service()
-        # Get latest NSI
+        # Get latest BSI
         signals = ddb.get_signals(org_id)
-        nsi_signals = [s for s in signals if s.get("signal_type") == "nsi_snapshot"]
-        if nsi_signals:
-            latest = nsi_signals[-1]
-            nsi_score = latest.get("content", {}).get("nsi_score")
+        bsi_signals = [s for s in signals if s.get("signal_type") == "bsi_snapshot"]
+        if bsi_signals:
+            latest = bsi_signals[-1]
+            bsi_score = latest.get("content", {}).get("bsi_score")
             top_risks = latest.get("content", {}).get("top_risks", [])
     except Exception:
-        logger.debug("Could not fetch NSI for WhatsApp summary")
+        logger.debug("Could not fetch BSI for WhatsApp summary")
 
     try:
         from app.services.transaction_service import get_transaction_service
@@ -198,7 +198,7 @@ async def generate_summary(request: SummaryRequest) -> Dict[str, Any]:
     try:
         summary = whatsapp_agent.generate_insight_summary(
             business_name=request.business_name or "Your Business",
-            nsi_score=nsi_score,
+            bsi_score=bsi_score,
             top_risks=top_risks,
             transaction_summary=txn_summary,
             stock_alerts=stock_alerts,

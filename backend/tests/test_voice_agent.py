@@ -62,12 +62,12 @@ class TestTextQueryProcessing:
         assert "75.0" in result
 
     @patch("app.agents.voice_agent.get_bedrock_client")
-    def test_nsi_query(self, mock_bedrock):
+    def test_bsi_query(self, mock_bedrock):
         mock_bedrock.return_value = Mock()
         agent = VoiceAgent()
 
         result = agent.process_text_query(
-            "What is my NSI score?", 45.0, [], []
+            "What is my BSI score?", 45.0, [], []
         )
 
         assert "45.0" in result
@@ -184,7 +184,7 @@ class TestBriefingGeneration:
 
         agent = VoiceAgent()
         result = agent.generate_briefing_text(
-            nsi_score=75.0,
+            bsi_score=75.0,
             top_risks=["Cash flow"],
             recent_actions=[{"id": "a1"}],
             trend="improving",
@@ -202,7 +202,7 @@ class TestBriefingGeneration:
 
         agent = VoiceAgent()
         result = agent.generate_briefing_text(
-            nsi_score=65.0, top_risks=[], recent_actions=[], trend="stable"
+            bsi_score=65.0, top_risks=[], recent_actions=[], trend="stable"
         )
 
         assert "65.0" in result

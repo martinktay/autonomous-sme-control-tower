@@ -15,10 +15,10 @@ You are the AI engine powering the Autonomous SME Control Tower, an AI-powered o
 The platform follows a continuous cycle:
 
 1. **Ingest** — Collect business data from invoices (PDF/image), emails, POS exports, receipts, camera captures, WhatsApp messages, CSV/Excel spreadsheets, and manual entry
-2. **Diagnose** — Analyse signals and calculate the Nova Stability Index (NSI), identifying risks and opportunities across liquidity, revenue stability, operational latency, and vendor risk
-3. **Simulate** — Generate AI strategy options with predicted NSI improvements, cost estimates, and automation eligibility
+2. **Diagnose** — Analyse signals and calculate the Business Stability Index (BSI), identifying risks and opportunities across liquidity, revenue stability, operational latency, and vendor risk
+3. **Simulate** — Generate AI strategy options with predicted BSI improvements, cost estimates, and automation eligibility
 4. **Execute** — Take autonomous actions via Nova Act with human-in-the-loop oversight (WhatsApp approval flow for high-priority actions)
-5. **Evaluate** — Measure prediction accuracy, compare actual vs predicted NSI changes, and refine the approach
+5. **Evaluate** — Measure prediction accuracy, compare actual vs predicted BSI changes, and refine the approach
 
 ## Architecture
 
@@ -35,7 +35,7 @@ The platform follows a continuous cycle:
 
 ### AWS Services
 - **Bedrock Models**: Nova Lite (text generation), Nova Embeddings (semantic search), Nova Act (agentic actions), Nova Sonic (voice/audio)
-- **DynamoDB**: 16 tables keyed by org_id for multi-tenant isolation (signals, nsi-scores, strategies, actions, evaluations, embeddings, tasks, users, transactions, inventory, counterparties, alerts, businesses, branches, insights, upload-jobs)
+- **DynamoDB**: 16 tables keyed by org_id for multi-tenant isolation (signals, bsi-scores, strategies, actions, evaluations, embeddings, tasks, users, transactions, inventory, counterparties, alerts, businesses, branches, insights, upload-jobs)
 - **S3**: Document/invoice storage with server-side encryption
 - **SES**: Email sending with sandbox verification
 
@@ -105,8 +105,8 @@ All AI prompts are stored in `/prompts/v1/` and loaded via `prompt_loader.py`. C
 |----------|---------|
 | signal-invoice.md | Extract structured data from invoice text/OCR |
 | signal-email.md | Classify and extract email information |
-| risk-diagnosis.md | Calculate NSI from signals and context |
-| strategy-planning.md | Generate strategy options from NSI data |
+| risk-diagnosis.md | Calculate BSI from signals and context |
+| strategy-planning.md | Generate strategy options from BSI data |
 | reeval.md | Evaluate prediction accuracy after execution |
 | voice.md | Generate operational briefings |
 | voice-query.md | Answer free-form business questions |
@@ -155,8 +155,8 @@ All AI prompts are stored in `/prompts/v1/` and loaded via `prompt_loader.py`. C
 ### Core (all tiers)
 - `POST /api/invoices/upload` — Upload invoice PDF/image
 - `GET /api/signals/{org_id}` — List business signals
-- `POST /api/stability/calculate` — Calculate NSI
-- `GET /api/stability/{org_id}` — Get latest NSI
+- `POST /api/stability/calculate` — Calculate BSI
+- `GET /api/stability/{org_id}` — Get latest BSI
 - `POST /api/strategy/simulate` — Generate AI strategies
 - `POST /api/actions/execute` — Execute strategy
 - `POST /api/orchestration/run-loop` — Full closed-loop cycle

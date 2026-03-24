@@ -1,7 +1,7 @@
 """
 Seed enriched, realistic data for ALL businesses to light up every dashboard.
 
-Populates: transactions, inventory, counterparties, alerts, signals, NSI scores,
+Populates: transactions, inventory, counterparties, alerts, signals, BSI scores,
 strategies, actions, evaluations, insights, and businesses table.
 
 Covers all 9 test accounts (3 Nigerian + 5 multi-country + 1 super admin).
@@ -38,7 +38,7 @@ inv_table = ddb.Table(settings.inventory_table)
 cp_table = ddb.Table(settings.counterparties_table)
 alert_table = ddb.Table(settings.alerts_table)
 signals_table = ddb.Table(settings.signals_table)
-nsi_table = ddb.Table(settings.nsi_scores_table)
+bsi_table = ddb.Table(settings.bsi_scores_table)
 strategies_table = ddb.Table(settings.strategies_table)
 actions_table = ddb.Table(settings.actions_table)
 evaluations_table = ddb.Table(settings.evaluations_table)
@@ -112,7 +112,7 @@ BUSINESSES = {
         "exp_range": (3000, 50000),
         "daily_rev_count": (3, 6),
         "daily_exp_count": (1, 2),
-        "nsi_base": 62,
+        "bsi_base": 62,
         "alerts": [
             ("low_stock", "warning", "Low Stock: Dangote Sugar 50kg", "Only 18 bags remaining. Reorder point is 8 but sales velocity suggests stockout in 5 days.", "Place order with Dangote Industries for 30 bags"),
             ("cashflow_warning", "critical", "Cash Flow Pressure This Week", "Outgoing payments of ₦485,000 due but projected revenue is ₦320,000.", "Delay non-urgent stock purchases or collect outstanding receivables"),
@@ -160,7 +160,7 @@ BUSINESSES = {
         "exp_range": (10000, 120000),
         "daily_rev_count": (1, 3),
         "daily_exp_count": (0, 2),
-        "nsi_base": 55,
+        "bsi_base": 55,
         "alerts": [
             ("low_stock", "warning", "Fertilizer Running Low", "Only 35 bags of NPK remaining. Next planting season starts in 3 weeks.", "Order 50 bags from Agro-Allied Chemicals"),
             ("overdue_payment", "critical", "FoodCo Supermarket: ₦180,000 Overdue", "Delivery made 21 days ago, payment terms were 14 days.", "Call procurement manager and send formal reminder"),
@@ -215,7 +215,7 @@ BUSINESSES = {
         "exp_range": (50000, 800000),
         "daily_rev_count": (1, 3),
         "daily_exp_count": (1, 2),
-        "nsi_base": 71,
+        "bsi_base": 71,
         "alerts": [
             ("overdue_payment", "critical", "First Bank: N1.8M Invoice Overdue", "Project milestone delivered 30 days ago. Payment terms were net-15.", "Escalate to relationship manager and send formal demand"),
             ("cashflow_warning", "warning", "Salary Week: N3.2M Due Friday", "Staff salaries due in 4 days. Current balance is N2.1M with N1.5M receivables pending.", "Follow up on Flutterwave and Paystack invoices"),
@@ -266,7 +266,7 @@ BUSINESSES = {
         "exp_range": (200, 5000),
         "daily_rev_count": (4, 8),
         "daily_exp_count": (1, 3),
-        "nsi_base": 58,
+        "bsi_base": 58,
         "alerts": [
             ("low_stock", "warning", "Tilapia stock dropping fast", "80kg remaining but daily sales average 15kg. Stockout in ~5 days.", "Order from Tema Fishing Co — 100kg batch"),
             ("overdue_payment", "warning", "Labadi Catering owes GHS 2,400", "Catering order delivered 10 days ago, payment pending.", "Send WhatsApp reminder to Labadi Catering"),
@@ -309,7 +309,7 @@ BUSINESSES = {
         "exp_range": (3000, 45000),
         "daily_rev_count": (2, 5),
         "daily_exp_count": (1, 2),
-        "nsi_base": 66,
+        "bsi_base": 66,
         "alerts": [
             ("low_stock", "warning", "Car Batteries Running Low", "Only 8 units left. Average 3 sold per week.", "Order 15 units from Nairobi Auto Parts"),
             ("overdue_payment", "critical", "Safari Tours: KES 125,000 Overdue", "Fleet service completed 3 weeks ago. Payment terms were 14 days.", "Call fleet manager and send invoice reminder"),
@@ -351,7 +351,7 @@ BUSINESSES = {
         "exp_range": (1000, 15000),
         "daily_rev_count": (2, 5),
         "daily_exp_count": (1, 2),
-        "nsi_base": 52,
+        "bsi_base": 52,
         "alerts": [
             ("low_stock", "warning", "Ankara Fabric Running Low", "50 pieces left but Soweto Fashion Week orders expected next week.", "Order 100 pieces from Cape Town Fabrics"),
             ("seasonal_risk", "info", "Fashion Week Season Approaching", "Soweto Fashion Week in 4 weeks. Historically 3x normal orders.", "Pre-order fabrics and hire 2 temporary tailors"),
@@ -391,7 +391,7 @@ BUSINESSES = {
         "exp_range": (10000, 80000),
         "daily_rev_count": (3, 7),
         "daily_exp_count": (1, 2),
-        "nsi_base": 48,
+        "bsi_base": 48,
         "alerts": [
             ("low_stock", "critical", "Amoxicillin Stock Critical", "Only 80 boxes left. Average daily sales: 8 boxes. Stockout in 10 days.", "Emergency order from Rwanda Pharma Distributors"),
             ("regulatory", "warning", "Pharmacy License Renewal Due", "License expires in 30 days. Renewal process takes 2 weeks.", "Start renewal application immediately"),
@@ -433,7 +433,7 @@ BUSINESSES = {
         "exp_range": (50, 1500),
         "daily_rev_count": (1, 4),
         "daily_exp_count": (1, 3),
-        "nsi_base": 74,
+        "bsi_base": 74,
         "alerts": [
             ("overdue_payment", "warning", "Reading Council: £3,200 Overdue", "Emergency repair job completed 28 days ago. Council payment terms are 30 days.", "Submit follow-up invoice to accounts payable"),
             ("low_stock", "info", "Combi Boilers: Only 3 Left", "Winter season approaching — boiler installs typically double.", "Order 5 units from Vaillant at trade discount"),
@@ -478,7 +478,7 @@ BUSINESSES = {
         "exp_range": (30000, 250000),
         "daily_rev_count": (2, 5),
         "daily_exp_count": (1, 3),
-        "nsi_base": 78,
+        "bsi_base": 78,
         "alerts": [
             ("platform_health", "info", "Platform Uptime: 99.8% This Month", "All services running normally. Minor latency spike on Tuesday resolved.", "Continue monitoring"),
             ("revenue_milestone", "info", "MRR Crossed NGN 500K", "Monthly recurring revenue reached NGN 512,000 with 20 paid subscribers.", "Focus on converting free tier users"),
@@ -672,17 +672,17 @@ def seed_tasks(org_id, email_signal_ids):
     return count
 
 
-def seed_nsi_scores(org_id, biz):
-    """Seed 7 days of NSI score history for trend charts.
+def seed_bsi_scores(org_id, biz):
+    """Seed 7 days of BSI score history for trend charts.
     
-    NSI table key: org_id (HASH) + nsi_id (RANGE).
+    BSI table key: org_id (HASH) + bsi_id (RANGE).
     The DDB service also reads 'timestamp' for sorting, so we include both.
     """
-    base = biz["nsi_base"]
+    base = biz["bsi_base"]
     for day_offset in range(7):
         dt = now - timedelta(days=day_offset)
         jitter = random.uniform(-5, 5)
-        nsi_val = max(10, min(95, base + jitter))
+        bsi_val = max(10, min(95, base + jitter))
         liq = max(10, min(95, base + random.uniform(-10, 10)))
         rev = max(10, min(95, base + random.uniform(-8, 12)))
         ops = max(10, min(95, base + random.uniform(-12, 8)))
@@ -700,13 +700,13 @@ def seed_nsi_scores(org_id, biz):
         if not risks:
             risks.append({"risk": "Minor: review upcoming payment deadlines", "severity": "low"})
 
-        nid = _id("nsi")
-        nsi_table.put_item(Item={
+        nid = _id("bsi")
+        bsi_table.put_item(Item={
             "org_id": org_id,
-            "nsi_id": nid,
+            "bsi_id": nid,
             "timestamp": iso(dt),
-            "nsi_score": dec(nsi_val),
-            "nova_stability_index": dec(nsi_val),
+            "bsi_score": dec(bsi_val),
+            "business_stability_index": dec(bsi_val),
             "liquidity_index": dec(liq),
             "revenue_stability_index": dec(rev),
             "operational_latency_index": dec(ops),
@@ -714,7 +714,7 @@ def seed_nsi_scores(org_id, biz):
             "confidence": random.choice(["high", "medium"]),
             "top_risks": risks,
             "signal_count": random.randint(3, 12),
-            "explanation": f"NSI calculated from {random.randint(5, 20)} signals. Business health is {'stable' if nsi_val >= 60 else 'needs attention'}.",
+            "explanation": f"BSI calculated from {random.randint(5, 20)} signals. Business health is {'stable' if bsi_val >= 60 else 'needs attention'}.",
         })
 
 
@@ -727,7 +727,7 @@ def seed_strategies(org_id, biz):
         ("Launch WhatsApp ordering channel to increase walk-in conversion", 5.1, 0.58, False),
         ("Reduce transport costs by consolidating deliveries to 2x per week", 2.9, 0.74, True),
     ]
-    nsi_id = _id("nsi")
+    bsi_id = _id("bsi")
     strategy_ids = []
     for desc, improvement, confidence, auto in random.sample(strategy_templates, min(4, len(strategy_templates))):
         sid = _id("strategy")
@@ -736,9 +736,9 @@ def seed_strategies(org_id, biz):
             "org_id": org_id,
             "simulation_id": sid,
             "strategy_id": sid,
-            "nsi_snapshot_id": nsi_id,
+            "bsi_snapshot_id": bsi_id,
             "description": desc,
-            "predicted_nsi_improvement": dec(improvement),
+            "predicted_bsi_improvement": dec(improvement),
             "confidence_score": dec(confidence),
             "automation_eligibility": auto,
             "reasoning": f"Based on analysis of {random.randint(10, 30)} transactions and {random.randint(3, 8)} signals.",
@@ -770,12 +770,12 @@ def seed_actions(org_id, strategy_ids):
 
 def seed_evaluations(org_id, execution_ids, biz):
     """Seed post-action evaluations."""
-    base = biz["nsi_base"]
+    base = biz["bsi_base"]
     for eid, sid in execution_ids:
-        old_nsi = round(base + random.uniform(-3, 3), 2)
+        old_bsi = round(base + random.uniform(-3, 3), 2)
         improvement = round(random.uniform(0.5, 6.0), 2)
-        new_nsi = round(min(95, old_nsi + improvement), 2)
-        actual = round(new_nsi - old_nsi, 2)
+        new_bsi = round(min(95, old_bsi + improvement), 2)
+        actual = round(new_bsi - old_bsi, 2)
         predicted = round(actual + random.uniform(-1.5, 1.5), 2)
         accuracy = round(max(0.3, min(1.0, 1.0 - abs(predicted - actual) / max(abs(predicted), 1))), 2)
 
@@ -783,8 +783,8 @@ def seed_evaluations(org_id, execution_ids, biz):
             "org_id": org_id,
             "evaluation_id": _id("evaluation"),
             "execution_id": eid,
-            "old_nsi": dec(old_nsi),
-            "new_nsi": dec(new_nsi),
+            "old_bsi": dec(old_bsi),
+            "new_bsi": dec(new_bsi),
             "predicted_improvement": dec(predicted),
             "actual_improvement": dec(actual),
             "prediction_accuracy": dec(accuracy),
@@ -946,8 +946,8 @@ def seed_one_business(email, biz):
     fin_doc_count = seed_finance_documents(org_id, biz)
     print(f"    [OK] {fin_doc_count} finance documents (cashflow + P&L)")
 
-    seed_nsi_scores(org_id, biz)
-    print(f"    [OK] 7 days of NSI scores")
+    seed_bsi_scores(org_id, biz)
+    print(f"    [OK] 7 days of BSI scores")
 
     strategy_ids = seed_strategies(org_id, biz)
     print(f"    [OK] {len(strategy_ids)} strategies")

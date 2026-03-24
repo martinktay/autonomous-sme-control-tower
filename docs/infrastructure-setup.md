@@ -91,7 +91,7 @@ frontend/
 - Exponential backoff retry logic
 - Multi-table management:
   - `autonomous-sme-signals` - Signal records
-  - `autonomous-sme-nsi-scores` - NSI snapshots
+  - `autonomous-sme-bsi-scores` - BSI snapshots
   - `autonomous-sme-strategies` - Generated strategies
   - `autonomous-sme-actions` - Action execution logs
 - Org-based data partitioning for multi-tenancy
@@ -134,7 +134,7 @@ NOVA_SONIC_MODEL_ID=amazon.nova-sonic-v1:0
 
 # DynamoDB Tables
 SIGNALS_TABLE=autonomous-sme-signals
-NSI_SCORES_TABLE=autonomous-sme-nsi-scores
+BSI_SCORES_TABLE=autonomous-sme-bsi-scores
 STRATEGIES_TABLE=autonomous-sme-strategies
 ACTIONS_TABLE=autonomous-sme-actions
 

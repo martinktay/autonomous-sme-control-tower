@@ -1,6 +1,6 @@
 /**
  * @file Strategy page (/strategy) — AI strategy simulation and execution.
- * Generates improvement strategies from the current NSI score and allows one-click execution.
+ * Generates improvement strategies from the current BSI score and allows one-click execution.
  */
 'use client'
 
@@ -66,9 +66,9 @@ export default function Strategy() {
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Current NSI</span>
+                <span className="text-sm font-medium">Current BSI</span>
                 <Badge variant="outline" className="text-lg">
-                  {strategies.current_nsi}
+                  {strategies.current_bsi}
                 </Badge>
               </div>
             </CardContent>
@@ -102,7 +102,7 @@ export default function Strategy() {
                         <span className="text-sm font-medium">Predicted Improvement</span>
                       </div>
                       <p className="text-2xl font-bold text-green-600">
-                        +{option.predicted_nsi_improvement?.toFixed?.(1) ?? option.predicted_nsi_improvement}
+                        +{option.predicted_bsi_improvement?.toFixed?.(1) ?? option.predicted_bsi_improvement}
                       </p>
                     </div>
                     <div>

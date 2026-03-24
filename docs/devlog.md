@@ -6,7 +6,7 @@
 
 #### 1. Pydantic Models ✅
 - Created complete data models for all entities
-- `models/nsi.py`: NSIScore, NSISnapshot, SubIndices
+- `models/bsi.py`: BSIScore, BSISnapshot, SubIndices
 - `models/strategy.py`: Strategy, StrategySimulation
 - `models/action.py`: ActionExecution, Evaluation
 - All models include proper validation and field descriptions
@@ -25,7 +25,7 @@
 #### 4. Agent Updates ✅
 All agents updated to use correct models:
 - `signal_agent.py`: Invoice extraction and email classification
-- `risk_agent.py`: NSI calculation with sub-indices
+- `risk_agent.py`: BSI calculation with sub-indices
 - `strategy_agent.py`: Strategy generation with predictions
 - `action_agent.py`: Nova Act workflow execution
 - `reeval_agent.py`: Prediction accuracy evaluation
@@ -36,7 +36,7 @@ All agents updated to use correct models:
 - `orchestration.py`: Complete closed-loop workflow
   - Diagnose → Simulate → Execute → Evaluate
   - Proper error handling
-  - NSI snapshot storage
+  - BSI snapshot storage
   - Strategy execution
   - Prediction accuracy tracking
 
@@ -49,7 +49,7 @@ The system now implements the complete autonomous cycle:
    └─ Upload invoice/email → Extract data → Store in DynamoDB
 
 2. DIAGNOSE
-   └─ Retrieve signals → Calculate NSI → Identify risks
+   └─ Retrieve signals → Calculate BSI → Identify risks
 
 3. SIMULATE
    └─ Generate strategies → Predict improvements → Rank by confidence
@@ -58,7 +58,7 @@ The system now implements the complete autonomous cycle:
    └─ Select automatable strategy → Execute via Nova Act → Log results
 
 5. EVALUATE
-   └─ Recalculate NSI → Compare predicted vs actual → Measure accuracy
+   └─ Recalculate BSI → Compare predicted vs actual → Measure accuracy
 ```
 
 ### Architecture Highlights
@@ -82,7 +82,7 @@ The system now implements the complete autonomous cycle:
 
 ### Key Features
 
-1. **NSI Calculation**: Composite metric from 4 sub-indices
+1. **BSI Calculation**: Composite metric from 4 sub-indices
 2. **Strategy Simulation**: AI-generated corrective actions
 3. **Autonomous Execution**: Nova Act workflow automation
 4. **Prediction Tracking**: Measure and improve accuracy
@@ -110,7 +110,7 @@ The system now implements the complete autonomous cycle:
 1. **Testing**:
    - Unit tests for agents
    - Integration tests for closed-loop
-   - Property-based tests for NSI calculation
+   - Property-based tests for BSI calculation
 
 2. **Frontend Integration**:
    - Update API client
@@ -137,7 +137,7 @@ The system now implements the complete autonomous cycle:
 ### Performance Considerations
 
 - Signal processing: Target < 5 seconds
-- NSI calculation: On-demand or triggered
+- BSI calculation: On-demand or triggered
 - Strategy generation: 2-3 strategies per request
 - Closed-loop: Complete cycle in < 30 seconds
 
@@ -179,14 +179,14 @@ The system demonstrates:
 - ✅ Multi-agent AI architecture
 - ✅ Deep Nova model integration
 - ✅ Closed-loop operational intelligence
-- ✅ Measurable operational impact (NSI)
+- ✅ Measurable operational impact (BSI)
 - ✅ Workflow automation (Nova Act)
 - ✅ Prediction accuracy tracking
 - ✅ Explainable AI decisions
 
 **Demo Flow**:
 1. Upload sample invoice
-2. Calculate NSI (shows operational health)
+2. Calculate BSI (shows operational health)
 3. Generate strategies (AI recommendations)
 4. Execute strategy (autonomous action)
 5. Re-evaluate (measure improvement)

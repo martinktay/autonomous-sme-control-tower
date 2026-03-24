@@ -35,14 +35,14 @@ The Autonomous SME Control Tower ingests whatever business data an SME has (invo
 
 | Feature | Description |
 |---------|-------------|
-| 📊 **Business Health Score** | Nova Stability Index (NSI) — a 0–100 score across cash flow, revenue stability, operations speed, and vendor reliability |
+| 📊 **Business Health Score** | Business Stability Index (BSI) — a 0–100 score across cash flow, revenue stability, operations speed, and vendor reliability |
 | 💰 **Finance Dashboard** | P&L summaries, cashflow charts, AI insights, document classification, informal receipt parsing, data export |
 | 🧾 **Tax & FIRS Compliance** | Multi-country tax calculations (NG, GH, KE, ZA, RW, GB) — CIT, VAT, WHT, PAYE with Nigeria Tax Act 2025 thresholds |
 | 📧 **Email Intelligence** | AI classification, priority tagging, automatic task extraction, reply drafting, SES sending, WhatsApp agent handoff |
 | 💬 **WhatsApp Integration** | Message extraction, business summaries, human-in-the-loop action approval |
 | 🎙️ **Voice Assistant** | Text mode and voice mode — ask questions about your business, get answers based on real data |
 | 🧠 **Semantic Memory** | Search your business history in everyday language using Nova Embeddings |
-| ⚡ **Strategy Simulation** | AI-generated recommendations with predicted NSI impact, cost estimates, and confidence levels |
+| ⚡ **Strategy Simulation** | AI-generated recommendations with predicted BSI impact, cost estimates, and confidence levels |
 | 🤖 **Autonomous Actions** | System executes automatable strategies via Nova Act with human-in-the-loop oversight |
 | 🔄 **Closed-Loop Cycle** | Ingest → Diagnose → Simulate → Execute → Evaluate — runs end-to-end |
 | 📄 **Multi-Channel Ingestion** | Upload PDFs, images, CSVs, Excel, POS exports, bank statements — AI extracts and maps data automatically |
@@ -77,7 +77,7 @@ Supports 21 business types: Supermarkets, Mini Marts, Kiosks, Salons, Food Vendo
 ┌──────────┐    ┌───────────┐    ┌────────────┐    ┌──────────┐    ┌────────────┐
 │  INGEST  │───▶│ DIAGNOSE  │───▶│  SIMULATE  │───▶│ EXECUTE  │───▶│  EVALUATE  │
 │          │    │           │    │            │    │          │    │            │
-│ Invoices │    │ NSI Score │    │ Strategies │    │ Actions  │    │ Re-assess  │
+│ Invoices │    │ BSI Score │    │ Strategies │    │ Actions  │    │ Re-assess  │
 │ Emails   │    │ Risks     │    │ Rankings   │    │ Outcomes │    │ Accuracy   │
 │ WhatsApp │    │ Signals   │    │ Costs      │    │ Logs     │    │ Learning   │
 │ POS/Bank │    │           │    │            │    │          │    │            │
@@ -91,7 +91,7 @@ Supports 21 business types: Supermarkets, Mini Marts, Kiosks, Salons, Food Vendo
 | Agent | Role | Nova Model |
 |-------|------|------------|
 | 🔍 **Signal** | Invoice extraction, email classification, data ingestion | Nova Lite |
-| ⚠️ **Risk** | NSI calculation, risk diagnosis, sub-index scoring | Nova Lite |
+| ⚠️ **Risk** | BSI calculation, risk diagnosis, sub-index scoring | Nova Lite |
 | 💡 **Strategy** | Strategy generation, ranking, cost estimation | Nova Lite |
 | ⚡ **Action** | Autonomous execution of automatable strategies | Nova Act |
 | 🔄 **Re-evaluation** | Outcome assessment, prediction accuracy tracking | Nova Lite |
@@ -324,7 +324,7 @@ python seed_multi_country_data.py
 |----------|--------|-------------|
 | `/api/invoices/upload` | POST | Upload and extract invoice data |
 | `/api/signals/{org_id}` | GET | Retrieve business signals |
-| `/api/stability/calculate` | POST | Calculate NSI health score |
+| `/api/stability/calculate` | POST | Calculate BSI health score |
 | `/api/strategy/simulate` | POST | Generate AI strategies |
 | `/api/actions/execute` | POST | Execute autonomous action |
 | `/api/orchestration/run-loop` | POST | Run full closed-loop cycle |
@@ -412,7 +412,7 @@ NOVA_EMBEDDINGS_MODEL_ID=amazon.nova-embed-v1:0
 
 # DynamoDB Tables
 SIGNALS_TABLE=autonomous-sme-signals
-NSI_SCORES_TABLE=autonomous-sme-nsi-scores
+BSI_SCORES_TABLE=autonomous-sme-bsi-scores
 STRATEGIES_TABLE=autonomous-sme-strategies
 ACTIONS_TABLE=autonomous-sme-actions
 USERS_TABLE=autonomous-sme-users

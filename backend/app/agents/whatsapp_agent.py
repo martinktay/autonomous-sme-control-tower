@@ -43,7 +43,7 @@ class WhatsAppAgent:
     def generate_insight_summary(
         self,
         business_name: str,
-        nsi_score: Optional[float],
+        bsi_score: Optional[float],
         top_risks: List[str],
         transaction_summary: Optional[Dict[str, Any]] = None,
         stock_alerts: Optional[List[Dict[str, Any]]] = None,
@@ -52,7 +52,7 @@ class WhatsAppAgent:
 
         Args:
             business_name: Name of the business.
-            nsi_score: Current NSI score (0-100) or None.
+            bsi_score: Current BSI score (0-100) or None.
             top_risks: List of top risk descriptions.
             transaction_summary: Optional transaction summary dict.
             stock_alerts: Optional list of stock alert dicts.
@@ -61,8 +61,8 @@ class WhatsAppAgent:
             Dict with greeting, health_score, highlights, alerts, tip, sign_off.
         """
         context_parts = [f"Business: {business_name}"]
-        if nsi_score is not None:
-            context_parts.append(f"NSI Score: {nsi_score:.1f}/100")
+        if bsi_score is not None:
+            context_parts.append(f"BSI Score: {bsi_score:.1f}/100")
         if top_risks:
             context_parts.append(f"Top risks: {'; '.join(top_risks[:3])}")
         if transaction_summary:

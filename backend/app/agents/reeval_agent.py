@@ -19,8 +19,8 @@ class ReevalAgent:
         org_id: str,
         execution_id: str,
         predicted_improvement: float,
-        actual_nsi_before: float,
-        actual_nsi_after: float,
+        actual_bsi_before: float,
+        actual_bsi_after: float,
         strategy_description: str,
         execution_log: Dict[str, Any]
     ) -> Evaluation:
@@ -28,12 +28,12 @@ class ReevalAgent:
         
         prompt_template = load_prompt("reeval")
         
-        actual_improvement = actual_nsi_after - actual_nsi_before
+        actual_improvement = actual_bsi_after - actual_bsi_before
         
         context = f"""
-Predicted NSI Improvement: {predicted_improvement}
-Actual NSI Before: {actual_nsi_before}
-Actual NSI After: {actual_nsi_after}
+Predicted BSI Improvement: {predicted_improvement}
+Actual BSI Before: {actual_bsi_before}
+Actual BSI After: {actual_bsi_after}
 Actual Improvement: {actual_improvement}
 Strategy: {strategy_description}
 Execution Log: {json.dumps(execution_log, indent=2, default=str)}
@@ -55,8 +55,8 @@ Execution Log: {json.dumps(execution_log, indent=2, default=str)}
             evaluation_id=generate_id("evaluation"),
             org_id=org_id,
             execution_id=execution_id,
-            old_nsi=actual_nsi_before,
-            new_nsi=actual_nsi_after,
+            old_bsi=actual_bsi_before,
+            new_bsi=actual_bsi_after,
             predicted_improvement=predicted_improvement,
             actual_improvement=actual_improvement,
             prediction_accuracy=max(0.0, min(1.0, accuracy)),

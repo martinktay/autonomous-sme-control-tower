@@ -50,7 +50,7 @@ All prompts must:
 
 ### voice.md
 - **Purpose**: Generate voice briefing script
-- **Input**: Dashboard summary, recent actions, NSI trend
+- **Input**: Dashboard summary, recent actions, BSI trend
 - **Output**: Natural language briefing text
 - **Model**: Nova Sonic
 
@@ -86,7 +86,7 @@ All prompts must:
 
 ### business-insights.md
 - **Purpose**: Generate general business intelligence summaries
-- **Input**: Operational signals, trends, NSI data
+- **Input**: Operational signals, trends, BSI data
 - **Output**: JSON with insight summaries, recommendations
 - **Model**: Nova 2 Lite
 

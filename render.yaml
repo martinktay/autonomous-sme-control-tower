@@ -23,8 +23,8 @@ services:
         value: amazon.nova-sonic-v1:0
       - key: SIGNALS_TABLE
         value: autonomous-sme-signals
-      - key: NSI_SCORES_TABLE
-        value: autonomous-sme-nsi-scores
+      - key: BSI_SCORES_TABLE
+        value: autonomous-sme-bsi-scores
       - key: STRATEGIES_TABLE
         value: autonomous-sme-strategies
       - key: ACTIONS_TABLE

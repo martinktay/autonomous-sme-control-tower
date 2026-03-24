@@ -1,24 +1,23 @@
 /**
- * NSITrendChart — SVG line chart showing the Nova Stability Index
+ * BSITrendChart — SVG line chart showing the Business Stability Index
  * over time. Renders grid lines, data points with tooltips, and x-axis date labels.
  */
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-interface NSIDataPoint {
+interface BSIDataPoint {
   timestamp: string;
-  nsi_score: number;
+  bsi_score: number;
 }
 
-interface NSITrendChartProps {
-  data: NSIDataPoint[];
+interface BSITrendChartProps {
+  data: BSIDataPoint[];
 }
 
-export function NSITrendChart({ data }: NSITrendChartProps) {
-  // Simple line chart visualization
-  const maxNSI = 100;
-  const minNSI = 0;
+export function BSITrendChart({ data }: BSITrendChartProps) {
+  const maxBSI = 100;
+  const minBSI = 0;
   const chartHeight = 200;
   const chartWidth = 600;
 
@@ -26,7 +25,7 @@ export function NSITrendChart({ data }: NSITrendChartProps) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>NSI Trend</CardTitle>
+          <CardTitle>BSI Trend</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground">No trend data available</p>
@@ -35,14 +34,12 @@ export function NSITrendChart({ data }: NSITrendChartProps) {
     );
   }
 
-  // Calculate points for the line chart
   const points = data.map((point, index) => {
     const x = (index / (data.length - 1)) * chartWidth;
-    const y = chartHeight - ((point.nsi_score - minNSI) / (maxNSI - minNSI)) * chartHeight;
-    return { x, y, nsi: point.nsi_score, timestamp: point.timestamp };
+    const y = chartHeight - ((point.bsi_score - minBSI) / (maxBSI - minBSI)) * chartHeight;
+    return { x, y, bsi: point.bsi_score, timestamp: point.timestamp };
   });
 
-  // Create path for line
   const pathData = points
     .map((point, index) => `${index === 0 ? "M" : "L"} ${point.x} ${point.y}`)
     .join(" ");
@@ -50,7 +47,7 @@ export function NSITrendChart({ data }: NSITrendChartProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>NSI Trend Over Time</CardTitle>
+        <CardTitle>BSI Trend Over Time</CardTitle>
       </CardHeader>
       <CardContent>
         <svg
@@ -61,7 +58,7 @@ export function NSITrendChart({ data }: NSITrendChartProps) {
         >
           {/* Grid lines */}
           {[0, 25, 50, 75, 100].map((value) => {
-            const y = chartHeight - ((value - minNSI) / (maxNSI - minNSI)) * chartHeight;
+            const y = chartHeight - ((value - minBSI) / (maxBSI - minBSI)) * chartHeight;
             return (
               <g key={value}>
                 <line
@@ -94,7 +91,7 @@ export function NSITrendChart({ data }: NSITrendChartProps) {
             <g key={index}>
               <circle cx={point.x} cy={point.y} r={4} fill="#3b82f6" />
               <title>
-                {new Date(point.timestamp).toLocaleDateString()}: NSI {point.nsi.toFixed(1)}
+                {new Date(point.timestamp).toLocaleDateString()}: BSI {point.bsi.toFixed(1)}
               </title>
             </g>
           ))}
@@ -126,7 +123,7 @@ export function NSITrendChart({ data }: NSITrendChartProps) {
         <div className="mt-4 flex items-center justify-center gap-4 text-sm">
           <div className="flex items-center gap-2">
             <div className="h-3 w-3 rounded-full bg-blue-500"></div>
-            <span className="text-muted-foreground">NSI Score</span>
+            <span className="text-muted-foreground">BSI Score</span>
           </div>
         </div>
       </CardContent>

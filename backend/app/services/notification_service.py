@@ -99,7 +99,7 @@ def send_welcome_email(email: str, full_name: str, business_name: str = "") -> D
         <li>Create and send professional invoices to customers</li>
         <li>Get AI-powered insights on your cash flow</li>
         <li>Track inventory and supplier relationships</li>
-        <li>Monitor business health with your NSI score</li>
+        <li>Monitor business health with your BSI score</li>
       </ul>
       <p style="margin-top:20px;">
         <a href="{settings.cors_origins.split(',')[0].strip()}/dashboard" class="btn">Go to Dashboard</a>

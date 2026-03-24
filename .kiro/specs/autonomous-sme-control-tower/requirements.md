@@ -9,13 +9,13 @@ NovaSME is a multi-agent AI system that provides autonomous operational intellig
 - **NovaSME_System**: The complete autonomous SME control tower platform
 - **Signal_Intake_Agent**: Component responsible for ingesting and extracting structured data from operational signals
 - **Context_Memory_Service**: Service that stores operational signals with semantic embeddings for retrieval
-- **Stability_Intelligence_Agent**: Component that calculates the Nova Stability Index (NSI)
+- **Stability_Intelligence_Agent**: Component that calculates the Business Stability Index (BSI)
 - **Strategy_Simulation_Agent**: Component that generates corrective operational strategies
 - **Workflow_Automation_Agent**: Component that executes operational workflows using Nova Act
-- **Reeval_Agent**: Component that recalculates NSI and measures prediction accuracy after actions
+- **Reeval_Agent**: Component that recalculates BSI and measures prediction accuracy after actions
 - **Dashboard_UI**: Frontend interface displaying operational health and recommendations
 - **Voice_Interface**: Optional voice-based query and response system using Nova Sonic
-- **NSI**: Nova Stability Index - a metric between 0 and 100 representing operational health
+- **BSI**: Business Stability Index - a metric between 0 and 100 representing operational health
 - **Operational_Signal**: Business data input such as invoices or emails
 - **Embedding_Vector**: Semantic representation of signal content for memory retrieval
 - **Strategy**: A recommended corrective action with predicted impact
@@ -59,17 +59,17 @@ NovaSME is a multi-agent AI system that provides autonomous operational intellig
 3. THE Context_Memory_Service SHALL associate each embedding with its signal_id, org_id, signal_type, and timestamp
 4. WHEN embedding generation fails, THE Context_Memory_Service SHALL log the error and continue processing
 
-### Requirement 4: Nova Stability Index Calculation
+### Requirement 4: Business Stability Index Calculation
 
 **User Story:** As a business owner, I want a measurable operational health score, so that I can understand my business stability at a glance.
 
 #### Acceptance Criteria
 
-1. WHEN operational signals exist for an organization, THE Stability_Intelligence_Agent SHALL calculate an NSI value between 0 and 100
-2. THE Stability_Intelligence_Agent SHALL incorporate cash_runway_risk, invoice_aging_risk, revenue_concentration_risk, expense_volatility_risk, and response_latency_risk into NSI calculation
-3. WHEN NSI is calculated, THE Stability_Intelligence_Agent SHALL store an NSI snapshot with timestamp and org_id in DynamoDB
+1. WHEN operational signals exist for an organization, THE Stability_Intelligence_Agent SHALL calculate a BSI value between 0 and 100
+2. THE Stability_Intelligence_Agent SHALL incorporate cash_runway_risk, invoice_aging_risk, revenue_concentration_risk, expense_volatility_risk, and response_latency_risk into BSI calculation
+3. WHEN BSI is calculated, THE Stability_Intelligence_Agent SHALL store a BSI snapshot with timestamp and org_id in DynamoDB
 4. THE Stability_Intelligence_Agent SHALL use Nova 2 Lite model for risk assessment reasoning
-5. WHEN insufficient data exists, THE Stability_Intelligence_Agent SHALL return NSI of 50 with a confidence flag indicating limited data
+5. WHEN insufficient data exists, THE Stability_Intelligence_Agent SHALL return BSI of 50 with a confidence flag indicating limited data
 
 ### Requirement 5: Strategy Simulation
 
@@ -77,8 +77,8 @@ NovaSME is a multi-agent AI system that provides autonomous operational intellig
 
 #### Acceptance Criteria
 
-1. WHEN NSI is below 70, THE Strategy_Simulation_Agent SHALL generate between 2 and 3 corrective strategies
-2. FOR EACH strategy, THE Strategy_Simulation_Agent SHALL include description, predicted_nsi_improvement, confidence_score, and automation_eligibility fields
+1. WHEN BSI is below 70, THE Strategy_Simulation_Agent SHALL generate between 2 and 3 corrective strategies
+2. FOR EACH strategy, THE Strategy_Simulation_Agent SHALL include description, predicted_bsi_improvement, confidence_score, and automation_eligibility fields
 3. THE Strategy_Simulation_Agent SHALL use Nova 2 Lite model to reason about strategy effectiveness
 4. WHEN strategies are generated, THE NovaSME_System SHALL store them in DynamoDB keyed by org_id
 5. THE Strategy_Simulation_Agent SHALL return strategies conforming to the Strategy Pydantic model
@@ -101,8 +101,8 @@ NovaSME is a multi-agent AI system that provides autonomous operational intellig
 
 #### Acceptance Criteria
 
-1. WHEN a workflow execution completes, THE Reeval_Agent SHALL recalculate NSI for the organization
-2. THE Reeval_Agent SHALL compare the new NSI with the predicted NSI improvement from the executed strategy
+1. WHEN a workflow execution completes, THE Reeval_Agent SHALL recalculate BSI for the organization
+2. THE Reeval_Agent SHALL compare the new BSI with the predicted BSI improvement from the executed strategy
 3. THE Reeval_Agent SHALL compute prediction_accuracy as a percentage difference between predicted and actual improvement
 4. WHEN re-evaluation completes, THE Reeval_Agent SHALL store the evaluation results in DynamoDB with execution_id reference
 5. THE Reeval_Agent SHALL use the same risk calculation methodology as the Stability_Intelligence_Agent
@@ -113,8 +113,8 @@ NovaSME is a multi-agent AI system that provides autonomous operational intellig
 
 #### Acceptance Criteria
 
-1. THE Dashboard_UI SHALL display the current NSI value with visual indicator (color-coded by health level)
-2. THE Dashboard_UI SHALL display NSI trend over time as a line chart
+1. THE Dashboard_UI SHALL display the current BSI value with visual indicator (color-coded by health level)
+2. THE Dashboard_UI SHALL display BSI trend over time as a line chart
 3. THE Dashboard_UI SHALL display top 5 operational risks ranked by severity
 4. THE Dashboard_UI SHALL display active strategy recommendations with predicted impact
 5. THE Dashboard_UI SHALL display action execution history with timestamps and outcomes
@@ -130,7 +130,7 @@ NovaSME is a multi-agent AI system that provides autonomous operational intellig
 1. WHERE voice interface is enabled, WHEN a voice query is received, THE Voice_Interface SHALL transcribe it using Nova Sonic
 2. WHERE voice interface is enabled, THE Voice_Interface SHALL support queries: "How stable is my business?" and "Which invoices are overdue?"
 3. WHERE voice interface is enabled, WHEN a query is processed, THE Voice_Interface SHALL generate a voice response summarizing operational state using Nova Sonic
-4. WHERE voice interface is enabled, THE Voice_Interface SHALL retrieve current NSI and relevant signals to answer queries
+4. WHERE voice interface is enabled, THE Voice_Interface SHALL retrieve current BSI and relevant signals to answer queries
 5. WHERE voice interface is enabled, IF transcription fails, THEN THE Voice_Interface SHALL return an error message
 
 ### Requirement 10: Signal Processing Logging
@@ -150,10 +150,10 @@ NovaSME is a multi-agent AI system that provides autonomous operational intellig
 
 #### Acceptance Criteria
 
-1. WHEN NSI is calculated, THE Stability_Intelligence_Agent SHALL provide reasoning for each risk component score
+1. WHEN BSI is calculated, THE Stability_Intelligence_Agent SHALL provide reasoning for each risk component score
 2. WHEN strategies are generated, THE Strategy_Simulation_Agent SHALL provide reasoning for predicted impact
 3. THE Dashboard_UI SHALL display explainability information when a user clicks on a recommendation
-4. THE NovaSME_System SHALL store reasoning text with each NSI snapshot and strategy record
+4. THE NovaSME_System SHALL store reasoning text with each BSI snapshot and strategy record
 
 ### Requirement 12: Multi-Organization Support
 
@@ -164,7 +164,7 @@ NovaSME is a multi-agent AI system that provides autonomous operational intellig
 1. THE NovaSME_System SHALL partition all data by org_id in DynamoDB
 2. WHEN any API request is received, THE NovaSME_System SHALL validate org_id and enforce data isolation
 3. THE NovaSME_System SHALL prevent cross-organization data access
-4. WHEN a new organization is onboarded, THE NovaSME_System SHALL initialize default NSI baseline of 50
+4. WHEN a new organization is onboarded, THE NovaSME_System SHALL initialize default BSI baseline of 50
 
 ### Requirement 13: Prompt Template Management
 

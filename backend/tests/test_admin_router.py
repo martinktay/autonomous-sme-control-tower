@@ -35,7 +35,7 @@ def _patch_aws(monkeypatch):
     mock_ddb = Mock()
     mock_ddb.get_signals.return_value = []
     mock_ddb.get_actions.return_value = []
-    mock_ddb.get_latest_nsi.return_value = None
+    mock_ddb.get_latest_bsi.return_value = None
     monkeypatch.setattr("app.routers.invoices.ddb_service", mock_ddb)
     monkeypatch.setattr("app.routers.invoices.s3_service", Mock())
     monkeypatch.setattr("app.routers.signals.ddb_service", mock_ddb)

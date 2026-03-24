@@ -31,12 +31,12 @@ describe("Voice API", () => {
       json: async () => ({ answer: "Score is 72", source: "ai" }),
     });
     const { askVoiceQuestion } = require("@/lib/api");
-    const result = await askVoiceQuestion("org-1", "What is my NSI?");
+    const result = await askVoiceQuestion("org-1", "What is my BSI?");
     const call = mockFetch.mock.calls[0];
     expect(call[0]).toContain("/api/voice/org-1/ask");
     expect(call[1].method).toBe("POST");
     const body = JSON.parse(call[1].body);
-    expect(body.question).toBe("What is my NSI?");
+    expect(body.question).toBe("What is my BSI?");
     expect(result.source).toBe("ai");
   });
 

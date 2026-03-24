@@ -1,7 +1,7 @@
 """
 Unit tests for Re-evaluation Agent
 
-Tests Requirements 7.1-7.5 (Post-action NSI recalculation and prediction accuracy)
+Tests Requirements 7.1-7.5 (Post-action BSI recalculation and prediction accuracy)
 """
 
 import pytest
@@ -25,8 +25,8 @@ class TestOutcomeEvaluation:
             org_id="org_123",
             execution_id="exec_001",
             predicted_improvement=10.0,
-            actual_nsi_before=60.0,
-            actual_nsi_after=68.0,
+            actual_bsi_before=60.0,
+            actual_bsi_after=68.0,
             strategy_description="Collect invoices",
             execution_log={"status": "success"},
         )
@@ -34,8 +34,8 @@ class TestOutcomeEvaluation:
         assert isinstance(result, Evaluation)
         assert result.org_id == "org_123"
         assert result.execution_id == "exec_001"
-        assert result.old_nsi == 60.0
-        assert result.new_nsi == 68.0
+        assert result.old_bsi == 60.0
+        assert result.new_bsi == 68.0
         assert result.actual_improvement == 8.0
 
     @patch("app.agents.reeval_agent.load_prompt", return_value="Evaluate outcome as JSON")
@@ -50,8 +50,8 @@ class TestOutcomeEvaluation:
             org_id="org_1",
             execution_id="exec_1",
             predicted_improvement=10.0,
-            actual_nsi_before=50.0,
-            actual_nsi_after=60.0,
+            actual_bsi_before=50.0,
+            actual_bsi_after=60.0,
             strategy_description="test",
             execution_log={},
         )
@@ -70,8 +70,8 @@ class TestOutcomeEvaluation:
             org_id="org_1",
             execution_id="exec_1",
             predicted_improvement=10.0,
-            actual_nsi_before=50.0,
-            actual_nsi_after=55.0,
+            actual_bsi_before=50.0,
+            actual_bsi_after=55.0,
             strategy_description="test",
             execution_log={},
         )
@@ -90,8 +90,8 @@ class TestOutcomeEvaluation:
             org_id="org_1",
             execution_id="exec_1",
             predicted_improvement=5.0,
-            actual_nsi_before=50.0,
-            actual_nsi_after=40.0,
+            actual_bsi_before=50.0,
+            actual_bsi_after=40.0,
             strategy_description="test",
             execution_log={},
         )
@@ -110,8 +110,8 @@ class TestOutcomeEvaluation:
             org_id="org_1",
             execution_id="exec_1",
             predicted_improvement=5.0,
-            actual_nsi_before=50.0,
-            actual_nsi_after=55.0,
+            actual_bsi_before=50.0,
+            actual_bsi_after=55.0,
             strategy_description="test",
             execution_log={},
         )
@@ -130,8 +130,8 @@ class TestOutcomeEvaluation:
             org_id="org_1",
             execution_id="exec_1",
             predicted_improvement=0.0,
-            actual_nsi_before=50.0,
-            actual_nsi_after=55.0,
+            actual_bsi_before=50.0,
+            actual_bsi_after=55.0,
             strategy_description="test",
             execution_log={},
         )

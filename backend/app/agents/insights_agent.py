@@ -1,7 +1,7 @@
 """
 Insights Agent - Generates plain-language business insights for SME owners
 
-Uses Nova 2 Lite to translate raw NSI data, risks, and actions into
+Uses Nova 2 Lite to translate raw BSI data, risks, and actions into
 easy-to-understand summaries. Falls back to rule-based insights when
 Bedrock is unavailable.
 """
@@ -20,7 +20,7 @@ class InsightsAgent:
     """Generates AI-powered business insights in plain language.
 
     Supports two domains:
-    - General business insights (NSI, risks, actions, strategies)
+    - General business insights (BSI, risks, actions, strategies)
     - Finance-specific insights (P&L, cashflow, tax/VAT analysis)
 
     Each domain tries Bedrock first, then falls back to rule-based generation.
@@ -32,16 +32,16 @@ class InsightsAgent:
     def generate_insights(
         self,
         org_id: str,
-        nsi_data: Optional[Dict[str, Any]],
+        bsi_data: Optional[Dict[str, Any]],
         risks: List[Dict[str, Any]],
         actions: List[Dict[str, Any]],
         strategies: List[Dict[str, Any]],
     ) -> Dict[str, Any]:
-        """Generate general business insights from NSI data, risks, actions, and strategies.
+        """Generate general business insights from BSI data, risks, actions, and strategies.
 
         Args:
             org_id: Organisation identifier.
-            nsi_data: Latest NSI score and sub-indices.
+            bsi_data: Latest BSI score and sub-indices.
             risks: List of identified risk dicts.
             actions: List of recent action dicts.
             strategies: List of strategy dicts.
@@ -50,15 +50,15 @@ class InsightsAgent:
             Dict with summary, highlights, next_steps, and confidence level.
         """
         try:
-            return self._generate_with_bedrock(org_id, nsi_data, risks, actions, strategies)
+            return self._generate_with_bedrock(org_id, bsi_data, risks, actions, strategies)
         except Exception as e:
             logger.warning(f"Bedrock insights failed, using fallback: {e}")
-            return self._generate_fallback(nsi_data, risks, actions, strategies)
+            return self._generate_fallback(bsi_data, risks, actions, strategies)
 
     def _generate_with_bedrock(
         self,
         org_id: str,
-        nsi_data: Optional[Dict[str, Any]],
+        bsi_data: Optional[Dict[str, Any]],
         risks: List[Dict[str, Any]],
         actions: List[Dict[str, Any]],
         strategies: List[Dict[str, Any]],
@@ -68,19 +68,19 @@ class InsightsAgent:
 
         data_block = json.dumps(
             {
-                "health_score": nsi_data.get("nsi_score") if nsi_data else None,
-                "cash_flow": nsi_data.get("liquidity_index") if nsi_data else None,
-                "revenue_stability": nsi_data.get("revenue_stability_index") if nsi_data else None,
-                "operations_speed": nsi_data.get("operational_latency_index") if nsi_data else None,
-                "vendor_risk": nsi_data.get("vendor_risk_index") if nsi_data else None,
-                "confidence": nsi_data.get("confidence") if nsi_data else None,
+                "health_score": bsi_data.get("bsi_score") if bsi_data else None,
+                "cash_flow": bsi_data.get("liquidity_index") if bsi_data else None,
+                "revenue_stability": bsi_data.get("revenue_stability_index") if bsi_data else None,
+                "operations_speed": bsi_data.get("operational_latency_index") if bsi_data else None,
+                "vendor_risk": bsi_data.get("vendor_risk_index") if bsi_data else None,
+                "confidence": bsi_data.get("confidence") if bsi_data else None,
                 "top_risks": risks[:5],
                 "recent_actions": [
                     {"type": a.get("action_type"), "status": a.get("execution_status"), "target": a.get("target_entity")}
                     for a in actions[:5]
                 ],
                 "strategies": [
-                    {"description": s.get("description"), "predicted_improvement": s.get("predicted_nsi_improvement"), "automatable": s.get("automation_eligibility")}
+                    {"description": s.get("description"), "predicted_improvement": s.get("predicted_bsi_improvement"), "automatable": s.get("automation_eligibility")}
                     for s in strategies[:5]
                 ],
             },
@@ -100,19 +100,19 @@ class InsightsAgent:
 
     def _generate_fallback(
         self,
-        nsi_data: Optional[Dict[str, Any]],
+        bsi_data: Optional[Dict[str, Any]],
         risks: List[Dict[str, Any]],
         actions: List[Dict[str, Any]],
         strategies: List[Dict[str, Any]],
     ) -> Dict[str, Any]:
         """Rule-based insights when Bedrock is unavailable.
 
-        Generates highlights and next steps from NSI sub-indices using simple thresholds.
+        Generates highlights and next steps from BSI sub-indices using simple thresholds.
         """
         highlights = []
         next_steps = []
 
-        if not nsi_data:
+        if not bsi_data:
             return {
                 "summary": "We don't have enough data to analyse your business yet. Upload some invoices and run an analysis to get started.",
                 "highlights": [],
@@ -123,11 +123,11 @@ class InsightsAgent:
                 "confidence": "low",
             }
 
-        score = nsi_data.get("nsi_score", 0)
-        cash_flow = nsi_data.get("liquidity_index", 50)
-        revenue = nsi_data.get("revenue_stability_index", 50)
-        ops_speed = nsi_data.get("operational_latency_index", 50)
-        vendor = nsi_data.get("vendor_risk_index", 50)
+        score = bsi_data.get("bsi_score", 0)
+        cash_flow = bsi_data.get("liquidity_index", 50)
+        revenue = bsi_data.get("revenue_stability_index", 50)
+        ops_speed = bsi_data.get("operational_latency_index", 50)
+        vendor = bsi_data.get("vendor_risk_index", 50)
 
         # Build summary
         if score >= 70:

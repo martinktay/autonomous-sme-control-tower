@@ -40,8 +40,8 @@ class TestStrategyGeneration:
         agent = StrategyAgent()
         results = agent.simulate_strategies(
             org_id="org_123",
-            nsi_snapshot_id="nsi_001",
-            current_nsi=55.0,
+            bsi_snapshot_id="bsi_001",
+            current_bsi=55.0,
             top_risks=[{"description": "Cash flow risk"}],
             context={},
         )
@@ -49,7 +49,7 @@ class TestStrategyGeneration:
         assert len(results) == 2
         assert all(isinstance(s, Strategy) for s in results)
         assert results[0].description == "Accelerate invoice collections"
-        assert results[0].predicted_nsi_improvement == 8.0
+        assert results[0].predicted_bsi_improvement == 8.0
         assert results[0].automation_eligibility is True
         assert results[0].org_id == "org_123"
 
@@ -63,14 +63,14 @@ class TestStrategyGeneration:
         agent = StrategyAgent()
         results = agent.simulate_strategies(
             org_id="org_abc",
-            nsi_snapshot_id="nsi_xyz",
-            current_nsi=60.0,
+            bsi_snapshot_id="bsi_xyz",
+            current_bsi=60.0,
             top_risks=[],
             context={},
         )
 
         assert results[0].org_id == "org_abc"
-        assert results[0].nsi_snapshot_id == "nsi_xyz"
+        assert results[0].bsi_snapshot_id == "bsi_xyz"
 
     @patch("app.agents.strategy_agent.load_prompt", return_value="Generate strategies as JSON")
     @patch("app.agents.strategy_agent.get_bedrock_client")
@@ -83,8 +83,8 @@ class TestStrategyGeneration:
         with pytest.raises(ValueError, match="Failed to simulate"):
             agent.simulate_strategies(
                 org_id="org_1",
-                nsi_snapshot_id="nsi_1",
-                current_nsi=50.0,
+                bsi_snapshot_id="bsi_1",
+                current_bsi=50.0,
                 top_risks=[],
                 context={},
             )
@@ -100,8 +100,8 @@ class TestStrategyGeneration:
         with pytest.raises(ValueError):
             agent.simulate_strategies(
                 org_id="org_1",
-                nsi_snapshot_id="nsi_1",
-                current_nsi=50.0,
+                bsi_snapshot_id="bsi_1",
+                current_bsi=50.0,
                 top_risks=[],
                 context={},
             )
@@ -115,8 +115,8 @@ class TestStrategyGeneration:
 
         agent = StrategyAgent()
         results = agent.simulate_strategies(
-            org_id="org_1", nsi_snapshot_id="nsi_1",
-            current_nsi=50.0, top_risks=[], context={},
+            org_id="org_1", bsi_snapshot_id="bsi_1",
+            current_bsi=50.0, top_risks=[], context={},
         )
 
         ids = [s.strategy_id for s in results]
@@ -131,8 +131,8 @@ class TestStrategyGeneration:
 
         agent = StrategyAgent()
         agent.simulate_strategies(
-            org_id="org_1", nsi_snapshot_id="nsi_1",
-            current_nsi=50.0, top_risks=[], context={},
+            org_id="org_1", bsi_snapshot_id="bsi_1",
+            current_bsi=50.0, top_risks=[], context={},
         )
 
         call_args = mock_client.invoke_nova_lite.call_args

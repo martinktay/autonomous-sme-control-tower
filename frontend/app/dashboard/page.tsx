@@ -1,12 +1,12 @@
 /**
  * @file Dashboard page (/dashboard) — Primary business overview screen.
- * Fetches NSI score, risks, actions, and AI insights for the active org.
+ * Fetches BSI score, risks, actions, and AI insights for the active org.
  * Auto-refreshes every 30 s and supports manual refresh / closed-loop trigger.
  */
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import NSICard from "@/components/NsiCard";
+import BSICard from "@/components/BsiCard";
 import RiskPanel from "@/components/RiskPanel";
 import ActionLog from "@/components/ActionLog";
 import InsightsPanel from "@/components/InsightsPanel";
@@ -29,7 +29,7 @@ import Link from "next/link";
 
 export default function DashboardPage() {
   const { orgId, orgName } = useOrg();
-  const [nsiData, setNsiData] = useState<any>(null);
+  const [bsiData, setBsiData] = useState<any>(null);
   const [actions, setActions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -43,20 +43,20 @@ export default function DashboardPage() {
   const [recentTransactions, setRecentTransactions] = useState<any[]>([]);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
-  // Fetch NSI + actions in parallel; show error only if both fail
+  // Fetch BSI + actions in parallel; show error only if both fail
   const fetchDashboardData = useCallback(async (silent = false) => {
     try {
       if (!silent) setLoading(true);
       setRefreshing(true);
       setError(null);
 
-      const [nsiResponse, actionsResponse] = await Promise.allSettled([
+      const [bsiResponse, actionsResponse] = await Promise.allSettled([
         apiClient.getNSI(orgId),
         apiClient.getActions(orgId),
       ]);
 
-      if (nsiResponse.status === "fulfilled") {
-        setNsiData(nsiResponse.value.nsi);
+      if (bsiResponse.status === "fulfilled") {
+        setBsiData(bsiResponse.value.bsi);
       }
       if (actionsResponse.status === "fulfilled") {
         setActions(actionsResponse.value.actions || []);
@@ -64,7 +64,7 @@ export default function DashboardPage() {
 
       // If both failed, show error
       if (
-        nsiResponse.status === "rejected" &&
+        bsiResponse.status === "rejected" &&
         actionsResponse.status === "rejected"
       ) {
         setError(
@@ -143,10 +143,10 @@ export default function DashboardPage() {
     return () => clearInterval(interval);
   }, [fetchDashboardData]);
 
-  const nsi = nsiData?.nsi_score ?? nsiData?.nova_stability_index ?? null;
-  const confidence = nsiData?.confidence || "medium";
-  const timestamp = nsiData?.timestamp;
-  const risks = nsiData?.top_risks || nsiData?.sub_indices?.top_risks || [];
+  const bsi = bsiData?.bsi_score ?? bsiData?.business_stability_index ?? null;
+  const confidence = bsiData?.confidence || "medium";
+  const timestamp = bsiData?.timestamp;
+  const risks = bsiData?.top_risks || bsiData?.sub_indices?.top_risks || [];
 
   return (
     <div className="min-h-screen bg-background p-4 sm:p-8">
@@ -216,42 +216,42 @@ export default function DashboardPage() {
           </Card>
         )}
 
-        {/* NSI Card */}
-        <NSICard
-          nsi={nsi}
+        {/* BSI Card */}
+        <BSICard
+          bsi={bsi}
           confidence={confidence}
           timestamp={timestamp}
           loading={loading}
         />
 
         {/* Sub-indices */}
-        {nsiData && (
+        {bsiData && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <SubIndexCard
               label="Cash Flow"
-              value={nsiData.liquidity_index}
+              value={bsiData.liquidity_index}
               hint="Can you pay your bills on time? This measures the balance between money coming in and money going out. A low score means you may struggle to cover expenses — consider chasing overdue invoices or delaying non-urgent purchases."
             />
             <SubIndexCard
               label="Revenue Stability"
-              value={nsiData.revenue_stability_index}
+              value={bsiData.revenue_stability_index}
               hint="Is your income steady or unpredictable? This tracks how consistent your revenue has been. A high score means reliable income; a low score means your earnings vary a lot — which makes planning harder."
             />
             <SubIndexCard
               label="Operations Speed"
-              value={nsiData.operational_latency_index}
+              value={bsiData.operational_latency_index}
               hint="How fast do things get done in your business? This measures delays in processing invoices, fulfilling orders, and completing tasks. A low score means bottlenecks are slowing you down — look for incomplete or missing data."
             />
             <SubIndexCard
               label="Vendor Risk"
-              value={nsiData.vendor_risk_index}
+              value={bsiData.vendor_risk_index}
               hint="How dependable are your suppliers? This checks if you rely too heavily on one vendor, have late deliveries, or missing documentation. A low score means your supply chain is fragile — consider diversifying your suppliers."
             />
           </div>
         )}
 
         {/* No data state — only show when not loading and no error */}
-        {!loading && !error && !nsiData && (
+        {!loading && !error && !bsiData && (
           <Card>
             <CardContent className="py-10 text-center space-y-3">
               <HelpCircle className="h-10 w-10 mx-auto text-muted-foreground" />
@@ -386,7 +386,7 @@ export default function DashboardPage() {
   );
 }
 
-/** SubIndexCard — Small KPI card for an individual NSI sub-index (e.g. Cash Flow). */
+/** SubIndexCard — Small KPI card for an individual BSI sub-index (e.g. Cash Flow). */
 function SubIndexCard({
   label,
   value,

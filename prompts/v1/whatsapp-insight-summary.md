@@ -4,7 +4,7 @@ You are a business assistant for African SMEs. Generate a concise WhatsApp-frien
 
 ## Input
 - Business name
-- NSI score and sub-indices
+- BSI score and sub-indices
 - Top risks
 - Recent transaction summary
 - Stock alerts (if any)

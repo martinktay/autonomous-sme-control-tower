@@ -13,14 +13,14 @@ The Autonomous SME Control Tower is a multi-agent AI system built on AWS Bedrock
 - Generates embeddings for semantic search
 
 ### Risk Diagnosis Agent
-- Analyzes operational signals to calculate Nova Stability Index (NSI)
+- Analyzes operational signals to calculate Business Stability Index (BSI)
 - Computes sub-indices: liquidity, revenue stability, operational latency, vendor risk
 - Identifies top risks with explanations
-- Stores NSI snapshots with timestamps
+- Stores BSI snapshots with timestamps
 
 ### Strategy Simulation Agent
 - Generates 2-3 corrective strategies based on risk diagnosis
-- Estimates predicted NSI improvement for each option
+- Estimates predicted BSI improvement for each option
 - Provides confidence scores and cost estimates
 - Marks strategies as automatable or manual
 
@@ -31,10 +31,10 @@ The Autonomous SME Control Tower is a multi-agent AI system built on AWS Bedrock
 - Handles errors gracefully
 
 ### Re-evaluation Agent
-- Recalculates NSI after action execution
+- Recalculates BSI after action execution
 - Compares predicted vs actual improvement
 - Computes prediction accuracy metrics
-- Suggests NSI weight adjustments based on learnings
+- Suggests BSI weight adjustments based on learnings
 
 ### Memory Agent
 - Generates embeddings using Nova Multimodal Embeddings
@@ -56,7 +56,7 @@ The Autonomous SME Control Tower is a multi-agent AI system built on AWS Bedrock
 
 ### Inventory Agent
 - Stock analysis, reorder alerts, expiry warnings
-- Feeds inventory signals into NSI calculation
+- Feeds inventory signals into BSI calculation
 
 ### Alert Agent
 - Generates alerts from signals, inventory, and financial data
@@ -78,23 +78,23 @@ The Autonomous SME Control Tower is a multi-agent AI system built on AWS Bedrock
    Upload → S3 Storage → Signal Extraction → DynamoDB
 
 2. DIAGNOSE
-   Signals → Risk Analysis → NSI Calculation → Store Score
+   Signals → Risk Analysis → BSI Calculation → Store Score
 
 3. SIMULATE
-   NSI + Risks → Strategy Generation → Rank Options
+   BSI + Risks → Strategy Generation → Rank Options
 
 4. EXECUTE
    Select Strategy → Nova Act Execution → Log Results
 
 5. EVALUATE
-   Recalculate NSI → Compare Predictions → Update Accuracy
+   Recalculate BSI → Compare Predictions → Update Accuracy
 ```
 
 ## Storage Architecture
 
 ### DynamoDB Tables
 - `autonomous-sme-signals`: Signal records keyed by org_id
-- `autonomous-sme-nsi-scores`: NSI snapshots keyed by org_id + timestamp
+- `autonomous-sme-bsi-scores`: BSI snapshots keyed by org_id + timestamp
 - `autonomous-sme-strategies`: Strategy simulations
 - `autonomous-sme-actions`: Action execution logs
 - `autonomous-sme-businesses`: Business registration and onboarding state
@@ -134,7 +134,7 @@ RESTful endpoints organized by domain:
 - `/api/invoices` - Invoice upload and extraction
 - `/api/signals` - Signal retrieval
 - `/api/memory` - Embeddings search
-- `/api/stability` - NSI calculation and history
+- `/api/stability` - BSI calculation and history
 - `/api/strategy` - Strategy simulation
 - `/api/actions` - Action execution and history
 - `/api/voice` - Voice briefings
@@ -156,7 +156,7 @@ Next.js 14 app with pages:
 - `/onboarding` - Multi-step business registration wizard
 - `/pricing` - Tier comparison with NGN/USD toggle
 - `/portal` - One-click closed-loop demo
-- `/dashboard` - NSI, risks, actions, inventory/supplier overview
+- `/dashboard` - BSI, risks, actions, inventory/supplier overview
 - `/upload` - Invoice upload interface
 - `/strategy` - Strategy simulation view
 - `/actions` - Action history
@@ -171,7 +171,7 @@ Next.js 14 app with pages:
 - `/help` - FAQ and guides
 
 Reusable components:
-- `NsiCard` - Displays NSI with color coding
+- `BsiCard` - Displays BSI with color coding
 - `RiskPanel` - Lists top risks
 - `ActionLog` - Shows recent actions
 - `InsightsPanel` - AI-generated business insights

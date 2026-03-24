@@ -18,7 +18,7 @@ describe("API Client", () => {
   it("getNSI calls correct endpoint with org_id", async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: async () => ({ nsi: { nsi_score: 72 } }),
+      json: async () => ({ bsi: { bsi_score: 72 } }),
       text: async () => "",
     });
 
@@ -29,7 +29,7 @@ describe("API Client", () => {
       expect.stringContaining("/api/stability/org-123"),
       expect.any(Object)
     );
-    expect(result.nsi.nsi_score).toBe(72);
+    expect(result.bsi.bsi_score).toBe(72);
   });
 
   it("getActions calls correct endpoint", async () => {

@@ -2,7 +2,7 @@
 Business Insights router — AI-generated plain-language business analysis.
 
 Endpoints:
-  GET /api/insights/{org_id} — generate AI insights from NSI, actions, and strategies
+  GET /api/insights/{org_id} — generate AI insights from BSI, actions, and strategies
 """
 
 from fastapi import APIRouter, HTTPException
@@ -23,17 +23,17 @@ ddb_service = get_ddb_service()
 async def get_business_insights(org_id: str) -> Dict[str, Any]:
     """Generate AI-powered business insights in plain language for SME owners."""
     try:
-        nsi_data = ddb_service.get_latest_nsi(org_id)
+        bsi_data = ddb_service.get_latest_bsi(org_id)
         actions = ddb_service.get_actions(org_id, limit=5)
         strategies = ddb_service.query_strategies(org_id, limit=5)
 
         risks = []
-        if nsi_data and "top_risks" in nsi_data:
-            risks = nsi_data["top_risks"]
+        if bsi_data and "top_risks" in bsi_data:
+            risks = bsi_data["top_risks"]
 
         insights = insights_agent.generate_insights(
             org_id=org_id,
-            nsi_data=nsi_data,
+            bsi_data=bsi_data,
             risks=risks,
             actions=actions,
             strategies=strategies,

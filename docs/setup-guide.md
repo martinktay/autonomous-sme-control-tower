@@ -40,7 +40,7 @@ chmod +x setup-aws.sh
 ```
 
 Or create manually via AWS Console:
-- DynamoDB tables: autonomous-sme-signals, autonomous-sme-nsi-scores, autonomous-sme-strategies, autonomous-sme-actions
+- DynamoDB tables: autonomous-sme-signals, autonomous-sme-bsi-scores, autonomous-sme-strategies, autonomous-sme-actions
 - S3 bucket: autonomous-sme-documents
 
 ## Step 4: Enable Bedrock Models

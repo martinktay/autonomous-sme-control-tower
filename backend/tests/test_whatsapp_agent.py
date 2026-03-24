@@ -66,7 +66,7 @@ class TestGenerateInsightSummary:
         agent = WhatsAppAgent()
         result = agent.generate_insight_summary(
             business_name="Mama Shop",
-            nsi_score=75.0,
+            bsi_score=75.0,
             top_risks=["Late payments"],
         )
 
@@ -85,7 +85,7 @@ class TestGenerateInsightSummary:
         agent = WhatsAppAgent()
         agent.generate_insight_summary(
             business_name="Test Biz",
-            nsi_score=60.0,
+            bsi_score=60.0,
             top_risks=["Risk A", "Risk B"],
             transaction_summary={"total_revenue": 100000, "total_expenses": 80000},
             stock_alerts=[{"item": "flour"}],

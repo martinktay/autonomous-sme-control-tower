@@ -1,8 +1,8 @@
-# Nova Stability Index (NSI) Method
+# Business Stability Index (BSI) Method
 
 ## Overview
 
-The Nova Stability Index is a composite metric (0-100) that quantifies the operational health and stability of an SME based on multiple business signals.
+The Business Stability Index is a composite metric (0-100) that quantifies the operational health and stability of an SME based on multiple business signals.
 
 ## Sub-Indices
 
@@ -62,33 +62,33 @@ Scoring:
 - 40-59: High vendor concentration risk
 - 0-39: Critical vendor dependencies
 
-## NSI Calculation
+## BSI Calculation
 
 ```
-NSI = (liquidity_index × 0.30) + 
-      (revenue_stability_index × 0.25) + 
-      (operational_latency_index × 0.25) + 
-      (vendor_risk_index × 0.20)
+BSI = (liquidity_index x 0.30) + 
+      (revenue_stability_index x 0.25) + 
+      (operational_latency_index x 0.25) + 
+      (vendor_risk_index x 0.20)
 ```
 
 ## Interpretation
 
-- **80-100**: Strong stability - business is healthy and resilient
-- **60-79**: Moderate stability - some risks but manageable
-- **40-59**: Elevated risk - corrective action recommended
-- **0-39**: Critical instability - urgent intervention needed
+- 80-100: Strong stability - business is healthy and resilient
+- 60-79: Moderate stability - some risks but manageable
+- 40-59: Elevated risk - corrective action recommended
+- 0-39: Critical instability - urgent intervention needed
 
 ## Prediction Accuracy
 
 The system tracks prediction accuracy by:
-1. Recording predicted NSI improvement before action
-2. Measuring actual NSI change after action
+1. Recording predicted BSI improvement before action
+2. Measuring actual BSI change after action
 3. Computing accuracy score: `1 - |predicted - actual| / predicted`
 4. Adjusting sub-index weights based on historical accuracy
 
 ## Implementation Notes
 
-- NSI is recalculated after each new signal ingestion
-- Historical NSI scores enable trend analysis
+- BSI is recalculated after each new signal ingestion
+- Historical BSI scores enable trend analysis
 - Re-evaluation agent refines weights over time
 - All calculations are auditable and logged

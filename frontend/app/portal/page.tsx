@@ -1,7 +1,7 @@
 /**
  * @file Portal page (/portal) — Full closed-loop analysis runner.
  * Walks the user through the 5-step cycle (Ingest → Diagnose → Simulate → Execute → Evaluate)
- * with animated progress and displays before/after NSI scores.
+ * with animated progress and displays before/after BSI scores.
  */
 "use client";
 
@@ -211,12 +211,12 @@ export default function PortalPage() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="p-4 bg-muted rounded-lg">
                   <p className="text-sm text-muted-foreground mb-1">Health Score Before</p>
-                  <p className="text-2xl font-bold">{result.nsi_before?.toFixed(1)}</p>
+                  <p className="text-2xl font-bold">{result.bsi_before?.toFixed(1)}</p>
                 </div>
                 <div className="p-4 bg-muted rounded-lg">
                   <p className="text-sm text-muted-foreground mb-1">Health Score After</p>
                   <p className="text-2xl font-bold text-green-600">
-                    {result.nsi_after?.toFixed(1)}
+                    {result.bsi_after?.toFixed(1)}
                   </p>
                 </div>
                 <div className="p-4 bg-muted rounded-lg">

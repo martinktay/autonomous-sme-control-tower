@@ -22,7 +22,7 @@ PREFIXES: Dict[str, str] = {
     "evaluation": "evl",
     "action": "act",
     "strategy": "str",
-    "nsi": "nsi",
+    "bsi": "bsi",
     "business": "biz",
     "user": "usr",
     "branch": "brn",

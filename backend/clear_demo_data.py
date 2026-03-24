@@ -17,7 +17,7 @@ ddb = session.resource("dynamodb")
 
 TABLES = [
     settings.signals_table,
-    settings.nsi_scores_table,
+    settings.bsi_scores_table,
     settings.strategies_table,
     settings.actions_table,
     settings.evaluations_table,

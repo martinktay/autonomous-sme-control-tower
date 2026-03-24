@@ -32,12 +32,12 @@ def _patch_aws(monkeypatch):
     mock_ddb = Mock()
     mock_ddb.get_signals.return_value = []
     mock_ddb.get_actions.return_value = []
-    mock_ddb.get_latest_nsi.return_value = None
+    mock_ddb.get_latest_bsi.return_value = None
     mock_ddb.query_signals.return_value = []
     mock_ddb.query_strategies.return_value = []
     mock_ddb.query_actions.return_value = []
     mock_ddb.put_signal.return_value = None
-    mock_ddb.put_nsi_score.return_value = None
+    mock_ddb.put_bsi_score.return_value = None
     mock_ddb.put_strategy.return_value = None
     mock_ddb.put_action.return_value = None
 
@@ -130,12 +130,12 @@ class TestSignalRouter:
 class TestStabilityRouter:
     """Test Stability Router endpoints"""
 
-    def test_get_nsi_returns_data(self, client, _patch_aws):
+    def test_get_bsi_returns_data(self, client, _patch_aws):
         mock_ddb, _ = _patch_aws
-        mock_ddb.get_latest_nsi.return_value = {
-            "nsi_id": "nsi_1",
+        mock_ddb.get_latest_bsi.return_value = {
+            "bsi_id": "bsi_1",
             "org_id": "org_123",
-            "nsi_score": 72.0,
+            "bsi_score": 72.0,
         }
 
         resp = client.get(
@@ -145,9 +145,9 @@ class TestStabilityRouter:
         data = resp.json()
         assert data["org_id"] == "org_123"
 
-    def test_get_nsi_history(self, client, _patch_aws):
+    def test_get_bsi_history(self, client, _patch_aws):
         mock_ddb, _ = _patch_aws
-        mock_ddb.query_nsi_scores.return_value = []
+        mock_ddb.query_bsi_scores.return_value = []
 
         resp = client.get(
             "/api/stability/org_123/history", headers={**_AUTH_HEADERS}

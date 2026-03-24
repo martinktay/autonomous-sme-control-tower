@@ -1,7 +1,7 @@
 """
 DynamoDB persistence service — all table operations for the SME Control Tower.
 
-Provides CRUD + query methods for signals, NSI scores, strategies, actions,
+Provides CRUD + query methods for signals, BSI scores, strategies, actions,
 evaluations, and generic table access. Every write enforces org_id presence
 and format. Reads/writes use exponential-backoff retry for throttling resilience.
 Float ↔ Decimal and datetime ↔ ISO-string conversions are handled transparently.
@@ -33,7 +33,7 @@ class DynamoDBService:
         )
         
         self.signals_table = self.client.Table(settings.signals_table)
-        self.nsi_table = self.client.Table(settings.nsi_scores_table)
+        self.bsi_table = self.client.Table(settings.bsi_scores_table)
         self.strategies_table = self.client.Table(settings.strategies_table)
         self.actions_table = self.client.Table(settings.actions_table)
         self.evaluations_table = self.client.Table(settings.evaluations_table)
@@ -131,16 +131,16 @@ class DynamoDBService:
         logger.info(f"Creating signal {signal_data.get('signal_id')} for org {signal_data.get('org_id')}")
         self._retry_with_backoff(self.signals_table.put_item, Item=converted_data)
     
-    def create_nsi_score(self, nsi_data: Dict[str, Any]) -> None:
-        """Create a new NSI score record"""
-        self._enforce_org_id(nsi_data, nsi_data.get("org_id", ""))
+    def create_bsi_score(self, bsi_data: Dict[str, Any]) -> None:
+        """Create a new BSI score record"""
+        self._enforce_org_id(bsi_data, bsi_data.get("org_id", ""))
         # DynamoDB table uses timestamp as sort key — ensure it's present
-        if "timestamp" not in nsi_data:
+        if "timestamp" not in bsi_data:
             from datetime import datetime, timezone
-            nsi_data["timestamp"] = datetime.now(timezone.utc).isoformat()
-        converted_data = self._convert_to_dynamodb_format(nsi_data)
-        logger.info(f"Creating NSI score {nsi_data.get('nsi_id')} for org {nsi_data.get('org_id')}")
-        self._retry_with_backoff(self.nsi_table.put_item, Item=converted_data)
+            bsi_data["timestamp"] = datetime.now(timezone.utc).isoformat()
+        converted_data = self._convert_to_dynamodb_format(bsi_data)
+        logger.info(f"Creating BSI score {bsi_data.get('bsi_id')} for org {bsi_data.get('org_id')}")
+        self._retry_with_backoff(self.bsi_table.put_item, Item=converted_data)
     
     def create_strategy(self, strategy_data: Dict[str, Any]) -> None:
         """Create a new strategy record"""
@@ -183,22 +183,22 @@ class DynamoDBService:
         logger.info(f"Getting signal {signal_id} for org {org_id}")
         return self._retry_with_backoff(_get)
     
-    def get_nsi_score(self, org_id: str, nsi_id: str, timestamp: str = None) -> Optional[Dict[str, Any]]:
-        """Get a specific NSI score by org_id and timestamp (sort key)"""
+    def get_bsi_score(self, org_id: str, bsi_id: str, timestamp: str = None) -> Optional[Dict[str, Any]]:
+        """Get a specific BSI score by org_id and timestamp (sort key)"""
         if timestamp:
             def _get():
-                response = self.nsi_table.get_item(
+                response = self.bsi_table.get_item(
                     Key={"org_id": org_id, "timestamp": timestamp}
                 )
                 item = response.get("Item")
                 return self._convert_from_dynamodb_format(item) if item else None
-            logger.info(f"Getting NSI score for org {org_id} at {timestamp}")
+            logger.info(f"Getting BSI score for org {org_id} at {timestamp}")
             return self._retry_with_backoff(_get)
         else:
-            # Fallback: query and filter by nsi_id
-            scores = self.query_nsi_scores(org_id, limit=100)
+            # Fallback: query and filter by bsi_id
+            scores = self.query_bsi_scores(org_id, limit=100)
             for score in scores:
-                if score.get("nsi_id") == nsi_id:
+                if score.get("bsi_id") == bsi_id:
                     return score
             return None
     
@@ -255,10 +255,10 @@ class DynamoDBService:
         logger.info(f"Querying signals for org {org_id} (limit={limit})")
         return self._retry_with_backoff(_query)
     
-    def query_nsi_scores(self, org_id: str, limit: int = 50) -> List[Dict[str, Any]]:
-        """Query NSI scores for an organization"""
+    def query_bsi_scores(self, org_id: str, limit: int = 50) -> List[Dict[str, Any]]:
+        """Query BSI scores for an organization"""
         def _query():
-            response = self.nsi_table.query(
+            response = self.bsi_table.query(
                 KeyConditionExpression="org_id = :org_id",
                 ExpressionAttributeValues={":org_id": org_id},
                 Limit=limit,
@@ -267,7 +267,7 @@ class DynamoDBService:
             items = response.get("Items", [])
             return [self._convert_from_dynamodb_format(item) for item in items]
         
-        logger.info(f"Querying NSI scores for org {org_id} (limit={limit})")
+        logger.info(f"Querying BSI scores for org {org_id} (limit={limit})")
         return self._retry_with_backoff(_query)
     
     def query_strategies(self, org_id: str, limit: int = 50) -> List[Dict[str, Any]]:
@@ -315,10 +315,10 @@ class DynamoDBService:
         logger.info(f"Querying evaluations for org {org_id} (limit={limit})")
         return self._retry_with_backoff(_query)
     
-    def get_latest_nsi(self, org_id: str) -> Optional[Dict[str, Any]]:
-        """Get most recent NSI score for organization"""
+    def get_latest_bsi(self, org_id: str) -> Optional[Dict[str, Any]]:
+        """Get most recent BSI score for organization"""
         def _query():
-            response = self.nsi_table.query(
+            response = self.bsi_table.query(
                 KeyConditionExpression="org_id = :org_id",
                 ExpressionAttributeValues={":org_id": org_id},
                 Limit=1,
@@ -329,7 +329,7 @@ class DynamoDBService:
                 return self._convert_from_dynamodb_format(items[0])
             return None
         
-        logger.info(f"Getting latest NSI for org {org_id}")
+        logger.info(f"Getting latest BSI for org {org_id}")
         return self._retry_with_backoff(_query)
     
     # ==================== UPDATE OPERATIONS ====================
@@ -414,9 +414,9 @@ class DynamoDBService:
         """Legacy method - use query_signals instead"""
         return self.query_signals(org_id, limit)
     
-    def put_nsi_score(self, nsi_data: Dict[str, Any]) -> None:
-        """Legacy method - use create_nsi_score instead"""
-        self.create_nsi_score(nsi_data)
+    def put_bsi_score(self, bsi_data: Dict[str, Any]) -> None:
+        """Legacy method - use create_bsi_score instead"""
+        self.create_bsi_score(bsi_data)
     
     def put_strategy(self, strategy_data: Dict[str, Any]) -> None:
         """Legacy method - use create_strategy instead"""

@@ -40,15 +40,15 @@ class VoiceAgent:
     def process_text_query(
         self,
         query: str,
-        nsi_score: float,
+        bsi_score: float,
         signals: list,
         risks: list,
     ) -> str:
         """Route a text query to the appropriate keyword-based handler."""
         query_lower = query.lower().strip()
 
-        if "stable" in query_lower or "stability" in query_lower or "nsi" in query_lower:
-            return self._generate_stability_response(nsi_score, risks)
+        if "stable" in query_lower or "stability" in query_lower or "bsi" in query_lower:
+            return self._generate_stability_response(bsi_score, risks)
         elif "invoice" in query_lower and "overdue" in query_lower:
             return self._generate_overdue_invoices_response(signals)
         elif "risk" in query_lower:
@@ -56,15 +56,15 @@ class VoiceAgent:
         else:
             return "I can help you with questions about business stability, overdue invoices, and operational risks."
 
-    def _generate_stability_response(self, nsi_score: float, risks: list) -> str:
-        if nsi_score >= 70:
+    def _generate_stability_response(self, bsi_score: float, risks: list) -> str:
+        if bsi_score >= 70:
             stability_level = "stable"
-        elif nsi_score >= 40:
+        elif bsi_score >= 40:
             stability_level = "moderately stable"
         else:
             stability_level = "unstable"
 
-        response = f"Your business is currently {stability_level} with an NSI score of {nsi_score:.1f} out of 100. "
+        response = f"Your business is currently {stability_level} with a BSI score of {bsi_score:.1f} out of 100. "
         if risks:
             top_risk = risks[0] if isinstance(risks[0], str) else risks[0].get("description", "operational issues")
             response += f"Your top concern is {top_risk}."
@@ -92,27 +92,27 @@ class VoiceAgent:
     def answer_business_query(
         self,
         question: str,
-        nsi_data: Optional[Dict[str, Any]] = None,
+        bsi_data: Optional[Dict[str, Any]] = None,
         signals: Optional[List[Dict[str, Any]]] = None,
         risks: Optional[List] = None,
         pnl: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """Answer a free-form business question using AI with full context."""
-        context = self._build_business_context(nsi_data, signals, risks, pnl)
+        context = self._build_business_context(bsi_data, signals, risks, pnl)
         try:
             answer = self._answer_with_bedrock(question, context)
             return {"answer": answer, "source": "ai"}
         except Exception as e:
             logger.warning(f"Bedrock query failed, using fallback: {e}")
-            answer = self._answer_fallback(question, nsi_data, signals, risks, pnl)
+            answer = self._answer_fallback(question, bsi_data, signals, risks, pnl)
             return {"answer": answer, "source": "rule"}
 
-    def _build_business_context(self, nsi_data, signals, risks, pnl) -> str:
+    def _build_business_context(self, bsi_data, signals, risks, pnl) -> str:
         parts: List[str] = []
-        if nsi_data:
-            score = nsi_data.get("nova_stability_index", "N/A")
-            parts.append(f"Business Health Score (NSI): {score}/100")
-            top_risks = nsi_data.get("top_risks", [])
+        if bsi_data:
+            score = bsi_data.get("business_stability_index", "N/A")
+            parts.append(f"Business Health Score (BSI): {score}/100")
+            top_risks = bsi_data.get("top_risks", [])
             if top_risks:
                 parts.append(f"Top risks: {', '.join(str(r) for r in top_risks[:5])}")
         if signals:
@@ -135,10 +135,10 @@ class VoiceAgent:
         response = self.bedrock.invoke_nova_lite(prompt, temperature=0.5)
         return strip_markdown(response.strip())
 
-    def _answer_fallback(self, question, nsi_data, signals, risks, pnl) -> str:
+    def _answer_fallback(self, question, bsi_data, signals, risks, pnl) -> str:
         q = question.lower()
-        if any(w in q for w in ["health", "score", "nsi", "stable", "stability", "doing"]):
-            score = nsi_data.get("nova_stability_index", 0) if nsi_data else 0
+        if any(w in q for w in ["health", "score", "bsi", "stable", "stability", "doing"]):
+            score = bsi_data.get("business_stability_index", 0) if bsi_data else 0
             level = "healthy" if score >= 70 else "moderate" if score >= 40 else "at risk"
             return f"Your business health score is {score:.1f} out of 100, that is {level}."
         if "invoice" in q or "overdue" in q:
@@ -171,13 +171,13 @@ class VoiceAgent:
     def generate_voice_response(
         self,
         query: str,
-        nsi_score: float,
+        bsi_score: float,
         signals: list,
         risks: list,
     ) -> Dict[str, Any]:
         """Generate voice response for query"""
         try:
-            response_text = self.process_text_query(query, nsi_score, signals, risks)
+            response_text = self.process_text_query(query, bsi_score, signals, risks)
             audio_data = self.bedrock.invoke_nova_sonic(response_text)
             logger.info(f"Generated voice response for query: {query[:50]}...")
             return {
@@ -196,7 +196,7 @@ class VoiceAgent:
 
     def generate_briefing_text(
         self,
-        nsi_score: float,
+        bsi_score: float,
         top_risks: list,
         recent_actions: list,
         trend: str,
@@ -207,7 +207,7 @@ class VoiceAgent:
             risks_text = ", ".join(top_risks[:3]) if top_risks else "no significant risks"
             actions_text = f"{len(recent_actions)} actions" if recent_actions else "no recent actions"
             context = f"""
-Current NSI Score: {nsi_score:.1f}
+Current BSI Score: {bsi_score:.1f}
 Trend: {trend}
 Top Risks: {risks_text}
 Recent Actions: {actions_text}
@@ -218,7 +218,7 @@ Recent Actions: {actions_text}
             return strip_markdown(briefing)
         except Exception as e:
             logger.error(f"Error generating briefing: {e}", exc_info=True)
-            return f"Your business stability score is {nsi_score:.1f}. {trend.capitalize()} trend detected."
+            return f"Your business stability score is {bsi_score:.1f}. {trend.capitalize()} trend detected."
 
     def generate_audio(self, text: str) -> Optional[bytes]:
         """Generate audio from text using Nova Sonic"""

@@ -1,6 +1,6 @@
----
+﻿---
 name: autonomous-sme-control-tower
-description: Use this skill when building or modifying Autonomous SME Control Tower agents, prompts, NSI logic, workflow automation, dashboard flows, or hackathon submission artifacts.
+description: Use this skill when building or modifying Autonomous SME Control Tower agents, prompts, BSI logic, workflow automation, dashboard flows, or hackathon submission artifacts.
 ---
 
 # Autonomous SME Control Tower Skill
@@ -18,7 +18,7 @@ Use this skill when:
 - Creating or updating FastAPI routers for invoices, signals, memory, stability, strategy, actions, voice, emails, finance, or insights
 - Implementing AI agent modules
 - Writing or refining prompt templates for Amazon Nova models
-- Implementing Nova Stability Index (NSI) calculations
+- Implementing Business Stability Index (BSI) calculations
 - Building workflow automation using Nova Act
 - Developing dashboard components for the Control Tower UI
 - Working with middleware (org isolation, rate limiting, auth, tier enforcement)
@@ -57,9 +57,9 @@ This loop must always remain functional.
 - Extract structured data, handle informal receipts
 - Uses: Nova 2 Lite
 
-### Insights Agent (insights_agent.py)
+### insights Agent (insights_agent.py)
 - Generate business intelligence summaries and trend analysis
-- Insight types: revenue_trend, expense_alert, cashflow_warning, growth_opportunity, seasonal_pattern, supplier_risk, inventory_alert, customer_insight, market_trend, operational_efficiency, marketing_roi, customer_acquisition, campaign_performance, channel_effectiveness
+- insight types: revenue_trend, expense_alert, cashflow_warning, growth_opportunity, seasonal_pattern, supplier_risk, inventory_alert, customer_insight, market_trend, operational_efficiency, marketing_roi, customer_acquisition, campaign_performance, channel_effectiveness
 - Uses: Nova 2 Lite
 
 ### Memory Agent (memory_agent.py)
@@ -67,11 +67,11 @@ This loop must always remain functional.
 - Uses: Nova Multimodal Embeddings
 
 ### Risk Diagnosis Agent (risk_agent.py)
-- Analyze financial signals, identify operational risks, calculate NSI
+- Analyze financial signals, identify operational risks, calculate BSI
 - Uses: Nova 2 Lite
 
 ### Strategy Simulation Agent (strategy_agent.py)
-- Generate corrective strategies, predict NSI improvement
+- Generate corrective strategies, predict BSI improvement
 - Uses: Nova 2 Lite
 
 ### Action Execution Agent (action_agent.py)
@@ -79,7 +79,7 @@ This loop must always remain functional.
 - Uses: Nova Act
 
 ### Re-evaluation Agent (reeval_agent.py)
-- Recalculate NSI after execution, compute prediction accuracy
+- Recalculate BSI after execution, compute prediction accuracy
 - Uses: Nova 2 Lite
 
 ### Voice Operations Agent (voice_agent.py)
@@ -200,7 +200,7 @@ This loop must always remain functional.
 - Prefix mapping:
   - signal -> `sig-`, transaction -> `txn-`, invoice -> `inv-`, alert -> `alt-`
   - insight -> `ins-`, counterparty -> `ctp-`, inventory_item -> `itm-`, upload_job -> `job-`
-  - evaluation -> `evl-`, action -> `act-`, strategy -> `str-`, nsi -> `nsi-`
+  - evaluation -> `evl-`, action -> `act-`, strategy -> `str-`, bsi -> `bsi-`
   - business -> `biz-`, user -> `usr-`, branch -> `brn-`, task -> `tsk-`
   - email -> `eml-`, document -> `doc-`, org -> `org-`
 - Usage: `from app.utils.id_generator import generate_id` then `generate_id("signal")` returns e.g. `sig-a1b2c3d4e5f6`
@@ -224,15 +224,15 @@ This loop must always remain functional.
 | Model | File | Key Fields |
 |-------|------|------------|
 | Signal | signal.py | signal_id, org_id, source, urgency, payload |
-| NSI | nsi.py | nsi_id, org_id, score, factors |
-| Strategy | strategy.py | strategy_id, org_id, description, predicted_nsi |
+| BSI | bsi.py | bsi_id, org_id, score, factors |
+| Strategy | strategy.py | strategy_id, org_id, description, predicted_bsi |
 | Action | action.py | action_id, org_id, strategy_id, status |
 | Evaluation | evaluation.py | evaluation_id, org_id, action_id, accuracy |
 | Email | email.py | email_id, org_id, subject, classification |
 | Task | task.py | task_id, org_id, email_id, description |
 | Invoice | invoice.py | invoice_id, org_id, vendor, amount |
 | FinanceDocument | finance_document.py | document_id, org_id, doc_type, extracted_data |
-| Insight | insight.py | insight_id, org_id, insight_type, summary |
+| insight | insight.py | insight_id, org_id, insight_type, summary |
 | Transaction | transaction.py | transaction_id, org_id, amount, category, payment_status |
 | InventoryItem | inventory_item.py | item_id, org_id, name, quantity, reorder_point |
 | Counterparty | counterparty.py | counterparty_id, org_id, name, type, balance |
@@ -249,7 +249,7 @@ This loop must always remain functional.
 | Table | Partition Key | Sort Key |
 |-------|--------------|----------|
 | signals | org_id | signal_id |
-| nsi-scores | org_id | nsi_id |
+| bsi-scores | org_id | bsi_id |
 | strategies | org_id | strategy_id |
 | actions | org_id | action_id |
 | evaluations | org_id | evaluation_id |
@@ -313,11 +313,11 @@ This loop must always remain functional.
 | Sidebar | Tier-aware collapsible sidebar with grouped navigation |
 | AppShell | Layout wrapper, shows sidebar for authenticated pages |
 | NavBar | Top bar with logo, alerts, user menu, business name |
-| NsiCard | NSI score display |
+| BsiCard | BSI score display |
 | RiskPanel | Risk diagnosis display |
 | ActionLog | Action execution log |
 | StrategyList | Strategy cards |
-| InsightsPanel | Business insights |
+| insightsPanel | Business insights |
 | CashflowChart | Cashflow visualisation |
 | PnlSummary | Profit & loss summary |
 | SalesTrendChart | Sales trend chart |
@@ -326,7 +326,7 @@ This loop must always remain functional.
 | StockAlertBadge | Low stock indicator |
 | SupplierCard | Supplier info card |
 | CurrencyDisplay | Naira/USD currency formatter |
-| NSITrendChart | NSI trend over time |
+| BSITrendChart | BSI trend over time |
 
 ---
 
@@ -339,7 +339,7 @@ This loop must always remain functional.
 | Communication | Emails, Tasks, WhatsApp | growth |
 | Data Connectors | POS, Bank Sync, Desktop Sync | business |
 | AI & Analytics | Analyse, Strategies, Actions, Forecasting, Voice, Search Memory | business |
-| Marketing & Analytics | Business Analytics, Marketing Insights | business |
+| Marketing & Analytics | Business Analytics, Marketing insights | business |
 | Multi-Branch | Branch Optimisation | business |
 
 Bottom links: Admin Panel (super_admin only), Pricing & Plans, Help & FAQs

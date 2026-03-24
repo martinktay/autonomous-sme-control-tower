@@ -47,7 +47,7 @@ The implementation follows a layered approach:
     - Create backend/app/models/invoice.py with Invoice model
     - Create backend/app/models/email.py with Email model
     - Create backend/app/models/signal.py with Signal model
-    - Create backend/app/models/nsi.py with NSISnapshot model
+    - Create backend/app/models/bsi.py with BSISnapshot model
     - Create backend/app/models/strategy.py with Strategy model
     - Create backend/app/models/action.py with ActionExecution model
     - Create backend/app/models/evaluation.py with Evaluation model
@@ -56,7 +56,7 @@ The implementation follows a layered approach:
 
   - [x]* 2.2 Write unit tests for data models
     - Test field validation and type constraints
-    - Test edge cases for numeric ranges (NSI 0-100, confidence 0-1)
+    - Test edge cases for numeric ranges (BSI 0-100, confidence 0-1)
     - Test datetime serialization and deserialization
     - _Requirements: 1.2, 2.2, 5.5_
 
@@ -85,7 +85,7 @@ The implementation follows a layered approach:
     - Create /prompts/v1/ directory
     - Create signal_invoice.md template for invoice extraction
     - Create signal_email.md template for email classification
-    - Create risk_diagnosis.md template for NSI calculation
+    - Create risk_diagnosis.md template for BSI calculation
     - Create strategy_planning.md template for strategy generation
     - Create reeval.md template for post-action evaluation
     - Create voice.md template for voice query responses
@@ -162,42 +162,42 @@ The implementation follows a layered approach:
   - Ensure all tests pass, ask the user if questions arise.
 
 - [x] 8. Stability Intelligence Agent implementation
-  - [x] 8.1 Implement NSI calculation
+  - [x] 8.1 Implement BSI calculation
     - Create backend/app/agents/risk_agent.py
-    - Implement calculate_nsi() method using Nova 2 Lite
+    - Implement calculate_bsi() method using Nova 2 Lite
     - Calculate liquidity_index, revenue_stability_index, operational_latency_index, vendor_risk_index
-    - Compute NSI using weighted formula: (liquidity × 0.30) + (revenue_stability × 0.25) + (operational_latency × 0.25) + (vendor_risk × 0.20)
-    - Return NSI value between 0 and 100
+    - Compute BSI using weighted formula: (liquidity × 0.30) + (revenue_stability × 0.25) + (operational_latency × 0.25) + (vendor_risk × 0.20)
+    - Return BSI value between 0 and 100
     - _Requirements: 4.1, 4.2_
 
   - [x] 8.2 Implement risk assessment reasoning
     - Use Nova 2 Lite to generate reasoning for each risk component
     - Include cash_runway_risk, invoice_aging_risk, revenue_concentration_risk, expense_volatility_risk, response_latency_risk
-    - Store reasoning with NSI snapshot
+    - Store reasoning with BSI snapshot
     - _Requirements: 4.2, 4.4, 11.1_
 
-  - [x] 8.3 Implement NSI snapshot storage
-    - Store NSI snapshot in DynamoDB with timestamp and org_id
+  - [x] 8.3 Implement BSI snapshot storage
+    - Store BSI snapshot in DynamoDB with timestamp and org_id
     - Include all sub-indices and confidence flag
     - _Requirements: 4.3_
 
   - [x] 8.4 Handle insufficient data scenarios
-    - Return NSI of 50 when insufficient data exists
+    - Return BSI of 50 when insufficient data exists
     - Set confidence flag to "low" indicating limited data
     - _Requirements: 4.5_
 
-  - [x]* 8.5 Write unit tests for NSI calculation
-    - Test NSI calculation with various signal combinations
+  - [x]* 8.5 Write unit tests for BSI calculation
+    - Test BSI calculation with various signal combinations
     - Test insufficient data handling
-    - Test NSI bounds (0-100)
+    - Test BSI bounds (0-100)
     - _Requirements: 4.1, 4.5_
 
 - [x] 9. Strategy Simulation Agent implementation
   - [x] 9.1 Implement strategy generation
     - Create backend/app/agents/strategy_agent.py
     - Implement generate_strategies() method using Nova 2 Lite
-    - Generate 2-3 strategies when NSI < 70
-    - Include description, predicted_nsi_improvement, confidence_score, automation_eligibility
+    - Generate 2-3 strategies when BSI < 70
+    - Include description, predicted_bsi_improvement, confidence_score, automation_eligibility
     - _Requirements: 5.1, 5.2_
 
   - [x] 9.2 Implement strategy reasoning
@@ -208,12 +208,12 @@ The implementation follows a layered approach:
 
   - [x] 9.3 Implement strategy storage
     - Store strategies in DynamoDB keyed by org_id
-    - Link strategies to NSI snapshot via nsi_snapshot_id
+    - Link strategies to BSI snapshot via bsi_snapshot_id
     - Return Strategy Pydantic model
     - _Requirements: 5.4, 5.5_
 
   - [x]* 9.4 Write unit tests for strategy generation
-    - Test strategy generation for NSI < 70
+    - Test strategy generation for BSI < 70
     - Test strategy model validation
     - Test reasoning quality
     - _Requirements: 5.1, 5.2, 5.5_
@@ -243,25 +243,25 @@ The implementation follows a layered approach:
     - _Requirements: 6.1, 6.3, 6.4_
 
 - [x] 11. Re-evaluation Agent implementation
-  - [x] 11.1 Implement post-action NSI recalculation
+  - [x] 11.1 Implement post-action BSI recalculation
     - Create backend/app/agents/reeval_agent.py
-    - Implement recalculate_nsi() method after workflow execution
+    - Implement recalculate_bsi() method after workflow execution
     - Use same risk calculation methodology as Stability Intelligence Agent
     - _Requirements: 7.1, 7.5_
 
   - [x] 11.2 Implement prediction accuracy calculation
-    - Compare new NSI with predicted NSI improvement
+    - Compare new BSI with predicted BSI improvement
     - Compute prediction_accuracy as percentage difference
     - Formula: 1 - abs(predicted_improvement - actual_improvement) / predicted_improvement
     - _Requirements: 7.2, 7.3_
 
   - [x] 11.3 Implement evaluation storage
     - Store evaluation results in DynamoDB with execution_id reference
-    - Include old_nsi, new_nsi, predicted_improvement, actual_improvement, prediction_accuracy
+    - Include old_bsi, new_bsi, predicted_improvement, actual_improvement, prediction_accuracy
     - _Requirements: 7.4_
 
   - [x]* 11.4 Write unit tests for re-evaluation
-    - Test NSI recalculation after actions
+    - Test BSI recalculation after actions
     - Test prediction accuracy calculation
     - Test evaluation storage
     - _Requirements: 7.1, 7.2, 7.3, 7.4_
@@ -296,7 +296,7 @@ The implementation follows a layered approach:
   - [x] 13.4 Implement Stability Router
     - Create backend/app/routers/stability.py
     - Implement POST /api/stability/calculate endpoint
-    - Implement GET /api/stability/history endpoint for NSI trend
+    - Implement GET /api/stability/history endpoint for BSI trend
     - Implement GET /api/stability/risks endpoint for risk assessment
     - Add org_id filtering for all queries
     - _Requirements: 4.1, 4.3, 8.1, 12.2_
@@ -326,7 +326,7 @@ The implementation follows a layered approach:
   - [x] 13.8 Implement Orchestration Router
     - Create backend/app/routers/orchestration.py
     - Implement POST /api/orchestration/run-loop endpoint for full closed-loop cycle
-    - Coordinate signal intake → NSI calculation → strategy generation → execution → re-evaluation
+    - Coordinate signal intake → BSI calculation → strategy generation → execution → re-evaluation
     - _Requirements: 1.1, 2.1, 4.1, 5.1, 6.1, 7.1_
 
   - [x]* 13.9 Write integration tests for API routers
@@ -344,7 +344,7 @@ The implementation follows a layered approach:
 
   - [x] 14.2 Implement voice response generation
     - Implement generate_voice_response() using Nova Sonic
-    - Retrieve current NSI and relevant signals
+    - Retrieve current BSI and relevant signals
     - Generate spoken operational summary
     - _Requirements: 9.3, 9.4_
 
@@ -360,9 +360,9 @@ The implementation follows a layered approach:
     - _Requirements: 9.1, 9.3, 9.5_
 
 - [x] 15. Frontend UI components
-  - [x] 15.1 Create NSI Card component
-    - Create frontend/components/NSICard.tsx
-    - Display current NSI value with color-coded health indicator
+  - [x] 15.1 Create BSI Card component
+    - Create frontend/components/BsiCard.tsx
+    - Display current BSI value with color-coded health indicator
     - Green (70-100), Yellow (40-69), Red (0-39)
     - _Requirements: 8.1_
 
@@ -385,9 +385,9 @@ The implementation follows a layered approach:
     - Show execution status and outcomes
     - _Requirements: 8.5_
 
-  - [x] 15.5 Create NSI Trend Chart component
-    - Create frontend/components/NSITrendChart.tsx
-    - Display NSI trend over time as line chart
+  - [x] 15.5 Create BSI Trend Chart component
+    - Create frontend/components/BSITrendChart.tsx
+    - Display BSI trend over time as line chart
     - Use chart library (e.g., recharts)
     - _Requirements: 8.2_
 
@@ -400,7 +400,7 @@ The implementation follows a layered approach:
 - [x] 16. Frontend page implementations
   - [x] 16.1 Create Dashboard page
     - Create frontend/app/dashboard/page.tsx
-    - Integrate NSICard, NSITrendChart, RiskPanel, StrategyList, ActionLog components
+    - Integrate BSICard, BSITrendChart, RiskPanel, StrategyList, ActionLog components
     - Fetch data from backend API filtered by org_id
     - Implement 30-second auto-refresh
     - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5, 8.6, 8.7_
@@ -468,9 +468,9 @@ The implementation follows a layered approach:
     - _Requirements: 10.4_
 
 - [x] 18. Explainability features
-  - [x] 18.1 Implement NSI reasoning display
-    - Add reasoning text to NSI snapshot storage
-    - Display reasoning in Dashboard UI when user clicks NSI
+  - [x] 18.1 Implement BSI reasoning display
+    - Add reasoning text to BSI snapshot storage
+    - Display reasoning in Dashboard UI when user clicks BSI
     - _Requirements: 11.1, 11.3, 11.4_
 
   - [x] 18.2 Implement strategy reasoning display
@@ -496,7 +496,7 @@ The implementation follows a layered approach:
 
   - [x] 20.3 Implement organization initialization
     - Add endpoint for new organization onboarding
-    - Initialize default NSI baseline of 50
+    - Initialize default BSI baseline of 50
     - _Requirements: 12.4_
 
   - [x]* 20.4 Write end-to-end integration tests

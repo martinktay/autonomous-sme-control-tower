@@ -2,7 +2,7 @@
 Strategy simulation router — generate, list, and select strategies.
 
 Endpoints:
-  POST /api/strategy/simulate — AI-generate strategy options from current NSI
+  POST /api/strategy/simulate — AI-generate strategy options from current BSI
   GET  /api/strategy/{org_id} — list strategies for an org
   POST /api/strategy/select   — mark a strategy as selected for execution
 """
@@ -32,21 +32,21 @@ class SimulateRequest(BaseModel):
 
 @router.post("/simulate")
 async def simulate_strategies(request: SimulateRequest, req: Request) -> Dict[str, Any]:
-    """Generate AI strategy options based on the current NSI score."""
+    """Generate AI strategy options based on the current BSI score."""
     validate_org_id_from_body(req, request.org_id)
     try:
-        nsi_data = ddb_service.get_latest_nsi(request.org_id)
-        if not nsi_data:
-            raise HTTPException(404, "No NSI score found. Calculate NSI first.")
+        bsi_data = ddb_service.get_latest_bsi(request.org_id)
+        if not bsi_data:
+            raise HTTPException(404, "No BSI score found. Calculate BSI first.")
 
-        current_nsi = nsi_data.get("nsi_score", nsi_data.get("nova_stability_index", 50.0))
-        top_risks = nsi_data.get("top_risks", [])
-        nsi_id = nsi_data.get("nsi_id", "unknown")
+        current_bsi = bsi_data.get("bsi_score", bsi_data.get("business_stability_index", 50.0))
+        top_risks = bsi_data.get("top_risks", [])
+        bsi_id = bsi_data.get("bsi_id", "unknown")
 
         strategies = strategy_agent.simulate_strategies(
             org_id=request.org_id,
-            nsi_snapshot_id=nsi_id,
-            current_nsi=current_nsi,
+            bsi_snapshot_id=bsi_id,
+            current_bsi=current_bsi,
             top_risks=top_risks,
             context={},
         )
@@ -56,7 +56,7 @@ async def simulate_strategies(request: SimulateRequest, req: Request) -> Dict[st
 
         return {
             "org_id": request.org_id,
-            "current_nsi": current_nsi,
+            "current_bsi": current_bsi,
             "strategies": [s.model_dump() for s in strategies],
         }
     except HTTPException:

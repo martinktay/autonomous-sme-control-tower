@@ -2,7 +2,7 @@
 Signal retrieval router — list and fetch business signals.
 
 Signals are the raw data events ingested from invoices, emails, WhatsApp,
-POS exports, and other sources. They feed into the NSI risk engine.
+POS exports, and other sources. They feed into the BSI risk engine.
 
 Endpoints:
   GET /api/signals/{org_id}            — list all signals for an org

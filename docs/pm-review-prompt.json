@@ -39,10 +39,10 @@
     "description": "Continuous autonomous operational cycle",
     "steps": [
       {"step": 1, "name": "Ingest", "detail": "Collect business data from invoices (PDF/image), emails, POS exports, receipts, camera captures, WhatsApp messages, CSV/Excel, manual entry"},
-      {"step": 2, "name": "Diagnose", "detail": "Analyse signals, calculate Nova Stability Index (NSI) across liquidity, revenue stability, operational latency, vendor risk"},
-      {"step": 3, "name": "Simulate", "detail": "Generate AI strategy options with predicted NSI improvements, cost estimates, automation eligibility"},
+      {"step": 2, "name": "Diagnose", "detail": "Analyse signals, calculate Business Stability Index (BSI) across liquidity, revenue stability, operational latency, vendor risk"},
+      {"step": 3, "name": "Simulate", "detail": "Generate AI strategy options with predicted BSI improvements, cost estimates, automation eligibility"},
       {"step": 4, "name": "Execute", "detail": "Take autonomous actions via Nova Act with human-in-the-loop oversight (WhatsApp approval for high-priority)"},
-      {"step": 5, "name": "Evaluate", "detail": "Measure prediction accuracy, compare actual vs predicted NSI changes, refine approach"}
+      {"step": 5, "name": "Evaluate", "detail": "Measure prediction accuracy, compare actual vs predicted BSI changes, refine approach"}
     ]
   },
 
@@ -96,7 +96,7 @@
     },
     "ai_agents": [
       "Signal Intake (invoice/email extraction)",
-      "Risk Diagnosis (NSI calculation)",
+      "Risk Diagnosis (BSI calculation)",
       "Strategy Simulation (corrective strategies)",
       "Action Execution (Nova Act)",
       "Re-evaluation (prediction accuracy)",
@@ -123,7 +123,7 @@
       "Registration (multi-step with country flag phone input)",
       "Login / Forgot Password",
       "Onboarding wizard",
-      "Dashboard (NSI, risks, actions, inventory/supplier overview)",
+      "Dashboard (BSI, risks, actions, inventory/supplier overview)",
       "Transactions (list, filters, summary, overdue payment tracking)",
       "Finance (document management, P&L, cashflow, analytics, export)",
       "Inventory (stock management with alert badges)",
@@ -293,7 +293,7 @@
           "How do we differentiate from existing Nigerian fintech/accounting tools (Bumpa, Kippa, Prospa)?",
           "Is 'AI business survival assistant' positioning clear and compelling?",
           "Should we lean harder into specific verticals (e.g., supermarket-first)?",
-          "Is the Nova Stability Index (NSI) concept understandable to SME owners?"
+          "Is the Business Stability Index (BSI) concept understandable to SME owners?"
         ]
       },
       {

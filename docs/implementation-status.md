@@ -11,7 +11,7 @@
 ### Pydantic Models
 - ✅ Invoice model (backend/app/models/invoice.py)
 - ✅ Signal model (backend/app/models/signal.py)
-- ✅ NSI models (backend/app/models/nsi.py)
+- ✅ BSI models (backend/app/models/bsi.py)
 - ✅ Strategy model (backend/app/models/strategy.py)
 - ✅ Action & Evaluation models (backend/app/models/action.py)
 - ✅ Models __init__.py with exports
@@ -52,7 +52,7 @@
 - ⚠️ Dashboard page (needs review)
 - ⚠️ Upload page (needs review)
 - ⚠️ Portal page (needs review)
-- ⚠️ Components (NSICard, RiskPanel, ActionLog)
+- ⚠️ Components (BSICard, RiskPanel, ActionLog)
 
 ## In Progress 🚧
 
