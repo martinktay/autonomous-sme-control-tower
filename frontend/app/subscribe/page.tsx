@@ -62,15 +62,6 @@ const TIER_FEATURES: Record<string, string[]> = {
     "POS & desktop sync",
     "Cross-branch optimisation",
   ],
-  enterprise: [
-    "Everything in Business, plus:",
-    "Unlimited branches",
-    "API access",
-    "Custom reports",
-    "Priority support",
-    "Dedicated account manager",
-    "Custom integrations",
-  ],
 };
 
 const METHOD_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -111,7 +102,7 @@ export default function SubscribePage() {
         getCurrentSubscription().catch(() => null),
       ]);
       setMethods(methodsRes.payment_methods || []);
-      setPricing(pricingRes.tiers?.filter((t: TierPricing) => t.tier !== "starter") || []);
+      setPricing(pricingRes.tiers?.filter((t: TierPricing) => t.tier !== "starter" && t.tier !== "enterprise") || []);
       if (subRes?.subscription) setCurrentSub(subRes.subscription);
     } catch (err: any) {
       setError(err.message);
@@ -242,7 +233,7 @@ export default function SubscribePage() {
       ) : (
         <>
           {/* Tier selection */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
             {pricing.map((tier) => (
               <Card key={tier.tier}
                 className={`cursor-pointer transition-all ${selectedTier === tier.tier ? "border-primary ring-2 ring-primary/20" : "hover:border-primary/40"}`}

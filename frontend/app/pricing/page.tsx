@@ -15,8 +15,6 @@ import {
   TrendingUp,
   Package,
   ArrowRight,
-  BarChart3,
-  Receipt,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -83,54 +81,30 @@ const tiers = [
       "Everything in Growth",
     ],
   },
-  {
-    name: "Enterprise",
-    price: "Custom",
-    priceUsd: "Custom",
-    period: "Contact us for pricing",
-    badge: null,
-    target: "Large retail chains, franchise operations",
-    cta: "Contact Us",
-    ctaVariant: "outline" as const,
-    features: [
-      "Near real-time POS integration",
-      "AI pricing optimisation",
-      "Supplier intelligence network",
-      "Marketing ROI tracking",
-      "Custom reports & API access",
-      "Executive dashboards",
-      "Dedicated onboarding manager",
-      "Unlimited branches",
-      "Everything in Business",
-    ],
-  },
 ];
 
 const comparisonFeatures = [
-  { name: "Document uploads", starter: "20/mo", growth: "Unlimited", business: "Unlimited", enterprise: "Unlimited" },
-  { name: "Branches", starter: "1", growth: "1", business: "Up to 10", enterprise: "Unlimited" },
-  { name: "AI Alerts", starter: "5/week", growth: "Daily", business: "Daily", enterprise: "Real-time" },
-  { name: "Transaction tracking", starter: true, growth: true, business: true, enterprise: true },
-  { name: "Receipt capture", starter: true, growth: true, business: true, enterprise: true },
-  { name: "Basic P&L", starter: true, growth: true, business: true, enterprise: true },
-  { name: "Expense tracking", starter: false, growth: true, business: true, enterprise: true },
-  { name: "Payment reminders", starter: false, growth: true, business: true, enterprise: true },
-  { name: "Tax tracking (VAT/WHT/CIT)", starter: false, growth: true, business: true, enterprise: true },
-  { name: "Invoice management", starter: false, growth: true, business: true, enterprise: true },
-  { name: "Cashflow insights", starter: false, growth: true, business: true, enterprise: true },
-  { name: "Inventory risk detection", starter: false, growth: true, business: true, enterprise: true },
-  { name: "Supplier tracking", starter: false, growth: true, business: true, enterprise: true },
-  { name: "Email & WhatsApp ingestion", starter: false, growth: true, business: true, enterprise: true },
-  { name: "Multi-branch", starter: false, growth: false, business: true, enterprise: true },
-  { name: "Marketing & business analytics", starter: false, growth: false, business: true, enterprise: true },
-  { name: "Customer segmentation", starter: false, growth: false, business: true, enterprise: true },
-  { name: "Bank reconciliation", starter: false, growth: false, business: true, enterprise: true },
-  { name: "Advanced forecasting", starter: false, growth: false, business: true, enterprise: true },
-  { name: "POS integration", starter: false, growth: false, business: false, enterprise: true },
-  { name: "AI pricing optimisation", starter: false, growth: false, business: false, enterprise: true },
-  { name: "Marketing ROI & custom reports", starter: false, growth: false, business: false, enterprise: true },
-  { name: "API access", starter: false, growth: false, business: false, enterprise: true },
-  { name: "Data export", starter: true, growth: true, business: true, enterprise: true },
+  { name: "Document uploads", starter: "20/mo", growth: "Unlimited", business: "Unlimited" },
+  { name: "Branches", starter: "1", growth: "1", business: "Up to 10" },
+  { name: "AI Alerts", starter: "5/week", growth: "Daily", business: "Daily" },
+  { name: "Transaction tracking", starter: true, growth: true, business: true },
+  { name: "Receipt capture", starter: true, growth: true, business: true },
+  { name: "Basic P&L", starter: true, growth: true, business: true },
+  { name: "Expense tracking", starter: false, growth: true, business: true },
+  { name: "Payment reminders", starter: false, growth: true, business: true },
+  { name: "Tax tracking (VAT/WHT/CIT)", starter: false, growth: true, business: true },
+  { name: "Invoice management", starter: false, growth: true, business: true },
+  { name: "Cashflow insights", starter: false, growth: true, business: true },
+  { name: "Inventory risk detection", starter: false, growth: true, business: true },
+  { name: "Supplier tracking", starter: false, growth: true, business: true },
+  { name: "Email & WhatsApp ingestion", starter: false, growth: true, business: true },
+  { name: "Multi-branch", starter: false, growth: false, business: true },
+  { name: "Marketing & business analytics", starter: false, growth: false, business: true },
+  { name: "Customer segmentation", starter: false, growth: false, business: true },
+  { name: "Bank reconciliation", starter: false, growth: false, business: true },
+  { name: "Advanced forecasting", starter: false, growth: false, business: true },
+  { name: "POS integration", starter: false, growth: false, business: true },
+  { name: "Data export", starter: true, growth: true, business: true },
 ];
 
 export default function PricingPage() {
@@ -172,7 +146,7 @@ export default function PricingPage() {
 
       {/* Tier Cards */}
       <section className="container mx-auto px-4 pb-12">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mx-auto">
           {tiers.map((tier) => (
             <Card
               key={tier.name}
@@ -208,7 +182,7 @@ export default function PricingPage() {
                     </li>
                   ))}
                 </ul>
-                <Link href={tier.name === "Enterprise" ? "/help" : "/onboarding"}>
+                <Link href="/onboarding">
                   <Button variant={tier.ctaVariant} className="w-full gap-1">
                     {tier.cta}
                     <ArrowRight className="h-4 w-4" />
@@ -231,14 +205,13 @@ export default function PricingPage() {
                 <th className="text-center py-3 px-2 font-medium">Starter</th>
                 <th className="text-center py-3 px-2 font-medium">Growth</th>
                 <th className="text-center py-3 px-2 font-medium">Business</th>
-                <th className="text-center py-3 px-2 font-medium">Enterprise</th>
               </tr>
             </thead>
             <tbody>
               {comparisonFeatures.map((row) => (
                 <tr key={row.name} className="border-b">
                   <td className="py-2.5 px-2">{row.name}</td>
-                  {(["starter", "growth", "business", "enterprise"] as const).map((tier) => (
+                  {(["starter", "growth", "business"] as const).map((tier) => (
                     <td key={tier} className="text-center py-2.5 px-2">
                       {typeof row[tier] === "boolean" ? (
                         row[tier] ? (
